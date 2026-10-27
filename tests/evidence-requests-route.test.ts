@@ -1,4 +1,5 @@
 import {beforeEach,describe,expect,it,vi} from 'vitest';
+import path from 'node:path';
 const mocks=vi.hoisted(()=>({admin:vi.fn(),read:vi.fn()}));
 vi.mock('@/lib/admin',()=>({requireAdmin:mocks.admin}));
 vi.mock('node:fs/promises',()=>({readFile:mocks.read}));
@@ -21,7 +22,7 @@ describe('Delhi private request and source-candidate boundary',()=>{
   const body=await response.json();
   expect(body.requests.map((r:{name:string})=>r.name)).toContain('delhi-ser2-record-request.md');
   expect(body.requests.map((r:{name:string})=>r.name)).toContain('delhi-ncrtc-payment-candidate.md');
-  expect(mocks.read).toHaveBeenCalledWith(expect.stringContaining('/data/acquisition/delhi-ncrtc-research/README.md'),'utf8');
+  expect(mocks.read).toHaveBeenCalledWith(expect.stringContaining(path.join('data','acquisition','delhi-ncrtc-research','README.md')),'utf8');
  });
  it('reports missing original/dossier files as unavailable',async()=>{
   mocks.admin.mockResolvedValue({});mocks.read.mockRejectedValue(new Error('Missing file'));

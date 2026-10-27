@@ -27,9 +27,11 @@ export function aggregateMoney(events:MoneyEvent[], measure:Measure, from?:strin
 }
 export function formatMoney(value:string|null):string {
   if(value===null) return 'Not available';
-  const amount=new Decimal(value); const absolute=amount.abs();
-  if(absolute.gte(10000000)) return `₹${amount.div(10000000).toFixed(2).replace(/\.00$/,'')} crore`;
-  if(absolute.gte(100000)) return `₹${amount.div(100000).toFixed(2).replace(/\.00$/,'')} lakh`;
+  const amount=new Decimal(value);
+  // Promote to crore when rounding to lakh would read "₹100 lakh" (e.g. ₹99,99,999.99).
+  const absolute=amount.abs(),lakh=amount.div(100000).toDecimalPlaces(2);
+  if(absolute.gte(10000000)||lakh.abs().gte(100)) return `₹${amount.div(10000000).toFixed(2).replace(/\.00$/,'')} crore`;
+  if(absolute.gte(100000)) return `₹${lakh.toFixed(2).replace(/\.00$/,'')} lakh`;
   return `₹${new Intl.NumberFormat('en-IN',{maximumFractionDigits:2}).format(amount.toNumber())}`;
 }
 // Keep every paise visible in evidence cards without passing large INR values through Number.

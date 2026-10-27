@@ -30,7 +30,7 @@ export function fundingSelection(params:URLSearchParams):FundingSelection{
  const allowed=['year','measure','purpose','basis','estimate','offset','programme'];
  for(const key of params.keys())if(!allowed.includes(key)||params.getAll(key).length!==1)throw new Error('Unknown or repeated funding filter');
  const year=params.get('year')??'2026-2027',measure=params.get('measure')??'allocated',purpose=params.get('purpose')??'all',basis=params.get('basis')??'union',estimate=params.get('estimate')??'original';
- if(!fundingYears.includes(year)||!fundingMeasures.includes(measure as FundingSelection['measure'])||(purpose!=='all'&&!(purpose in fundingPurposes))||!['union','recipient'].includes(basis)||!['original','revised'].includes(estimate))throw new Error('Invalid funding filter');
+ if(!fundingYears.includes(year)||!fundingMeasures.includes(measure as FundingSelection['measure'])||(purpose!=='all'&&!Object.hasOwn(fundingPurposes,purpose))||!['union','recipient'].includes(basis)||!['original','revised'].includes(estimate))throw new Error('Invalid funding filter');
  if(basis==='recipient'&&measure!=='reported_spent')throw new Error('Recipient utilisation is a reported-spent view');
  if(estimate==='revised'&&measure!=='allocated')throw new Error('Estimates apply to allocation only');
  if(params.has('programme')&&(!params.get('programme')||params.get('programme')!.length>200))throw new Error('Invalid programme');

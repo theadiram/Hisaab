@@ -1,4 +1,5 @@
 import {describe,it,expect,vi,beforeEach} from 'vitest';
+import path from 'node:path';
 vi.mock('../src/lib/admin',()=>({requireAdmin:vi.fn()}));
 vi.mock('node:fs/promises',()=>({readFile:vi.fn()}));
 import {requireAdmin} from '../src/lib/admin';
@@ -19,7 +20,7 @@ describe('private two-year state evidence',()=>{
   const response=await GET(new Request('http://localhost/api?state=35&register=territories&section=cards'));const body=await response.json();
   expect(response.status).toBe(200);expect(body.state.code).toBe('35');expect(body.rows[0].card.publicationApproved).toBe(false);
   expect(vi.mocked(readFile).mock.calls[0][0]).toEqual(expect.stringContaining('union-territory-development-acquisition.json'));
-  expect(vi.mocked(readFile).mock.calls[1][0]).toEqual(expect.stringContaining('union-territory-development/35/candidates.json'));
+  expect(vi.mocked(readFile).mock.calls[1][0]).toEqual(expect.stringContaining(path.join('union-territory-development','35','candidates.json')));
  });
  it('serves partial project cards privately without promoting source candidates or disclosing raw fields',async()=>{
   vi.mocked(requireAdmin).mockResolvedValue({} as Awaited<ReturnType<typeof requireAdmin>>);
