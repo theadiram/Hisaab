@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "sources:audit": "python3 workers/ingest.py audit",
+    "sources:check": "node scripts/check-sources.mjs",
     "release:check": "python3 workers/ingest.py release-check",
     "predev": "node scripts/map-worker.mjs",
     "prebuild": "node scripts/map-worker.mjs",
