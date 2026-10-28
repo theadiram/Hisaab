@@ -2,7 +2,9 @@ import {defineConfig} from '@playwright/test';
 import {testDatabaseUrl} from './tests/browser/test-environment';
 const databaseUrl=testDatabaseUrl();
 export default defineConfig({
- testDir:'tests/browser',workers:2,
+ // GitHub runners have no GPU, so map pages render through SwiftShader (software WebGL)
+ // and long desktop journeys outrun the default 30s. Assertions and expect timeouts are unchanged.
+ testDir:'tests/browser',workers:2,timeout:process.env.CI?90_000:30_000,
  use:{channel:process.env.HISAAB_BROWSER_CHANNEL,baseURL:'http://127.0.0.1:3000',trace:'retain-on-failure'},
  webServer:{
   command:'npm run dev',url:'http://127.0.0.1:3000',reuseExistingServer:false,
