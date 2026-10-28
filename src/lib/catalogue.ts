@@ -4,8 +4,12 @@ import path from 'node:path';
 import {publicDb} from './public-db';
 import {workSchema} from './validation';
 import type {Catalogue,Work,SourceRoute} from './model';
+// The source register ships with the build and does not change while the server runs,
+// unlike published.json, which publication rewrites. Parse it once and keep it.
+let register:Promise<SourceRoute[]>|null=null;
+function sourceRegister(){return register??=readFile(path.join(process.cwd(),'data/source-register.json'),'utf8').then(text=>JSON.parse(text) as SourceRoute[]).catch(error=>{register=null;throw error;});}
 export async function readCatalogue():Promise<Catalogue>{
- const sources=JSON.parse(await readFile(path.join(process.cwd(),'data/source-register.json'),'utf8')) as SourceRoute[];
+ const sources=await sourceRegister();
  let works:Work[]=[],mode:Catalogue['mode']='empty',totalWorks=0,districtsCovered=0,districtsExpected:number|null=null,publishedAt:string|null=null;
  if(process.env.HISAAB_DATA_MODE==='supabase'){
   const db=publicDb();const [page,summary]=await Promise.all([db.rpc('catalogue_page',{p_limit:100}),db.rpc('catalogue_summary')]);if(page.error||summary.error)throw new Error('The published catalogue could not be retrieved');
