@@ -1,0 +1,53 @@
+name: Bug report
+description: Something in the application or tooling does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problems go to [SECURITY.md](https://github.com/theadiram/Hisaab/blob/main/SECURITY.md), not here.
+        Locally, individual location dots at zoom 6 and above need private geography data, so their absence is expected. See CONTRIBUTING.md.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Page or route, map zoom level, selected state or asset, and the actions taken.
+      placeholder: |
+        1. Open /?explore=1
+        2. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options:
+        - adiram.me
+        - Local development
+        - CI
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser and OS. For local development, also the commit, Node version and HISAAB_DATA_MODE.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console or terminal output
+      render: shell
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: This issue contains no credentials, tokens, private report links or personal data.
+          required: true

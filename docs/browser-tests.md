@@ -7,6 +7,12 @@ fresh disposable Supabase instance and applies the repository migrations first.
 A restored developer database may have an older schema: use a separate test
 instance rather than resetting a database containing work you need to keep.
 
+For map and layout work without Docker, set `HISAAB_BROWSER_DATA_MODE=local`
+to serve local file data instead. Only that exact value changes the mode. The
+database URL stays loopback-only. Private report, media and MFA specs fail in
+this mode. A privacy spec that passes in this mode has not exercised the
+database path. CI never sets the variable.
+
 The Playwright web server supplies a non-secret placeholder map token. Browser
 fixtures intercept the map provider, terrain, and telemetry requests and return
 small synthetic images. Tests can exercise rendering and camera behaviour
