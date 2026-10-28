@@ -88,6 +88,7 @@
 .asset-evidence-summary>div>span{display:flex;align-items:center;gap:10px}
 .evidence-present{color:var(--dossier-accent)}
 .cinematic-asset-card .atlas-location-source{font-size:10px;margin:20px 0}
+.asset-source-record{display:grid;gap:8px;margin-top:4px}.asset-source-record>button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 12px;border:1px solid var(--dossier-line);border-radius:11px;background:var(--dossier-inset);color:var(--dossier-ink);font-size:11px;font-weight:600}.asset-source-record>small{font-size:10px;line-height:1.5}.asset-source-record>a{display:block;margin-top:4px;color:var(--dossier-accent);font-size:10px;line-height:1.5}.asset-source-record>a svg{display:inline;vertical-align:-1px;margin-left:3px}
 .cinematic-asset-card :is(.atlas-timeline-row small,.atlas-paper dt,.atlas-party-row small){color:var(--dossier-muted)}
 .cinematic-asset-card :is(.atlas-payment,.atlas-gap){background:var(--dossier-inset);border-color:var(--dossier-line);color:var(--dossier-muted)}
 .cinematic-asset-card .atlas-payment>strong{color:var(--dossier-accent)}
