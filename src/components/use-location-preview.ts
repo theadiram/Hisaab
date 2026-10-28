@@ -30,9 +30,12 @@ export function useLocationPreview(map:mapboxgl.Map|null,ready:boolean,id:string
    }catch{callback.current({id,url:'',attribution:'Map preview unavailable'});done=true;stop();}
   };
   const request=()=>{if(done||queued||map.isMoving()||!map.areTilesLoaded()||performance.now()<nextAttempt)return;nextAttempt=performance.now()+500;queued=true;map.once('render',capture);map.triggerRepaint();};
-  const stop=()=>{map.off('idle',request);map.off('moveend',request);map.off('render',capture);clearTimeout(timer);clearTimeout(deadline);};
-  // Allow base imagery to settle; idle wins, with a bounded render fallback.
-  const timer=setTimeout(request,6000),deadline=setTimeout(()=>{if(!done){done=true;callback.current({id,url:'',attribution:'Map preview unavailable'});stop();}},20000);map.on('idle',request);map.on('moveend',request);
+  const stop=()=>{map.off('idle',request);map.off('idle',settled);map.off('moveend',request);map.off('render',capture);clearTimeout(timer);clearTimeout(deadline);};
+  const giveUp=()=>{if(!done){done=true;callback.current({id,url:'',attribution:'Map preview unavailable'});stop();}};
+  // Allow base imagery to settle; idle wins, with a bounded render fallback. The 20s budget starts once
+  // tiles first load, so slow (e.g. software-rendered) maps are not cut off mid-load; 60s caps a map that never settles.
+  const settled=()=>{clearTimeout(deadline);deadline=setTimeout(giveUp,20000);};
+  let deadline=setTimeout(giveUp,60000);const timer=setTimeout(request,6000);map.once('idle',settled);map.on('idle',request);map.on('moveend',request);
   return()=>{done=true;stop();};
  },[map,ready,id,lng,lat]);
 }
