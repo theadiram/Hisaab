@@ -24,7 +24,7 @@
 .atlas-map{overflow:hidden;background:#eeefe9;isolation:isolate}
 .atlas-map::before{
  content:'';position:absolute;inset:-24px;pointer-events:none;z-index:-2;
- background:url('/backgrounds/teal-rural-horizon.png') center/cover no-repeat;
+ background:url('/backgrounds/teal-rural-horizon.webp') center/cover no-repeat;
  filter:blur(12px) saturate(.72);
 }
 .atlas-map::after{content:'';display:block;position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,#eef6f333,#eef6f352 65%,#e5eee940)}
