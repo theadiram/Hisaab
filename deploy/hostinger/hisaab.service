@@ -1,0 +1,24 @@
+[Unit]
+Description=Hisaab Next.js application
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+User=hisaab
+Group=hisaab
+WorkingDirectory=/srv/hisaab/current
+Environment=NODE_ENV=production
+Environment=NEXT_TELEMETRY_DISABLED=1
+ExecStart=/opt/node/bin/node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3000
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+UMask=0077
+MemoryMax=6G
+[Install]
+WantedBy=multi-user.target
