@@ -367,6 +367,24 @@ class StateEvidenceRules(unittest.TestCase):
                 self.assertEqual((root/current['original']).read_bytes(),b'<p>Revised official edition</p>')
                 self.assertFalse(cp['completeCoverage'])
 
+    def test_linked_report_sends_its_same_host_index_as_referer(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);base=root/'data/acquisition/state-development';sent=[]
+            def download(command,**kwargs):
+                sent.append(command[command.index('--referer')+1] if '--referer' in command else None)
+                Path(command[command.index('--dump-header')+1]).write_text('HTTP/1.1 200 OK\n')
+                Path(command[command.index('-o')+1]).write_bytes(b'%PDF-1.4 department book')
+                return SimpleNamespace(returncode=0,stderr='')
+            index='https://beams.example.invalid/MISRPT/dept.html'
+            with patch.object(collection,'ROOT',root),patch.object(collection,'BASE',base),patch.object(collection.subprocess,'run',side_effect=download):
+                _,receipt=collection.fetch({'id':'book','kind':'budget','label':'Department book','url':'https://beams.example.invalid/Books/A-Dept.pdf','contextUrl':index},{'code':'27','name':'Maharashtra'})
+                self.assertEqual(sent,[index]);self.assertEqual(receipt['requestReferer'],index)
+                for n,other in enumerate(['https://other.example.invalid/sources',None]):
+                    source={'id':f'book-{n}','kind':'budget','label':'Department book','url':f'https://beams.example.invalid/Books/{n}-Dept.pdf'}
+                    if other:source['contextUrl']=other
+                    sent.clear();_,receipt=collection.fetch(source,{'code':'27','name':'Maharashtra'})
+                    self.assertEqual(sent,[None]);self.assertIsNone(receipt['requestReferer'])
+
     def test_html_soft_error_at_pdf_url_is_not_accepted_as_financial_evidence(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);base=root/'data/acquisition/state-development'

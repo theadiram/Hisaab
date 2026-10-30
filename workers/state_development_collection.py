@@ -103,10 +103,14 @@ def fetch(source, state, refresh=False):
         target=Path(folder)/'response'
         # Redirects are inspected before following so access never silently moves
         # onto a private network or a different unapproved host.
-        current=url
+        current=url; context=source.get('contextUrl')
         for _ in range(5):
             headers=Path(folder)/'headers'
-            run=subprocess.run(['curl','--silent','--show-error','--fail','--proto','=https','--max-time','35','--connect-timeout','12','--max-filesize','40000000','--dump-header',str(headers),quote(current,safe=":/?&=%#@+!$'()*,-._~;"),'-o',str(target)],capture_output=True,text=True)
+            # A report taken from an index page carries that page as Referer, as a
+            # browser click would; same host only. Maharashtra BEAMS answers a bare
+            # request for its budget books with an HTML "Page Not Found" 404.
+            referer=context if context and urlparse(context).scheme=='https' and urlparse(context).hostname==urlparse(current).hostname else None
+            run=subprocess.run(['curl','--silent','--show-error','--fail','--proto','=https','--max-time','35','--connect-timeout','12','--max-filesize','40000000','--dump-header',str(headers),*(['--referer',referer] if referer else []),quote(current,safe=":/?&=%#@+!$'()*,-._~;"),'-o',str(target)],capture_output=True,text=True)
             if run.returncode: raise ValueError('Download unavailable: '+run.stderr.strip()[:160])
             hs=headers.read_text(errors='replace')
             location=re.search(r'^location:\s*(.+)$',hs,re.I|re.M)
@@ -123,7 +127,7 @@ def fetch(source, state, refresh=False):
         original=ROOT/'data/originals/state-development'/digest
         original.parent.mkdir(parents=True,exist_ok=True); original.parent.chmod(0o700)
         original.write_bytes(raw); original.chmod(0o600)
-        receipt={'version':VERSION,'stateCode':state['code'],'state':state['name'],'sourceId':source['id'],'sourceKind':source['kind'],'label':source['label'],'url':url,'effectiveUrl':current,'contextUrl':source.get('contextUrl',url),'sha256':digest,'original':str(original.relative_to(ROOT)),'bytes':len(raw),'retrievedAt':now(),'financialYearHints':source.get('years',YEARS),'permissionStatus':'review_pending','publication':'private_only','contentType':'application/pdf' if raw.lstrip().startswith(b'%PDF-') else 'text/html','intakeObjectFits':len(raw)<=10000000}
+        receipt={'version':VERSION,'stateCode':state['code'],'state':state['name'],'sourceId':source['id'],'sourceKind':source['kind'],'label':source['label'],'url':url,'effectiveUrl':current,'contextUrl':source.get('contextUrl',url),'requestReferer':referer,'sha256':digest,'original':str(original.relative_to(ROOT)),'bytes':len(raw),'retrievedAt':now(),'financialYearHints':source.get('years',YEARS),'permissionStatus':'review_pending','publication':'private_only','contentType':'application/pdf' if raw.lstrip().startswith(b'%PDF-') else 'text/html','intakeObjectFits':len(raw)<=10000000}
         write(checkpoint,receipt)
         return raw,receipt
 
