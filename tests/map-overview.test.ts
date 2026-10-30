@@ -34,3 +34,10 @@ it('accepts only credential-free HTTPS static delivery roots',async()=>{
   for(const value of ['http://maps.example.com','https://secret@maps.example.com','https://maps.example.com/?key=secret','invalid'])expect(mapDeliveryBase(value)).toBeNull();
   expect(mapDeliveryBase('https://maps.example.com/edition-test/')).toBe('https://maps.example.com/edition-test');
 });
+
+it('retries transient tile failures with bounded backoff and leaves missing or rejected tiles alone',async()=>{
+  const {tileRetryDelay}=await import('../src/lib/map-delivery');
+  for(const status of [undefined,0,500,502,503,504,408,429])expect(tileRetryDelay(status,0)).toBe(1000);
+  expect([0,1,2,3].map(attempt=>tileRetryDelay(503,attempt))).toEqual([1000,2000,4000,null]);
+  for(const status of [400,403,404,413])expect(tileRetryDelay(status,0)).toBeNull();
+});
