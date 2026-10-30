@@ -54,7 +54,7 @@ export function AtlasMap({exploring,states,state,year,purpose,query,layers,onSta
     m.setMinZoom(0);m.fitBounds([[67.8,6.5],[97.5,37.2]],{padding:{top:90,bottom:60,left:80,right:80},duration:0,pitch:0});m.setMinZoom(Math.min(m.getZoom(),3));m.setMaxBounds([[35,-25],[125,60]]);bounds();setReady(true);notify.current?.(m);
    });
    m.on('error',e=>{if((e.error as Error&{status?:number}).status===401||(e.error as Error&{status?:number}).status===403)setError('The map provider rejected access. The state and project lists remain available.');});
-   m.on('webglcontextlost',()=>setError('The map graphics connection was lost. Use the evidence list or reload.'));
+   const lost='The map graphics connection was lost. Use the evidence list or reload.';m.on('webglcontextlost',()=>setError(lost));m.on('webglcontextrestored',()=>setError(current=>current===lost?'':current));
    return()=>{resize.disconnect();notify.current?.(null);m.remove();map.current=null;};
   }catch{setError('This device cannot render the 3D map. The evidence list remains available.');}
  },[]);
