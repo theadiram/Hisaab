@@ -1,7 +1,7 @@
 import {readFile} from 'node:fs/promises';
 import {spawnSync} from 'node:child_process';
 import {createClient} from '@supabase/supabase-js';
-import {fundingRecordSchema} from '../src/lib/funding.ts';
+import {fundingRecordSchema} from '../src/lib/funding-schema.ts';
 process.loadEnvFile('.env.hosted');
 const packet=JSON.parse(await readFile('data/acquisition/funding-pib-review.json','utf8'));
 const ids=new Set(packet.recordIds);

@@ -1,5 +1,4 @@
 'use client';
-import {PrivateVideos} from './private-videos';
 import {ComplaintHandoff} from './complaint-handoff';
 export {CitizenForm, Tracking, useModalFocus};
 import {useEffect,useMemo,useRef,useState} from 'react';
@@ -16,6 +15,8 @@ import {SpendingExplorer} from './spending-explorer';
 import {CaseUpdates} from './case-updates';
 import {CorrectionForm} from './correction-form';
 const EvidenceMap=dynamic(()=>import('./map').then(m=>m.EvidenceMap),{ssr:false,loading:()=> <div className="map-loading">Preparing your map…</div>});
+// Private case videos reach Supabase storage directly; load that client only for a real case.
+const PrivateVideos=dynamic(()=>import('./private-videos').then(m=>m.PrivateVideos),{ssr:false,loading:()=> <p role="status">Loading private video tools…</p>});
 type Panel='spending'|'sources'|'observation'|'complaint'|'rti'|'track'|'receipt'|'correction'|null;
 const date=(v:string|null)=>v?new Date(v+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Date unavailable';
 export function HisaabApp({catalogue}:{catalogue:Catalogue}){

@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js';
 import {z} from 'zod';
-import {fundingRecordSchema,fundingStates,fundingYears,fundingMeasures,fundingPurposes,selectedFunding,type FundingRecord,type FundingSelection} from './funding';
+import {fundingRecordSchema} from './funding-schema';
+import {fundingStates,fundingYears,fundingMeasures,fundingPurposes,selectedFunding,type FundingRecord,type FundingSelection} from './funding';
 
 export const origins=['union','state','joint','local'] as const;
 const {share:_share,accountingBasis:_basis,...fundingShape}=fundingRecordSchema.shape;

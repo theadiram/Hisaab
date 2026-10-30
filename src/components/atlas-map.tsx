@@ -7,12 +7,14 @@ import type {AssetDetail} from '@/lib/asset-geography';
 import type {FundingOverview} from '@/lib/funding';
 import {FundingMapLayer} from './funding-map-layer';
 import {AssetMapLayer} from './asset-map-layer';
-import {Selection3D} from './selection-3d';
+import dynamic from 'next/dynamic';
 import {AssetMapConnection} from './asset-map-connection';
 import {useLocationPreview} from './use-location-preview';
 import type {MapPreview} from './asset-visual';
 import {silhouettePath} from '@/lib/map-silhouette';
 import {loadMapBoundary} from '@/lib/map-boundaries';
+// The selection halo needs three.js; keep it out of the atlas entry chunk until a location is chosen.
+const Selection3D=dynamic(()=>import('./selection-3d').then(m=>m.Selection3D),{ssr:false});
 
 export type MapAction={sequence:number;type:'in'|'out'|'north'|'india'|'terrain'|'satellite'|'streets'|'day'|'dusk'|'night'|'perspective'};
 export function AtlasMap({exploring,states,state,year,purpose,query,layers,onState,onAsset,onWork,onExplore,onViewport,action,asset,work,locationSelected=false,theme='dark',onPreview,onMapReady,onProjectStatus,onAssetStatus,cameraControlled=false,contentMode=false,contentFrame='screen'}:{exploring:boolean;states:FundingOverview['states'];state:string|null;year:string;purpose:string;query:string;layers:{funding:boolean;projects:boolean;historical:boolean};onState:(code:string)=>void;onAsset:(asset:AssetDetail)=>void;onWork:(work:Work)=>void;onExplore:()=>void;onViewport:(bounds:number[])=>void;action:MapAction|null;asset:AssetDetail|null;work:Work|null;locationSelected?:boolean;theme?:'light'|'dark';onPreview:(p:MapPreview|null)=>void;onMapReady?:(m:mapboxgl.Map|null)=>void;onProjectStatus?:(status:string)=>void;onAssetStatus?:(status:string)=>void;cameraControlled?:boolean;contentMode?:boolean;contentFrame?:string}) {

@@ -1,5 +1,6 @@
 import {describe,it,expect} from 'vitest';
-import {fundingSelection,fundingOverview,selectedFunding,normaliseFundingAmount,fundingRecordSchema,type FundingRecord} from '../src/lib/funding';
+import {fundingSelection,fundingOverview,selectedFunding,normaliseFundingAmount,type FundingRecord} from '../src/lib/funding';
+import {fundingRecordSchema} from '../src/lib/funding-schema';
 import {formatExactMoney} from '../src/lib/money';
 const selection=fundingSelection(new URLSearchParams());
 const record=(change:Partial<FundingRecord>={}):FundingRecord=>({id:'fact',identity:'SDRF:Bihar:2026',edition:'Official edition',financialYear:'2026-2027',programmeId:'SDRF',programme:'SDRF',budgetHead:'SDRF',ministry:'Home Affairs',jurisdiction:'10',jurisdictionLabel:'Bihar',purpose:'disaster_response',channel:'disaster_grant',instrument:'grant',measure:'allocated',estimate:'original',accountingBasis:'union_budget',share:'union',amountRupees:'100.10',periodStart:'2026-04-01',periodEnd:'2027-03-31',cutoff:'2027-03-31',publicationDate:'2026-02-01',coverageKey:'SDRF:Bihar:2026',aggregation:'leaf',parentKey:null,classification:'included',conflict:false,source:{hash:'a'.repeat(64),url:'https://example.invalid/source.pdf',locator:'Page 1, Bihar Union share',retrievedAt:'2026-10-09T10:00:00Z',page:1},notes:'All calamities; not flood-specific.',...change});

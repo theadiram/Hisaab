@@ -1,6 +1,7 @@
 import 'server-only';
 import {publicDb} from './public-db';
-import {fundingRecordSchema,type FundingRecord,type FundingSelection} from './funding';
+import {fundingRecordSchema} from './funding-schema';
+import type {FundingRecord,FundingSelection} from './funding';
 export async function publishedFunding(selection:FundingSelection):Promise<FundingRecord[]>{
  const {data,error}=await publicDb().rpc('funding_records',{p_year:selection.year,p_measure:selection.measure});
  if(error||!Array.isArray(data))throw new Error('Reviewed funding records unavailable');

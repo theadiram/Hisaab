@@ -1,7 +1,7 @@
 import {readFile,readdir,writeFile} from 'node:fs/promises';
 import {spawnSync} from 'node:child_process';
 import {createClient} from '@supabase/supabase-js';
-import {fundingRecordSchema} from '../src/lib/funding.ts';
+import {fundingRecordSchema} from '../src/lib/funding-schema.ts';
 process.loadEnvFile('.env.hosted');
 const client=createClient(process.env.SUPABASE_URL,process.env.SUPABASE_SECRET_KEY,{auth:{persistSession:false}});
 const facts=JSON.parse(await readFile('data/acquisition/funding-records.json','utf8')).records.map(r=>fundingRecordSchema.parse(r));
