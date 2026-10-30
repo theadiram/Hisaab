@@ -11,9 +11,9 @@ import {Selection3D} from './selection-3d';
 import {AssetMapConnection} from './asset-map-connection';
 import {useLocationPreview} from './use-location-preview';
 import type {MapPreview} from './asset-visual';
+import {isStyleFailure,latestRequest,mapLoadTimeout} from '@/lib/map-requests';
 import {silhouettePath} from '@/lib/map-silhouette';
 import {loadMapBoundary} from '@/lib/map-boundaries';
-import {isStyleFailure,latestRequest,mapLoadTimeout} from '@/lib/map-requests';
 
 export type MapAction={sequence:number;type:'in'|'out'|'north'|'india'|'terrain'|'satellite'|'streets'|'day'|'dusk'|'night'|'perspective'};
 export function AtlasMap({exploring,states,state,year,purpose,query,layers,onState,onAsset,onWork,onExplore,onViewport,action,asset,work,locationSelected=false,theme='dark',onPreview,onMapReady,onProjectStatus,onAssetStatus,cameraControlled=false,contentMode=false,contentFrame='screen'}:{exploring:boolean;states:FundingOverview['states'];state:string|null;year:string;purpose:string;query:string;layers:{funding:boolean;projects:boolean;historical:boolean};onState:(code:string)=>void;onAsset:(asset:AssetDetail)=>void;onWork:(work:Work)=>void;onExplore:()=>void;onViewport:(bounds:number[])=>void;action:MapAction|null;asset:AssetDetail|null;work:Work|null;locationSelected?:boolean;theme?:'light'|'dark';onPreview:(p:MapPreview|null)=>void;onMapReady?:(m:mapboxgl.Map|null)=>void;onProjectStatus?:(status:string)=>void;onAssetStatus?:(status:string)=>void;cameraControlled?:boolean;contentMode?:boolean;contentFrame?:string}) {
