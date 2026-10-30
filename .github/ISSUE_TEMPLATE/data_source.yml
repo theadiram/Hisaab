@@ -1,0 +1,68 @@
+name: Data source or data gap
+description: Propose an official source, or report missing or incorrect data.
+title: "Data: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read the [data brief](https://github.com/theadiram/Hisaab/blob/main/docs/data-needed-brief.md) and [collector contract](https://github.com/theadiram/Hisaab/blob/main/docs/data-acquisition-contract.md) first.
+        Don't attach originals, intake batches or collected records here. They go through the maintainer's private review, and the handover is agreed in this issue.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - New source
+        - Missing data
+        - Incorrect data
+    validations:
+      required: true
+  - type: input
+    id: jurisdiction
+    attributes:
+      label: Jurisdiction
+      description: State or UT, district or locality, and LGD code if known.
+    validations:
+      required: true
+  - type: input
+    id: years
+    attributes:
+      label: Financial years
+      placeholder: FY 2025-26
+  - type: textarea
+    id: source
+    attributes:
+      label: Source
+      description: Official URL, publisher or custodian, and how it is accessed (public report, documented API, export, RTI response).
+    validations:
+      required: true
+  - type: checkboxes
+    id: fields
+    attributes:
+      label: Evidence the source contains
+      options:
+        - label: Funding (allocation, release or expenditure)
+        - label: Project identity and purpose
+        - label: Actual location
+        - label: Sanction or contract
+        - label: Bill or payment, with recipient
+        - label: Completion or inspection
+  - type: textarea
+    id: terms
+    attributes:
+      label: Reuse terms and access limits
+      description: Licence or terms of use, and any login, CAPTCHA, fee or rate limit.
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: For a gap or error, the page or record in Hisaab and what the source shows. Unknown is not zero.
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Rules
+      options:
+        - label: This issue contains no originals, credentials, bank or Aadhaar numbers, or other personal data.
+          required: true
+        - label: I did not bypass access controls or CAPTCHAs, pay for access, or file requests on Hisaab's behalf.
+          required: true
