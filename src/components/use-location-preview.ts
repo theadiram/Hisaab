@@ -32,7 +32,9 @@ export function useLocationPreview(map:mapboxgl.Map|null,ready:boolean,id:string
   const request=()=>{if(done||queued||map.isMoving()||!map.areTilesLoaded()||performance.now()<nextAttempt)return;nextAttempt=performance.now()+500;queued=true;map.once('render',capture);map.triggerRepaint();};
   const stop=()=>{map.off('idle',request);map.off('moveend',request);map.off('render',capture);clearTimeout(timer);clearTimeout(deadline);};
   // Allow base imagery to settle; idle wins, with a bounded render fallback.
-  const timer=setTimeout(request,6000),deadline=setTimeout(()=>{if(!done){done=true;callback.current({id,url:'',attribution:'Map preview unavailable'});stop();}},20000);map.on('idle',request);map.on('moveend',request);
+  // After the deadline the card says the preview is unavailable, but a slow
+  // renderer that settles later still replaces that notice with the capture.
+  const timer=setTimeout(request,6000),deadline=setTimeout(()=>{if(!done)callback.current({id,url:'',attribution:'Map preview unavailable'});},20000);map.on('idle',request);map.on('moveend',request);
   return()=>{done=true;stop();};
  },[map,ready,id,lng,lat]);
 }
