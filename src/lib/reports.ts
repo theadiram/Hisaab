@@ -15,7 +15,7 @@ async function key(){
  await mkdir(root(),{recursive:true,mode:0o700});const file=path.join(root(),'.key');
  try{return await readFile(file);}catch(e){if((e as NodeJS.ErrnoException).code!=='ENOENT')throw e;const value=randomBytes(32);try{await writeFile(file,value,{mode:0o600,flag:'wx'});return value;}catch(e){if((e as NodeJS.ErrnoException).code==='EEXIST')return readFile(file);throw e;}}
 }
-export function reportClient(){if(!process.env.SUPABASE_URL||!process.env.SUPABASE_SECRET_KEY)throw new Error('Private case storage is not configured. No observation was saved.');return createClient(process.env.SUPABASE_URL,process.env.SUPABASE_SECRET_KEY,{auth:{persistSession:false}});}
+export function reportClient(){if(!process.env.SUPABASE_URL||!process.env.SUPABASE_SECRET_KEY)throw new Error('Private case storage is not configured. No observation was saved.');return createClient(process.env.SUPABASE_URL,process.env.SUPABASE_SECRET_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});}
 const db=reportClient;
 export async function encryptBytes(bytes:Buffer){const nonce=randomBytes(12);const cipher=createCipheriv('aes-256-gcm',await key(),nonce);const ciphertext=Buffer.concat([cipher.update(bytes),cipher.final()]);return Buffer.concat([nonce,cipher.getAuthTag(),ciphertext]);}
 export async function saveReport(input:z.infer<typeof reportInput>){
