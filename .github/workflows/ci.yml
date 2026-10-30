@@ -2,6 +2,11 @@ name: Hisaab validation
 on: [push, pull_request]
 permissions:
   contents: read
+# A branch with an open pull request matches both triggers, so without this the
+# whole suite runs twice for every push. Superseded runs are cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -13,6 +18,9 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      # Neither needs the database, so run them before paying for it.
+      - run: npm run typecheck
+      - run: npm test
       - name: Start disposable local database
         run: npx supabase start -x studio,realtime,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit > /tmp/hisaab-local-start.log 2>&1
       - run: node scripts/configure-local.mjs
@@ -24,8 +32,6 @@ jobs:
       - run: node scripts/test-retention.mjs
       - run: node scripts/test-budget-context.mjs
       - run: docker exec -i supabase_db_Hisaab psql -U postgres -d postgres < scripts/catalogue-security.sql
-      - run: npm run typecheck
-      - run: npm test
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

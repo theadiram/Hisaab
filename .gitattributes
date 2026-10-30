@@ -1,0 +1,15 @@
+# Normalise line endings so a Windows checkout does not report generated and
+# committed files as modified, and so diffs between contributors stay clean.
+* text=auto eol=lf
+
+# Binary assets must never be line-ending normalised.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.pdf binary
+*.mp4 binary
+*.ttf binary
+*.pmtiles binary
+*.sqlite binary
