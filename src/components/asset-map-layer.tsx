@@ -1,47 +1,702 @@
 'use client';
-import {useEffect,useRef,useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
-import {ExternalLink,GraduationCap,HeartPulse,MapPin,Route,X} from 'lucide-react';
-import type {AssetDetail} from '@/lib/asset-geography';
-import {detailZoom} from '@/lib/map-overview';
-import {mapDeliveryBase} from '@/lib/map-delivery';
-import {AssetOverviewLayer} from './asset-overview-layer';
-const labels:Record<string,string>={education:'Education facility',health:'Medical facility',road:'Road proposal',public:'Public facility',agriculture:'Agricultural facility',other:'Facility'};
-export function AssetMapLayer({map,viewport,visible,query,purpose,workSelected,onOpen,onSelectAsset,onStatus,hideDetails=false}:{map:mapboxgl.Map;viewport:number[];visible:boolean;query:string;purpose:string;workSelected:boolean;onOpen?:()=>void;onSelectAsset?:(asset:AssetDetail)=>void;onStatus?:(status:string)=>void;hideDetails?:boolean}){
- const selectCallback=useRef(onSelectAsset);selectCallback.current=onSelectAsset;const statusCallback=useRef(onStatus);statusCallback.current=onStatus;const [choices,setChoices]=useState<string[]>([]),[choicePage,setChoicePage]=useState(0),[choiceDetails,setChoiceDetails]=useState<AssetDetail[]>([]),[tileZoom,setTileZoom]=useState<number|null>(null),[shards,setShards]=useState<{id:string;kind:string}[]>([{id:'all',kind:'all'}]);const [tileEdition,setTileEdition]=useState('');const panel=useRef<HTMLElement|null>(null);const [group,setGroup]=useState<number[]|null>(null),[offset,setOffset]=useState(0),[members,setMembers]=useState<{total:number;assets:{id:string;title:string;kind:string;state:string}[]}|null>(null),[asset,setAsset]=useState<AssetDetail|null>(null),[detailStatus,setDetailStatus]=useState('');const requestVersion=useRef(0),openCallback=useRef(onOpen);openCallback.current=onOpen;
- const reportStatus=(value:string)=>statusCallback.current?.(value);
- const individualVisible=visible&&map.getZoom()>=detailZoom;
- const [originFallback,setOriginFallback]=useState(false);
- const tileBase=originFallback?null:mapDeliveryBase(),requestQuery=tileBase?'':query;
- const search=useRef(query);search.current=query;
- useEffect(()=>{if(!individualVisible||tileZoom!==null)return;const c=new AbortController();void fetch('/api/v1/geography',{signal:c.signal}).then(async r=>{if(!r.ok)throw new Error('Geography unavailable');const data=await r.json();setTileZoom(data.maxzoom);setTileEdition(data.edition??'');if(data.shards)setShards(data.shards);}).catch(e=>{if(e.name!=='AbortError')reportStatus(e.message);});return()=>c.abort();},[individualVisible,tileZoom]);
- const kind=purpose==='Roads'?'road':purpose==='Schools & education'?'education':purpose==='Hospitals & health'?'health':purpose==='All'||purpose==='Buildings'?null:'unavailable';
- useEffect(()=>{if(panel.current)panel.current.scrollTop=0;},[asset,group,offset]);
- useEffect(()=>{setGroup(null);setAsset(null);setDetailStatus('');requestVersion.current++;},[query,purpose,visible]);
- useEffect(()=>{if(workSelected){setGroup(null);setAsset(null);setDetailStatus('');requestVersion.current++;}},[workSelected]);
- useEffect(()=>{if(!individualVisible||kind==='unavailable')return;const controller=new AbortController();const timer=setTimeout(()=>{reportStatus('Loading archived asset locations…');const p=new URLSearchParams({bbox:viewport.join(','),q:query,mode:'count'});if(kind)p.set('kind',kind);void fetch('/api/v1/map/assets?'+p,{signal:controller.signal}).then(async r=>{if(!r.ok)throw new Error('Asset geography is unavailable. Published spending records remain separate.');const result=await r.json();if(!controller.signal.aborted){reportStatus(`${result.total.toLocaleString('en-IN')} individual archived locations in view · payment links pending`);}}).catch(e=>{if(e.name!=='AbortError'){reportStatus(e.message);}});},200);return()=>{clearTimeout(timer);controller.abort();};},[viewport,query,kind,individualVisible]);
- async function openAsset(id:string){openCallback.current?.();const version=++requestVersion.current;setDetailStatus('Loading the source location…');try{const r=await fetch('/api/v1/assets/'+encodeURIComponent(id));if(!r.ok)throw new Error('This source location could not be loaded.');const result=await r.json();if(version===requestVersion.current){setAsset(result.asset);selectCallback.current?.(result.asset);setChoices([]);setGroup(null);setDetailStatus('');}}catch(e){if(version===requestVersion.current)setDetailStatus((e as Error).message);}}
- useEffect(()=>{
-  if(!individualVisible||kind==='unavailable'||tileZoom===null)return;
-  const selectedShards=shards.filter(s=>!kind||s.kind===kind||s.id==='all'),layers=selectedShards.map(s=>'hisaab-individual-assets-'+s.id+'-dots');
-  const install=()=>{if(!map.getStyle())return;for(const shard of selectedShards){const source='hisaab-individual-assets-'+shard.id,layer=source+'-dots',params=new URLSearchParams({q:requestQuery});if(tileEdition)params.set('v',tileEdition);if(kind)params.set('kind',kind);if(shard.id!=='all')params.set('shard',shard.id);
-   if(!map.getSource(source))map.addSource(source,{type:'vector',tiles:[tileBase?`${tileBase}/tiles/${shard.id}/{z}/{x}/{y}.pbf`:location.origin+'/api/v1/map/asset-tiles/{z}/{x}/{y}.pbf?'+params],minzoom:detailZoom,maxzoom:tileZoom});
-   if(!map.getLayer(layer))map.addLayer({id:layer,type:'circle',source,minzoom:detailZoom,'source-layer':'assets',paint:{'circle-radius':['interpolate',['linear'],['zoom'],3,1,7,1.7,12,3.5,16,6],'circle-color':['match',['get','kind'],'education','#ff6659','health','#ff4261','#a5f34b'],'circle-emissive-strength':1,'circle-opacity':.95,'circle-stroke-width':['interpolate',['linear'],['zoom'],8,0,14,1],'circle-stroke-color':'#ffffff'}},'hisaab-outside-india');
-  }applySearch();};const applySearch=()=>{if(!tileBase)return;for(const id of layers)if(map.getLayer(id))map.setFilter(id,search.current.trim()?['in',search.current.toLowerCase(),['downcase',['concat',['get','title'],' ',['get','state'],' ',['get','assetId']]]]:null);};install();map.on('style.load',install);map.on('hisaab-asset-search' as 'idle',applySearch);
-  const failed=(event:mapboxgl.ErrorEvent)=>{const source=(event as mapboxgl.ErrorEvent&{sourceId?:string}).sourceId;if((event.error as Error&{status?:number}).status===404)return;if(tileBase&&(source?.startsWith('hisaab-individual-assets-')||event.error?.message?.includes(tileBase)))setOriginFallback(true);};map.on('error',failed);
-  const click=(e:mapboxgl.MapMouseEvent)=>{if(!layers.some(id=>map.getLayer(id))||!map.getLayer('hisaab-outside-india'))return;if(map.queryRenderedFeatures(e.point,{layers:['hisaab-outside-india']}).length)return;if(map.getLayer('hisaab-reviewed-projects-dots')&&map.queryRenderedFeatures([[e.point.x-6,e.point.y-6],[e.point.x+6,e.point.y+6]],{layers:['hisaab-reviewed-projects-dots']}).length)return;const features=map.queryRenderedFeatures([[e.point.x-6,e.point.y-6],[e.point.x+6,e.point.y+6]],{layers:layers.filter(id=>map.getLayer(id))});features.sort((a,b)=>{const distance=(f:mapboxgl.GeoJSONFeature)=>{if(f.geometry.type!=='Point')return Infinity;const p=map.project(f.geometry.coordinates as [number,number]);return (p.x-e.point.x)**2+(p.y-e.point.y)**2;};return distance(a)-distance(b);});const ids=[...new Set(features.map(f=>String(f.properties?.assetId||'')).filter(Boolean))];if(!ids.length)return;if(ids.length>1){setChoices(ids);setChoicePage(0);return;}void openAsset(ids[0]);};
-  const canvas=map.getCanvas();const enter=()=>{if(canvas)canvas.style.cursor='pointer';},leave=()=>{if(canvas)canvas.style.cursor='';};
-  map.on('click',click);for(const layer of layers){map.on('mouseenter',layer,enter);map.on('mouseleave',layer,leave);}
-  return()=>{map.off('click',click);map.off('style.load',install);map.off('hisaab-asset-search' as 'idle',applySearch);map.off('error',failed);for(const layer of layers){map.off('mouseenter',layer,enter);map.off('mouseleave',layer,leave);}leave();if(!map.getCanvas()||!map.getStyle())return;for(const shard of selectedShards){const source='hisaab-individual-assets-'+shard.id,layer=source+'-dots';if(map.getLayer(layer))map.removeLayer(layer);if(map.getSource(source))map.removeSource(source);}};
- },[map,individualVisible,kind,requestQuery,tileZoom,tileEdition,shards,tileBase]);
- useEffect(()=>{if(map.getStyle())map.fire('hisaab-asset-search');},[map,query]);
- useEffect(()=>{if(!group)return;const controller=new AbortController();setMembers(null);setDetailStatus('Loading archived locations…');const p=new URLSearchParams({bbox:group.join(','),q:query,mode:'members',offset:String(offset)});if(kind&&kind!=='unavailable')p.set('kind',kind);void fetch('/api/v1/map/assets?'+p,{signal:controller.signal}).then(async r=>{if(!r.ok)throw new Error('Location group could not be loaded.');const result=await r.json();if(!controller.signal.aborted){setMembers(result);setDetailStatus('');}}).catch(e=>{if(e.name!=='AbortError')setDetailStatus(e.message);});return()=>controller.abort();},[group,offset,kind,query]);
- useEffect(()=>{const id='hisaab-asset-focus';for(const layer of [id+'-line',id+'-point'])if(map.getLayer(layer))map.removeLayer(layer);if(map.getSource(id))map.removeSource(id);if(!asset||hideDetails)return;
-  map.addSource(id,{type:'geojson',data:{type:'Feature',properties:{},geometry:asset.geometry}});map.addLayer({id:id+'-line',type:'line',source:id,filter:['in',['geometry-type'],['literal',['LineString','MultiLineString']]],paint:{'line-emissive-strength':1,'line-color':'#a5f34b','line-width':7,'line-opacity':.9}},'hisaab-outside-india');map.addLayer({id:id+'-point',type:'circle',source:id,filter:['==',['geometry-type'],'Point'],paint:{'circle-emissive-strength':1,'circle-color':'#a5f34b','circle-opacity':.2,'circle-radius':25,'circle-stroke-width':3,'circle-stroke-color':'#a5f34b'}},'hisaab-outside-india');
-  const focus=(duration:number)=>map.flyTo({center:asset.location,zoom:16.5,pitch:55,bearing:-18,padding:{left:innerWidth>900?400:0,right:innerWidth>900?390:0,top:innerWidth<760?150:120,bottom:innerWidth<760?470:innerWidth<900?300:60},duration:matchMedia('(prefers-reduced-motion: reduce)').matches?0:duration});focus(900);const resize=()=>focus(0);map.on('resize',resize);
-  return()=>{map.off('resize',resize);if(!map.getCanvas()||!map.getStyle())return;for(const layer of [id+'-line',id+'-point'])if(map.getLayer(layer))map.removeLayer(layer);if(map.getSource(id))map.removeSource(id);};
- },[asset,map,hideDetails]);
- useEffect(()=>{if(!choices.length)return;const c=new AbortController();setChoiceDetails([]);void Promise.all(choices.slice(choicePage*10,choicePage*10+10).map(id=>fetch('/api/v1/assets/'+encodeURIComponent(id),{signal:c.signal}).then(async r=>{if(!r.ok)throw new Error('Nearby locations unavailable');return (await r.json()).asset as AssetDetail;}))).then(setChoiceDetails).catch(e=>{if(e.name!=='AbortError')setDetailStatus(e.message);});return()=>c.abort();},[choices,choicePage]);
- const Icon=asset?.kind==='education'?GraduationCap:asset?.kind==='health'?HeartPulse:asset?.kind==='road'?Route:MapPin;
- return <><AssetOverviewLayer map={map} visible={visible} kind={kind} query={query} onStatus={onStatus}/>{visible&&choices.length>1&&<aside className="atlas-pick-list" aria-label="Choose an overlapping historical location"><button aria-label="Close location chooser" onClick={()=>setChoices([])}>Close</button><h3>Locations near this point</h3><p>{choices.length.toLocaleString('en-IN')} separate records overlap at this zoom.</p>{choiceDetails.map(a=><button key={a.id} onClick={()=>void openAsset(a.id)}><strong>{a.title}</strong><small>{labels[a.kind]} · {a.sourceIdentity}</small></button>)}<div className="atlas-pagination"><button disabled={!choicePage} onClick={()=>setChoicePage(n=>n-1)}>Previous</button><span>{choicePage+1} / {Math.ceil(choices.length/10)}</span><button disabled={(choicePage+1)*10>=choices.length} onClick={()=>setChoicePage(n=>n+1)}>Next</button></div></aside>}{visible&&!hideDetails&&(group||asset||detailStatus)&&<aside ref={panel} className="asset-detail" aria-label="Development details"><button className="icon-button asset-close" aria-label="Close asset geography" onClick={()=>{requestVersion.current++;setGroup(null);setAsset(null);setDetailStatus('');}}><X size={19}/></button><div className="eyebrow">DEVELOPMENT DETAILS</div>{detailStatus&&<p role="status">{detailStatus}</p>}{asset?<><div className="asset-detail-icon"><Icon size={26}/></div><h2>{asset.title}</h2><p>{labels[asset.kind]} · {asset.state}</p><div className="asset-evidence-gap"><strong>Financial records not linked yet</strong><p>This dot identifies an archived asset. Its sanctioned funds, contracts, payments and completion records are not available in the current import. Missing evidence does not mean ₹0 was spent.</p></div><div className="money-grid asset-money-grid">{['Sanctioned','Contract value','Paid'].map(label=><div key={label}><small>{label}</small><strong>Not available</strong></div>)}</div><dl className="development-facts"><dt>Asset purpose</dt><dd>{asset.category || labels[asset.kind]}</dd><dt>Funded development work</dt><dd>Not available · no linked project record</dd><dt>Executing department</dt><dd>Not available</dd><dt>Contractor / payment recipient</dt><dd>Not available</dd><dt>Financial year</dt><dd>Not available</dd></dl><h3>Funding &amp; progress</h3><div className="asset-funding-timeline">{['Sanction / approval','Contract / award','Payments','Completion'].map(label=><div className="asset-funding-stage" key={label}><span className="timeline-dot"/><div><strong>{label}</strong><small>Date not available</small></div><span>Record needed</span></div>)}</div><p className="asset-record-help">To show these details, we need a project or tender identifier, sanction order, contract, dated payment records and completion evidence matched to this asset. The 2022 geography archive is not a payment date.</p><details className="asset-location-details"><summary>Location, 3D &amp; images</summary><p>Archived source coordinate, not independently verified. Some source points may be inaccurate.</p><dl><dt>Original asset identifier</dt><dd>{asset.sourceIdentity}</dd><dt>Coordinates</dt><dd>{asset.location[1].toFixed(6)}, {asset.location[0].toFixed(6)}</dd><dt>Location evidence</dt><dd>{asset.kind==='road'?'Original proposed road line; marker sits on the line.':'Original facility point; this is not a verified building footprint.'}</dd></dl><p>The ring highlights the source location. Surrounding 3D buildings are context and are not certified as this facility. No verified asset photographs are available in this import.</p><button className="secondary full" onClick={()=>{const [lng,lat]=asset.location;setAsset(null);setOffset(0);setGroup([lng-.001,lat-.001,lng+.001,lat+.001]);}}>Other locations near this point</button></details><details><summary>Inspect the geography source</summary><p>{asset.delivery}. Historical geography may differ from today.</p><dl><dt>Original file</dt><dd>{asset.sourceFile}</dd><dt>Record locator</dt><dd>Shapefile record {asset.sourceRow}</dd><dt>SHA-256</dt><dd className="asset-hash">{asset.sourceHash}</dd></dl>{asset.textReview&&<p>Source name encoding requires review; the original identifier and coordinates are preserved.</p>}<a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer">Download preserved mirror archive<ExternalLink size={13}/></a><a href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=1800373" target="_blank" rel="noopener noreferrer">Official dataset release and licence<ExternalLink size={13}/></a></details></>:group&&<><h2>Individual asset locations</h2><p>These are historical facility points and road proposals. They do not establish spending.</p>{members&&<><small>{members.total.toLocaleString('en-IN')} source locations · {members.total?offset+1:0}–{Math.min(offset+25,members.total)}</small><div className="asset-member-list">{members.assets.map(a=><button key={a.id} onClick={()=>void openAsset(a.id)}><strong>{a.title}</strong><small>{labels[a.kind]} · {a.state}</small></button>)}</div><div className="detail-actions"><button disabled={!offset} onClick={()=>setOffset(n=>Math.max(0,n-25))}>Previous locations</button><button disabled={offset+25>=members.total} onClick={()=>setOffset(n=>n+25)}>Next locations</button></div><button className="primary full" onClick={()=>{map.fitBounds([[group[0],group[1]],[group[2],group[3]]],{padding:100,maxZoom:17,duration:matchMedia('(prefers-reduced-motion: reduce)').matches?0:600});setGroup(null);}}>Zoom to these locations</button></>}</>}</aside>}</>;
+import { ExternalLink, GraduationCap, HeartPulse, MapPin, Route, X } from 'lucide-react';
+import type { AssetDetail } from '@/lib/asset-geography';
+import { detailZoom } from '@/lib/map-overview';
+import { mapDeliveryBase } from '@/lib/map-delivery';
+import { AssetOverviewLayer } from './asset-overview-layer';
+const labels: Record<string, string> = {
+  education: 'Education facility',
+  health: 'Medical facility',
+  road: 'Road proposal',
+  public: 'Public facility',
+  agriculture: 'Agricultural facility',
+  other: 'Facility',
+};
+export function AssetMapLayer({
+  map,
+  viewport,
+  visible,
+  query,
+  purpose,
+  workSelected,
+  onOpen,
+  onSelectAsset,
+  onStatus,
+  hideDetails = false,
+}: {
+  map: mapboxgl.Map;
+  viewport: number[];
+  visible: boolean;
+  query: string;
+  purpose: string;
+  workSelected: boolean;
+  onOpen?: () => void;
+  onSelectAsset?: (asset: AssetDetail) => void;
+  onStatus?: (status: string) => void;
+  hideDetails?: boolean;
+}) {
+  const selectCallback = useRef(onSelectAsset);
+  selectCallback.current = onSelectAsset;
+  const statusCallback = useRef(onStatus);
+  statusCallback.current = onStatus;
+  const [choices, setChoices] = useState<string[]>([]),
+    [choicePage, setChoicePage] = useState(0),
+    [choiceDetails, setChoiceDetails] = useState<AssetDetail[]>([]),
+    [tileZoom, setTileZoom] = useState<number | null>(null),
+    [shards, setShards] = useState<{ id: string; kind: string }[]>([{ id: 'all', kind: 'all' }]);
+  const [tileEdition, setTileEdition] = useState('');
+  const panel = useRef<HTMLElement | null>(null);
+  const [group, setGroup] = useState<number[] | null>(null),
+    [offset, setOffset] = useState(0),
+    [members, setMembers] = useState<{
+      total: number;
+      assets: { id: string; title: string; kind: string; state: string }[];
+    } | null>(null),
+    [asset, setAsset] = useState<AssetDetail | null>(null),
+    [detailStatus, setDetailStatus] = useState('');
+  const requestVersion = useRef(0),
+    openCallback = useRef(onOpen);
+  openCallback.current = onOpen;
+  const reportStatus = (value: string) => statusCallback.current?.(value);
+  const individualVisible = visible && map.getZoom() >= detailZoom;
+  const [originFallback, setOriginFallback] = useState(false);
+  const tileBase = originFallback ? null : mapDeliveryBase(),
+    requestQuery = tileBase ? '' : query;
+  const search = useRef(query);
+  search.current = query;
+  useEffect(() => {
+    if (!individualVisible || tileZoom !== null) return;
+    const c = new AbortController();
+    void fetch('/api/v1/geography', { signal: c.signal })
+      .then(async (r) => {
+        if (!r.ok) throw new Error('Geography unavailable');
+        const data = await r.json();
+        setTileZoom(data.maxzoom);
+        setTileEdition(data.edition ?? '');
+        if (data.shards) setShards(data.shards);
+      })
+      .catch((e) => {
+        if (e.name !== 'AbortError') reportStatus(e.message);
+      });
+    return () => c.abort();
+  }, [individualVisible, tileZoom]);
+  const kind =
+    purpose === 'Roads'
+      ? 'road'
+      : purpose === 'Schools & education'
+        ? 'education'
+        : purpose === 'Hospitals & health'
+          ? 'health'
+          : purpose === 'All' || purpose === 'Buildings'
+            ? null
+            : 'unavailable';
+  useEffect(() => {
+    if (panel.current) panel.current.scrollTop = 0;
+  }, [asset, group, offset]);
+  useEffect(() => {
+    setGroup(null);
+    setAsset(null);
+    setDetailStatus('');
+    requestVersion.current++;
+  }, [query, purpose, visible]);
+  useEffect(() => {
+    if (workSelected) {
+      setGroup(null);
+      setAsset(null);
+      setDetailStatus('');
+      requestVersion.current++;
+    }
+  }, [workSelected]);
+  useEffect(() => {
+    if (!individualVisible || kind === 'unavailable') return;
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      reportStatus('Loading archived asset locations…');
+      const p = new URLSearchParams({ bbox: viewport.join(','), q: query, mode: 'count' });
+      if (kind) p.set('kind', kind);
+      void fetch('/api/v1/map/assets?' + p, { signal: controller.signal })
+        .then(async (r) => {
+          if (!r.ok)
+            throw new Error(
+              'Asset geography is unavailable. Published spending records remain separate.',
+            );
+          const result = await r.json();
+          if (!controller.signal.aborted) {
+            reportStatus(
+              `${result.total.toLocaleString('en-IN')} individual archived locations in view · payment links pending`,
+            );
+          }
+        })
+        .catch((e) => {
+          if (e.name !== 'AbortError') {
+            reportStatus(e.message);
+          }
+        });
+    }, 200);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [viewport, query, kind, individualVisible]);
+  async function openAsset(id: string) {
+    openCallback.current?.();
+    const version = ++requestVersion.current;
+    setDetailStatus('Loading the source location…');
+    try {
+      const r = await fetch('/api/v1/assets/' + encodeURIComponent(id));
+      if (!r.ok) throw new Error('This source location could not be loaded.');
+      const result = await r.json();
+      if (version === requestVersion.current) {
+        setAsset(result.asset);
+        selectCallback.current?.(result.asset);
+        setChoices([]);
+        setGroup(null);
+        setDetailStatus('');
+      }
+    } catch (e) {
+      if (version === requestVersion.current) setDetailStatus((e as Error).message);
+    }
+  }
+  useEffect(() => {
+    if (!individualVisible || kind === 'unavailable' || tileZoom === null) return;
+    const selectedShards = shards.filter((s) => !kind || s.kind === kind || s.id === 'all'),
+      layers = selectedShards.map((s) => 'hisaab-individual-assets-' + s.id + '-dots');
+    const install = () => {
+      if (!map.getStyle()) return;
+      for (const shard of selectedShards) {
+        const source = 'hisaab-individual-assets-' + shard.id,
+          layer = source + '-dots',
+          params = new URLSearchParams({ q: requestQuery });
+        if (tileEdition) params.set('v', tileEdition);
+        if (kind) params.set('kind', kind);
+        if (shard.id !== 'all') params.set('shard', shard.id);
+        if (!map.getSource(source))
+          map.addSource(source, {
+            type: 'vector',
+            tiles: [
+              tileBase
+                ? `${tileBase}/tiles/${shard.id}/{z}/{x}/{y}.pbf`
+                : location.origin + '/api/v1/map/asset-tiles/{z}/{x}/{y}.pbf?' + params,
+            ],
+            minzoom: detailZoom,
+            maxzoom: tileZoom,
+          });
+        if (!map.getLayer(layer))
+          map.addLayer(
+            {
+              id: layer,
+              type: 'circle',
+              source,
+              minzoom: detailZoom,
+              'source-layer': 'assets',
+              paint: {
+                'circle-radius': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  3,
+                  1,
+                  7,
+                  1.7,
+                  12,
+                  3.5,
+                  16,
+                  6,
+                ],
+                'circle-color': [
+                  'match',
+                  ['get', 'kind'],
+                  'education',
+                  '#ff6659',
+                  'health',
+                  '#ff4261',
+                  '#a5f34b',
+                ],
+                'circle-emissive-strength': 1,
+                'circle-opacity': 0.95,
+                'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 8, 0, 14, 1],
+                'circle-stroke-color': '#ffffff',
+              },
+            },
+            'hisaab-outside-india',
+          );
+      }
+      applySearch();
+    };
+    const applySearch = () => {
+      if (!tileBase) return;
+      for (const id of layers)
+        if (map.getLayer(id))
+          map.setFilter(
+            id,
+            search.current.trim()
+              ? [
+                  'in',
+                  search.current.toLowerCase(),
+                  [
+                    'downcase',
+                    ['concat', ['get', 'title'], ' ', ['get', 'state'], ' ', ['get', 'assetId']],
+                  ],
+                ]
+              : null,
+          );
+    };
+    install();
+    map.on('style.load', install);
+    map.on('hisaab-asset-search' as 'idle', applySearch);
+    const failed = (event: mapboxgl.ErrorEvent) => {
+      const source = (event as mapboxgl.ErrorEvent & { sourceId?: string }).sourceId;
+      if ((event.error as Error & { status?: number }).status === 404) return;
+      if (
+        tileBase &&
+        (source?.startsWith('hisaab-individual-assets-') ||
+          event.error?.message?.includes(tileBase))
+      )
+        setOriginFallback(true);
+    };
+    map.on('error', failed);
+    const click = (e: mapboxgl.MapMouseEvent) => {
+      if (!layers.some((id) => map.getLayer(id)) || !map.getLayer('hisaab-outside-india')) return;
+      if (map.queryRenderedFeatures(e.point, { layers: ['hisaab-outside-india'] }).length) return;
+      if (
+        map.getLayer('hisaab-reviewed-projects-dots') &&
+        map.queryRenderedFeatures(
+          [
+            [e.point.x - 6, e.point.y - 6],
+            [e.point.x + 6, e.point.y + 6],
+          ],
+          { layers: ['hisaab-reviewed-projects-dots'] },
+        ).length
+      )
+        return;
+      const features = map.queryRenderedFeatures(
+        [
+          [e.point.x - 6, e.point.y - 6],
+          [e.point.x + 6, e.point.y + 6],
+        ],
+        { layers: layers.filter((id) => map.getLayer(id)) },
+      );
+      features.sort((a, b) => {
+        const distance = (f: mapboxgl.GeoJSONFeature) => {
+          if (f.geometry.type !== 'Point') return Infinity;
+          const p = map.project(f.geometry.coordinates as [number, number]);
+          return (p.x - e.point.x) ** 2 + (p.y - e.point.y) ** 2;
+        };
+        return distance(a) - distance(b);
+      });
+      const ids = [
+        ...new Set(features.map((f) => String(f.properties?.assetId || '')).filter(Boolean)),
+      ];
+      if (!ids.length) return;
+      if (ids.length > 1) {
+        setChoices(ids);
+        setChoicePage(0);
+        return;
+      }
+      void openAsset(ids[0]);
+    };
+    const canvas = map.getCanvas();
+    const enter = () => {
+        if (canvas) canvas.style.cursor = 'pointer';
+      },
+      leave = () => {
+        if (canvas) canvas.style.cursor = '';
+      };
+    map.on('click', click);
+    for (const layer of layers) {
+      map.on('mouseenter', layer, enter);
+      map.on('mouseleave', layer, leave);
+    }
+    return () => {
+      map.off('click', click);
+      map.off('style.load', install);
+      map.off('hisaab-asset-search' as 'idle', applySearch);
+      map.off('error', failed);
+      for (const layer of layers) {
+        map.off('mouseenter', layer, enter);
+        map.off('mouseleave', layer, leave);
+      }
+      leave();
+      if (!map.getCanvas() || !map.getStyle()) return;
+      for (const shard of selectedShards) {
+        const source = 'hisaab-individual-assets-' + shard.id,
+          layer = source + '-dots';
+        if (map.getLayer(layer)) map.removeLayer(layer);
+        if (map.getSource(source)) map.removeSource(source);
+      }
+    };
+  }, [map, individualVisible, kind, requestQuery, tileZoom, tileEdition, shards, tileBase]);
+  useEffect(() => {
+    if (map.getStyle()) map.fire('hisaab-asset-search');
+  }, [map, query]);
+  useEffect(() => {
+    if (!group) return;
+    const controller = new AbortController();
+    setMembers(null);
+    setDetailStatus('Loading archived locations…');
+    const p = new URLSearchParams({
+      bbox: group.join(','),
+      q: query,
+      mode: 'members',
+      offset: String(offset),
+    });
+    if (kind && kind !== 'unavailable') p.set('kind', kind);
+    void fetch('/api/v1/map/assets?' + p, { signal: controller.signal })
+      .then(async (r) => {
+        if (!r.ok) throw new Error('Location group could not be loaded.');
+        const result = await r.json();
+        if (!controller.signal.aborted) {
+          setMembers(result);
+          setDetailStatus('');
+        }
+      })
+      .catch((e) => {
+        if (e.name !== 'AbortError') setDetailStatus(e.message);
+      });
+    return () => controller.abort();
+  }, [group, offset, kind, query]);
+  useEffect(() => {
+    const id = 'hisaab-asset-focus';
+    for (const layer of [id + '-line', id + '-point'])
+      if (map.getLayer(layer)) map.removeLayer(layer);
+    if (map.getSource(id)) map.removeSource(id);
+    if (!asset || hideDetails) return;
+    map.addSource(id, {
+      type: 'geojson',
+      data: { type: 'Feature', properties: {}, geometry: asset.geometry },
+    });
+    map.addLayer(
+      {
+        id: id + '-line',
+        type: 'line',
+        source: id,
+        filter: ['in', ['geometry-type'], ['literal', ['LineString', 'MultiLineString']]],
+        paint: {
+          'line-emissive-strength': 1,
+          'line-color': '#a5f34b',
+          'line-width': 7,
+          'line-opacity': 0.9,
+        },
+      },
+      'hisaab-outside-india',
+    );
+    map.addLayer(
+      {
+        id: id + '-point',
+        type: 'circle',
+        source: id,
+        filter: ['==', ['geometry-type'], 'Point'],
+        paint: {
+          'circle-emissive-strength': 1,
+          'circle-color': '#a5f34b',
+          'circle-opacity': 0.2,
+          'circle-radius': 25,
+          'circle-stroke-width': 3,
+          'circle-stroke-color': '#a5f34b',
+        },
+      },
+      'hisaab-outside-india',
+    );
+    const focus = (duration: number) =>
+      map.flyTo({
+        center: asset.location,
+        zoom: 16.5,
+        pitch: 55,
+        bearing: -18,
+        padding: {
+          left: innerWidth > 900 ? 400 : 0,
+          right: innerWidth > 900 ? 390 : 0,
+          top: innerWidth < 760 ? 150 : 120,
+          bottom: innerWidth < 760 ? 470 : innerWidth < 900 ? 300 : 60,
+        },
+        duration: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : duration,
+      });
+    focus(900);
+    const resize = () => focus(0);
+    map.on('resize', resize);
+    return () => {
+      map.off('resize', resize);
+      if (!map.getCanvas() || !map.getStyle()) return;
+      for (const layer of [id + '-line', id + '-point'])
+        if (map.getLayer(layer)) map.removeLayer(layer);
+      if (map.getSource(id)) map.removeSource(id);
+    };
+  }, [asset, map, hideDetails]);
+  useEffect(() => {
+    if (!choices.length) return;
+    const c = new AbortController();
+    setChoiceDetails([]);
+    void Promise.all(
+      choices.slice(choicePage * 10, choicePage * 10 + 10).map((id) =>
+        fetch('/api/v1/assets/' + encodeURIComponent(id), { signal: c.signal }).then(async (r) => {
+          if (!r.ok) throw new Error('Nearby locations unavailable');
+          return (await r.json()).asset as AssetDetail;
+        }),
+      ),
+    )
+      .then(setChoiceDetails)
+      .catch((e) => {
+        if (e.name !== 'AbortError') setDetailStatus(e.message);
+      });
+    return () => c.abort();
+  }, [choices, choicePage]);
+  const Icon =
+    asset?.kind === 'education'
+      ? GraduationCap
+      : asset?.kind === 'health'
+        ? HeartPulse
+        : asset?.kind === 'road'
+          ? Route
+          : MapPin;
+  return (
+    <>
+      <AssetOverviewLayer
+        map={map}
+        visible={visible}
+        kind={kind}
+        query={query}
+        onStatus={onStatus}
+      />
+      {visible && choices.length > 1 && (
+        <aside className="atlas-pick-list" aria-label="Choose an overlapping historical location">
+          <button aria-label="Close location chooser" onClick={() => setChoices([])}>
+            Close
+          </button>
+          <h3>Locations near this point</h3>
+          <p>{choices.length.toLocaleString('en-IN')} separate records overlap at this zoom.</p>
+          {choiceDetails.map((a) => (
+            <button key={a.id} onClick={() => void openAsset(a.id)}>
+              <strong>{a.title}</strong>
+              <small>
+                {labels[a.kind]} · {a.sourceIdentity}
+              </small>
+            </button>
+          ))}
+          <div className="atlas-pagination">
+            <button disabled={!choicePage} onClick={() => setChoicePage((n) => n - 1)}>
+              Previous
+            </button>
+            <span>
+              {choicePage + 1} / {Math.ceil(choices.length / 10)}
+            </span>
+            <button
+              disabled={(choicePage + 1) * 10 >= choices.length}
+              onClick={() => setChoicePage((n) => n + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </aside>
+      )}
+      {visible && !hideDetails && (group || asset || detailStatus) && (
+        <aside ref={panel} className="asset-detail" aria-label="Development details">
+          <button
+            className="icon-button asset-close"
+            aria-label="Close asset geography"
+            onClick={() => {
+              requestVersion.current++;
+              setGroup(null);
+              setAsset(null);
+              setDetailStatus('');
+            }}
+          >
+            <X size={19} />
+          </button>
+          <div className="eyebrow">DEVELOPMENT DETAILS</div>
+          {detailStatus && <p role="status">{detailStatus}</p>}
+          {asset ? (
+            <>
+              <div className="asset-detail-icon">
+                <Icon size={26} />
+              </div>
+              <h2>{asset.title}</h2>
+              <p>
+                {labels[asset.kind]} · {asset.state}
+              </p>
+              <div className="asset-evidence-gap">
+                <strong>Financial records not linked yet</strong>
+                <p>
+                  This dot identifies an archived asset. Its sanctioned funds, contracts, payments
+                  and completion records are not available in the current import. Missing evidence
+                  does not mean ₹0 was spent.
+                </p>
+              </div>
+              <div className="money-grid asset-money-grid">
+                {['Sanctioned', 'Contract value', 'Paid'].map((label) => (
+                  <div key={label}>
+                    <small>{label}</small>
+                    <strong>Not available</strong>
+                  </div>
+                ))}
+              </div>
+              <dl className="development-facts">
+                <dt>Asset purpose</dt>
+                <dd>{asset.category || labels[asset.kind]}</dd>
+                <dt>Funded development work</dt>
+                <dd>Not available · no linked project record</dd>
+                <dt>Executing department</dt>
+                <dd>Not available</dd>
+                <dt>Contractor / payment recipient</dt>
+                <dd>Not available</dd>
+                <dt>Financial year</dt>
+                <dd>Not available</dd>
+              </dl>
+              <h3>Funding &amp; progress</h3>
+              <div className="asset-funding-timeline">
+                {['Sanction / approval', 'Contract / award', 'Payments', 'Completion'].map(
+                  (label) => (
+                    <div className="asset-funding-stage" key={label}>
+                      <span className="timeline-dot" />
+                      <div>
+                        <strong>{label}</strong>
+                        <small>Date not available</small>
+                      </div>
+                      <span>Record needed</span>
+                    </div>
+                  ),
+                )}
+              </div>
+              <p className="asset-record-help">
+                To show these details, we need a project or tender identifier, sanction order,
+                contract, dated payment records and completion evidence matched to this asset. The
+                2022 geography archive is not a payment date.
+              </p>
+              <details className="asset-location-details">
+                <summary>Location, 3D &amp; images</summary>
+                <p>
+                  Archived source coordinate, not independently verified. Some source points may be
+                  inaccurate.
+                </p>
+                <dl>
+                  <dt>Original asset identifier</dt>
+                  <dd>{asset.sourceIdentity}</dd>
+                  <dt>Coordinates</dt>
+                  <dd>
+                    {asset.location[1].toFixed(6)}, {asset.location[0].toFixed(6)}
+                  </dd>
+                  <dt>Location evidence</dt>
+                  <dd>
+                    {asset.kind === 'road'
+                      ? 'Original proposed road line; marker sits on the line.'
+                      : 'Original facility point; this is not a verified building footprint.'}
+                  </dd>
+                </dl>
+                <p>
+                  The ring highlights the source location. Surrounding 3D buildings are context and
+                  are not certified as this facility. No verified asset photographs are available in
+                  this import.
+                </p>
+                <button
+                  className="secondary full"
+                  onClick={() => {
+                    const [lng, lat] = asset.location;
+                    setAsset(null);
+                    setOffset(0);
+                    setGroup([lng - 0.001, lat - 0.001, lng + 0.001, lat + 0.001]);
+                  }}
+                >
+                  Other locations near this point
+                </button>
+              </details>
+              <details>
+                <summary>Inspect the geography source</summary>
+                <p>{asset.delivery}. Historical geography may differ from today.</p>
+                <dl>
+                  <dt>Original file</dt>
+                  <dd>{asset.sourceFile}</dd>
+                  <dt>Record locator</dt>
+                  <dd>Shapefile record {asset.sourceRow}</dd>
+                  <dt>SHA-256</dt>
+                  <dd className="asset-hash">{asset.sourceHash}</dd>
+                </dl>
+                {asset.textReview && (
+                  <p>
+                    Source name encoding requires review; the original identifier and coordinates
+                    are preserved.
+                  </p>
+                )}
+                <a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer">
+                  Download preserved mirror archive
+                  <ExternalLink size={13} />
+                </a>
+                <a
+                  href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=1800373"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Official dataset release and licence
+                  <ExternalLink size={13} />
+                </a>
+              </details>
+            </>
+          ) : (
+            group && (
+              <>
+                <h2>Individual asset locations</h2>
+                <p>
+                  These are historical facility points and road proposals. They do not establish
+                  spending.
+                </p>
+                {members && (
+                  <>
+                    <small>
+                      {members.total.toLocaleString('en-IN')} source locations ·{' '}
+                      {members.total ? offset + 1 : 0}–{Math.min(offset + 25, members.total)}
+                    </small>
+                    <div className="asset-member-list">
+                      {members.assets.map((a) => (
+                        <button key={a.id} onClick={() => void openAsset(a.id)}>
+                          <strong>{a.title}</strong>
+                          <small>
+                            {labels[a.kind]} · {a.state}
+                          </small>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="detail-actions">
+                      <button
+                        disabled={!offset}
+                        onClick={() => setOffset((n) => Math.max(0, n - 25))}
+                      >
+                        Previous locations
+                      </button>
+                      <button
+                        disabled={offset + 25 >= members.total}
+                        onClick={() => setOffset((n) => n + 25)}
+                      >
+                        Next locations
+                      </button>
+                    </div>
+                    <button
+                      className="primary full"
+                      onClick={() => {
+                        map.fitBounds(
+                          [
+                            [group[0], group[1]],
+                            [group[2], group[3]],
+                          ],
+                          {
+                            padding: 100,
+                            maxZoom: 17,
+                            duration: matchMedia('(prefers-reduced-motion: reduce)').matches
+                              ? 0
+                              : 600,
+                          },
+                        );
+                        setGroup(null);
+                      }}
+                    >
+                      Zoom to these locations
+                    </button>
+                  </>
+                )}
+              </>
+            )
+          )}
+        </aside>
+      )}
+    </>
+  );
 }

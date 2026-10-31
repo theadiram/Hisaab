@@ -8,9 +8,7 @@ function value(name: string): string | undefined {
 export function catalogueConnection() {
   const dedicated = value('HISAAB_CATALOGUE_API_URL');
   const url = dedicated ?? value('SUPABASE_URL');
-  const key = dedicated
-    ? value('HISAAB_CATALOGUE_API_KEY')
-    : value('SUPABASE_PUBLISHABLE_KEY');
+  const key = dedicated ? value('HISAAB_CATALOGUE_API_KEY') : value('SUPABASE_PUBLISHABLE_KEY');
   if (!url || !key) throw new Error('Published catalogue connection unavailable');
   return { url, key };
 }

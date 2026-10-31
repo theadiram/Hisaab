@@ -62,12 +62,12 @@ unavailable, not zero. Source permission is not inferred from public accessibili
 
 ## Delivery gates
 
-| Gate | Requirement | Current interpretation |
-|---|---|---|
-| A | All acquired demands/programmes accounted for and totals reconciled | Inventory is not classification or reconciliation completion |
-| B | Nationwide state interface, Bihar distinctions and explicit gaps | List and geometry must agree on all 36 identities |
-| C | Every identified channel/programme assessed across eleven FYs | Absence/access restrictions are recorded, not omitted |
-| D | Approved figures/evidence/boundaries, accessibility and operational checks | Pending figures remain owner-only |
+| Gate | Requirement                                                                | Current interpretation                                       |
+| ---- | -------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| A    | All acquired demands/programmes accounted for and totals reconciled        | Inventory is not classification or reconciliation completion |
+| B    | Nationwide state interface, Bihar distinctions and explicit gaps           | List and geometry must agree on all 36 identities            |
+| C    | Every identified channel/programme assessed across eleven FYs              | Absence/access restrictions are recorded, not omitted        |
+| D    | Approved figures/evidence/boundaries, accessibility and operational checks | Pending figures remain owner-only                            |
 
 Verification covers exact rupees/lakh/crore, BE/RE alternatives, cumulative and parent/child
 duplicates, Union/state share, grants/loans, response/flood distinction, maintenance, missing

@@ -13,18 +13,18 @@
 
 ## State breakdown
 
-| State | Contract facts first | Resolve source gaps |
-|---|---:|---:|
-| Arunachal Pradesh | 13 | 6 |
-| Assam | 42 | 10 |
-| Manipur | 29 | 5 |
-| Meghalaya | 11 | 7 |
-| Mizoram | 20 | 1 |
-| Nagaland | 18 | 3 |
-| Sikkim | 8 | 5 |
-| Tripura | 11 | 3 |
-| Uttarakhand | 4 | 0 |
-| West Bengal | 12 | 3 |
+| State             | Contract facts first | Resolve source gaps |
+| ----------------- | -------------------: | ------------------: |
+| Arunachal Pradesh |                   13 |                   6 |
+| Assam             |                   42 |                  10 |
+| Manipur           |                   29 |                   5 |
+| Meghalaya         |                   11 |                   7 |
+| Mizoram           |                   20 |                   1 |
+| Nagaland          |                   18 |                   3 |
+| Sikkim            |                    8 |                   5 |
+| Tripura           |                   11 |                   3 |
+| Uttarakhand       |                    4 |                   0 |
+| West Bengal       |                   12 |                   3 |
 
 ## Rights evidence
 

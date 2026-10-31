@@ -30,13 +30,11 @@ The FY 2025–26 report lists 111 activities; the approved-activity API returns 
 Official source: https://egramswaraj.gov.in/actionPlanReportForGP.do
 API documentation: https://egramswaraj.gov.in/FileRedirect.jsp?FD=PRIASoftPFMSIntegration&name=eGramSwaraj_api_integration_v3.0.pdf
 
-
 ## Public-authority identification and PPMS annex
 
 Address: Public Information Officer, Panchayat Samiti Office, Balangir, District Balangir, Odisha. Official RTI directory authority code: 17050201; disclosure office ID: 4240. The official handbook lists the block accounting and engineering functions. Its individual officer entries include older material, so current incumbent/contact details must be confirmed before filing. Sources: https://rtiodisha.gov.in/Districts/5 and https://rtiodisha.gov.in/Pages/printAllManual/office_id:4240/lang: . Owner supplies required applicant details and handles submission/fees through the applicable Odisha route. No submission has been made.
 
 Additional named PPMS project: OD/345/3285/115783/420043/00018965, Baghala road improvement, bill serial 345/3285/2024-25/5557000, cheque 157514 dated 24 February 2026. Source cheque amount 299999.00; beneficiary list sums to that figure, including source beneficiary REETA BISI (AE / JE), amount 279515.00. This role is not established as contractor. Please provide existing bill allocation, agreement/work order, unit definitions, settlement entries and official route/site coordinates. This PPMS road is a separate named project from CR 04 drain and CR 20 office maintenance; no cross-system join is assumed.
-
 
 ## Existing component-allocation records needed
 

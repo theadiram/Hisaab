@@ -20,10 +20,10 @@ Normalized 4,729 mirrored FY 2025–26 rows into **4,715 provisional bills**, **
 
 Compared two historical mirror bills with the official viewer https://accounts.bbmp.gov.in/vssWB/ through visible Bill Status searches:
 
-| Official job | Net bill value | Displayed Paid | Selected RTGS date | Another listed RTGS date |
-|---|---:|---:|---|---|
-| 198-21-000007 | 4,791,650.00 | 3,542,778.00 | 16 Oct 2023 | 1 Apr 2025 |
-| 012-20-000078 | 700,640.00 | 518,825.00 | 9 Apr 2025 | 5 Jul 2025 |
+| Official job  | Net bill value | Displayed Paid | Selected RTGS date | Another listed RTGS date |
+| ------------- | -------------: | -------------: | ------------------ | ------------------------ |
+| 198-21-000007 |   4,791,650.00 |   3,542,778.00 | 16 Oct 2023        | 1 Apr 2025               |
+| 012-20-000078 |     700,640.00 |     518,825.00 | 9 Apr 2025         | 5 Jul 2025               |
 
 Mirror gross, deduction and net values match the bills; they do not identify the individual transaction amounts. Both selected events show RTGS Generated and populated UTR fields. Presence of a UTR is recorded privately as a boolean; no banking identifiers or contractor phones are propagated. The earlier current-year sample had blank UTRs, so that observation must not be generalized to these historical samples. The UI shows different RTGS events; whether they represent instalments, reissues or other history needs evidence. Never count the full net value for each event.
 
@@ -60,11 +60,9 @@ Next: validate supporting work/payment documents and actual locations for a smal
 
 Verification: nine new parser tests cover repeated events, no invented transaction identity, amount/date distinctions, conflicting editions, privacy minimization and invalid encoding. Public tracker exposes aggregate progress only; originals, recipients and unreviewed evidence stay private. No paid map dots or approvals added.
 
-
 ## Rajya Sabha scope extension — 7 October 2026
 
 The preserved official rajyasaba.js switch explicitly supplies combo [0,0,0,1], while Lok Sabha uses house 2. Collector now accepts --house rajya, checks that every returned expenditure row matches the requested state and house, and keeps house checkpoints and summaries separate. The first six official state partitions yielded 2378 expenditure rows linked to 2078 distinct full work IDs; zero failures, one encoding issue. Zero-row partitions are observations of the returned default filter, not declarations of no development spending. Public progress exposes aggregates only. Remaining states, explicit status/tenure scope, payment identities/reversals, supporting documents, actual geography and publication review remain. No financial totals are combined across houses.
-
 
 ### Nationwide source catalogue and Odisha pagination completion — 7 October 2026
 

@@ -33,13 +33,11 @@ Contact displayed on the cashbook page: egramswaraj@gov.in. This is a different 
 
 Request an authorized activity-to-geotag-to-voucher export and permission for attributed republication. Include activity ID, LGD panchayat code, scheme/year, sanction, work order, voucher/payment IDs, dates, expenditure amounts, net/gross semantics, status, reversals and source references. Exclude private banking and beneficiary identifiers. The displayed portal policy restricts reproduction and requires advance permission for links; do not treat OMMAS's reuse policy as permission for this source.
 
-
 ## Correspondence check — 7 October 2026
 
 NRIDA forwarded the original request at 11:52:57 IST to a government contact, copying Hisaab. The incoming message contains the forwarded request only: no records, attachments, field definitions or reuse permission. The original thread and checksum are preserved privately. Routing does not establish payment coverage. No message was sent to the new contact. The existing follow-up date remains 16 October, subject to office holidays.
 
 eGramSwaraj and Odisha PPMS threads contain only the sent requests as of this check; no replies or delivery-failure messages found.
-
 
 ## Pilot workflow evidence acquired — 7 October 2026
 

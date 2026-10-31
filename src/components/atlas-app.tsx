@@ -1,89 +1,1846 @@
 'use client';
-import {useCallback,useEffect,useRef,useState} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import {AnimatePresence,motion,useReducedMotion,useDragControls} from 'motion/react';
-import {ArrowLeft,ArrowRight,BookOpen,Building2,Check,ChevronRight,Compass,ExternalLink,FileText,Info,Layers3,MapPin,MessageSquare,Minus,Moon,Sun,Plus,Search,Settings2,ShieldCheck,Target,X} from 'lucide-react';
-import type {Catalogue,Work,Stage,SourceReceipt,PartyRole} from '@/lib/model';
-import type {AssetDetail} from '@/lib/asset-geography';
-import type {DevelopmentOverview,DevelopmentRecord} from '@/lib/development';
-import {fundingStates,fundingYears,fundingPurposes,type FundingOverview} from '@/lib/funding';
-import {aggregateMoney,formatMoney,formatExactMoney} from '@/lib/money';
-import {initialExploration,readExploration,explorationUrl,type Exploration} from '@/lib/exploration';
-import {CitizenForm,Tracking,useModalFocus} from './hisaab-app';
-import {SpendingExplorer} from './spending-explorer';
-import {AssetVisual,AssetEvidenceSummary,type MapPreview} from './asset-visual';
+import { AnimatePresence, motion, useReducedMotion, useDragControls } from 'motion/react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  Building2,
+  Check,
+  ChevronRight,
+  Compass,
+  ExternalLink,
+  FileText,
+  Info,
+  Layers3,
+  MapPin,
+  MessageSquare,
+  Minus,
+  Moon,
+  Sun,
+  Plus,
+  Search,
+  Settings2,
+  ShieldCheck,
+  Target,
+  X,
+} from 'lucide-react';
+import type { Catalogue, Work, Stage, SourceReceipt, PartyRole } from '@/lib/model';
+import type { AssetDetail } from '@/lib/asset-geography';
+import type { DevelopmentOverview, DevelopmentRecord } from '@/lib/development';
+import { fundingStates, fundingYears, fundingPurposes, type FundingOverview } from '@/lib/funding';
+import { aggregateMoney, formatMoney, formatExactMoney } from '@/lib/money';
+import {
+  initialExploration,
+  readExploration,
+  explorationUrl,
+  type Exploration,
+} from '@/lib/exploration';
+import { CitizenForm, Tracking, useModalFocus } from './hisaab-app';
+import { SpendingExplorer } from './spending-explorer';
+import { AssetVisual, AssetEvidenceSummary, type MapPreview } from './asset-visual';
 import type mapboxgl from 'mapbox-gl';
-import {ContentCardFocus} from './content-card-focus';
-import {FilmCapture} from './film-capture';
-import type {ContentPresentation} from '@/lib/content-mode';
-import type {MapAction} from './atlas-map';
-import {completeCardDemo} from '@/lib/complete-card-demo';
-import {getShowcaseWork} from '@/lib/showcase-work';
-import {roadAssetId,roadCardDemo} from '@/lib/road-card-demo';
-import {kebaliAssetId,kebaliCardDemo} from '@/lib/kebali-card-demo';
-import {DemoPlaceContext} from './demo-place-context';
-import {JurisdictionSourceInventory} from './jurisdiction-source-inventory';
-const AtlasMap=dynamic(()=>import('./atlas-map').then(m=>m.AtlasMap),{ssr:false,loading:()=> <div className="atlas-map-loading">Preparing India’s landscape…</div>});
-const measures={allocated:'Allocated',released:'Released',reported_spent:'Reported spent'};
-const origins={union:'Union government',state:'State government',joint:'Joint funding',local:'Local government'};
-const projectPurpose=(p:string)=>p==='all'?'All':({transport:'Roads',education:'Schools & education',health:'Hospitals & health',infrastructure:'Buildings'}[p]??'No matching project category');
-const displayDate=(d:string|null)=>d?new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Date unavailable';
-type Panel='spending'|'sources'|'observation'|'complaint'|'rti'|'track'|'receipt'|'correction'|null;
-export function AtlasApp({catalogue}:{catalogue:Catalogue}){
- const [view,setView]=useState<Exploration>(initialExploration),[rail,setRail]=useState<'explore'|'settings'|null>(null),[query,setQuery]=useState(''),[layers,setLayers]=useState({funding:false,projects:true,historical:true}),[data,setData]=useState<DevelopmentOverview|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[refresh,setRefresh]=useState(0),[asset,setAsset]=useState<AssetDetail|null>(null),[work,setWork]=useState<Work|null>(null),[works,setWorks]=useState<Work[]>(catalogue.works),[total,setTotal]=useState(catalogue.totalWorks),[offset,setOffset]=useState(0),[linked,setLinked]=useState<Work[]>([]),[projectError,setProjectError]=useState(''),[panel,setPanel]=useState<Panel>(null),[receipt,setReceipt]=useState<SourceReceipt[]|null>(null),[party,setParty]=useState<PartyRole|null>(null),[programme,setProgramme]=useState<DevelopmentRecord|null>(null),[action,setAction]=useState<MapAction|null>(null),[appearance,setAppearance]=useState('satellite'),[bounds,setBounds]=useState<number[]>([65,5,100,39]);
- const [contentPresentation,setContentPresentation]=useState<ContentPresentation|null>(null),[cameraPlaying,setCameraPlaying]=useState(false),[mapInstance,setMapInstance]=useState<mapboxgl.Map|null>(null);
- const [filmEnabled,setFilmEnabled]=useState(false);
- useEffect(()=>setFilmEnabled(new URL(location.href).searchParams.get('film')==='capture'),[]);
- const [projectMapStatus,setProjectMapStatus]=useState(''),[historicalMapStatus,setHistoricalMapStatus]=useState('');
- const [theme,setTheme]=useState<'light'|'dark'>('dark'),[preview,setPreview]=useState<MapPreview|null>(null),[cardExpanded,setCardExpanded]=useState(false);
- useEffect(()=>{try{const saved=localStorage.getItem('hisaab-theme');if(saved==='light'||saved==='dark')setTheme(saved);}catch{}},[]);
- function toggleTheme(){const next=theme==='dark'?'light':'dark';setTheme(next);try{localStorage.setItem('hisaab-theme',next);}catch{}}
- const reduced=useReducedMotion(),drag=useDragControls(),request=useRef(0),railTrigger=useRef<HTMLButtonElement>(null);
- useModalFocus(panel??(programme||party?'receipt':null));
- const go=useCallback((next:Exploration,replace=false)=>{setView(next);const url=new URL(explorationUrl(next,new URL(location.href)),location.origin);if(getShowcaseWork(next.work))url.searchParams.set('demo','complete');else url.searchParams.delete('demo');history[replace?'replaceState':'pushState'](null,'',url.pathname+url.search+url.hash);},[]);
- useEffect(()=>{const restore=()=>{const url=new URL(location.href),next=readExploration(url);const fixture=getShowcaseWork(next.work);if(url.searchParams.get('demo')==='complete'&&fixture){setWork(fixture);setAsset(null);setView({...next,screen:'asset',state:fundingStates.find(s=>s.name===fixture.state)?.code??null,asset:fixture.assetId??null,exploring:true});}else{setView(next);if(!fixture)setWork(null);}if(location.hash.startsWith('#track='))setPanel('track');};restore();addEventListener('popstate',restore);addEventListener('hashchange',restore);return()=>{removeEventListener('popstate',restore);removeEventListener('hashchange',restore);};},[]);
- useEffect(()=>{const c=new AbortController();if(view.screen!=='asset'){setAsset(null);if(!getShowcaseWork(view.work))setWork(null);return;}setAsset(null);setProjectError('');const fixture=getShowcaseWork(view.work);if(fixture&&new URL(location.href).searchParams.get('demo')==='complete'){setWork(fixture);return()=>c.abort();}setWork(null);const version=++request.current;const path=view.work?'/api/v1/works/':'/api/v1/assets/';const id=view.work??view.asset;if(!id)return;void fetch(path+encodeURIComponent(id),{signal:c.signal}).then(async r=>{if(!r.ok)throw new Error('This record is unavailable or has been withdrawn.');const result=await r.json();if(version!==request.current||c.signal.aborted)return;if(result.work)setWork(result.work);else setAsset(result.asset);}).catch(e=>{if(e.name!=='AbortError')setProjectError(e.message);});return()=>c.abort();},[view.screen,view.asset,view.work]);
- const selection=new URLSearchParams({year:view.year,measure:view.measure,purpose:view.purpose}).toString();
- useEffect(()=>{if(!view.exploring)return;const c=new AbortController();setBusy(true);setData(null);setError('');void fetch('/api/v1/development?'+selection,{signal:c.signal}).then(async r=>{const value=await r.json();if(!r.ok)throw new Error(value.error);if(!c.signal.aborted)setData(value);}).catch(e=>{if(e.name!=='AbortError')setError(e.message);}).finally(()=>{if(!c.signal.aborted)setBusy(false);});return()=>c.abort();},[selection,view.exploring,refresh]);
- useEffect(()=>{if(!view.exploring)return;const c=new AbortController(),p=new URLSearchParams({limit:'100',year:view.year,offset:String(offset)});if(query)p.set('q',query);if(view.state)p.set('state',view.state);const purpose=projectPurpose(view.purpose);if(purpose!=='All')p.set('purpose',purpose);setProjectError('');const timer=setTimeout(()=>{void fetch('/api/v1/works?'+p,{signal:c.signal}).then(async r=>{if(!r.ok)throw new Error('Project records are unavailable.');const result=await r.json();if(!c.signal.aborted){setWorks(result.works);setTotal(result.total);}}).catch(e=>{if(e.name!=='AbortError')setProjectError(e.message);});},250);return()=>{clearTimeout(timer);c.abort();};},[query,view.year,view.purpose,view.state,view.exploring,offset]);
- useEffect(()=>setOffset(0),[query,view.year,view.purpose,view.state]);
- useEffect(()=>{setLinked([]);if(!asset)return;const c=new AbortController();void fetch(`/api/v1/assets/${encodeURIComponent(asset.id)}/projects`,{signal:c.signal}).then(async r=>{if(!r.ok)throw new Error("Linked projects unavailable");setLinked((await r.json()).works);}).catch(e=>{if(e.name!=="AbortError")setProjectError(e.message);});return()=>c.abort();},[asset]);
- useEffect(()=>{const close=(e:KeyboardEvent)=>{if(e.key==='Escape'){if(panel)setPanel(null);else if(party)setParty(null);else if(programme)setProgramme(null);else setRail(null);}};addEventListener('keydown',close);return()=>removeEventListener('keydown',close);},[panel,party,programme]);
- function explore(){if(!view.exploring)go({...view,exploring:true},true);}
- function selectState(code:string){setRail(null);setProgramme(null);setProjectError('');go({...view,screen:'state',state:code,asset:null,work:null,exploring:true});}
- function selectAsset(a:AssetDetail){setAsset(a);setWork(null);setRail(null);setProjectError('');const code=fundingStates.find(s=>s.name.toLowerCase()===a.state.toLowerCase())?.code??view.state;go({...view,screen:'asset',asset:a.id,work:null,state:code,exploring:true});}
- function selectWork(w:Work){setWork(w);setAsset(null);setRail(null);setProjectError('');go({...view,screen:'asset',work:w.id,asset:w.assetId??null,state:fundingStates.find(s=>s.name===w.state)?.code??view.state,exploring:true});}
- function back(){setParty(null);setProgramme(null);go({...view,screen:view.state?'state':'india',asset:null,work:null,exploring:true});}
- function home(){setParty(null);setProgramme(null);setRail(null);go({...initialExploration,year:view.year,measure:view.measure,purpose:view.purpose});setAction({sequence:Date.now(),type:'india'});}
- function mapAction(type:MapAction['type']){setAction({sequence:Date.now(),type});if(type==='satellite'||type==='streets')setAppearance(type);}
- const state=fundingStates.find(s=>s.code===view.state),area=data?.states.find(s=>s.code===view.state),mapStates:FundingOverview['states']=data?.states.map(s=>({code:s.code,name:s.name,amountRupees:s.development.combinedAmountRupees??s.received.amountRupees,records:s.development.records+s.received.records,coverage:s.development.records+s.received.records?'partial':'unavailable',cutoff:s.development.cutoff??s.received.cutoff,grantsRupees:null,loansRupees:null,directRupees:null,missingAmounts:0}))??[];
- return <main className="app atlas-shell" data-theme={theme} data-road-showcase={work?.id===roadCardDemo.id?'true':'false'} data-demo-card={work?.demo?'true':'false'} data-content={filmEnabled?'true':'false'} data-content-frame={contentPresentation?.frame??'screen'} data-content-clean={contentPresentation?.clean?'true':'false'} data-content-card={contentPresentation?.card??'show'} data-card-focus={contentPresentation?.cardFocus??'overview'} data-screen={view.screen} data-exploring={view.exploring?'true':'false'}>
-  <a className="skip-link" href="#atlas-list" onClick={()=>{explore();setRail('explore');}}>Skip to state and project list</a>
-  <AtlasMap exploring={view.exploring} states={mapStates} state={view.state} year={view.year} purpose={projectPurpose(view.purpose)} query={query} layers={layers} onState={selectState} onAsset={selectAsset} onWork={selectWork} onExplore={explore} onViewport={setBounds} action={action} asset={asset} work={work} locationSelected={view.screen==='asset'} theme={theme} onPreview={setPreview} onMapReady={setMapInstance} onProjectStatus={setProjectMapStatus} onAssetStatus={setHistoricalMapStatus} cameraControlled={cameraPlaying} contentMode={filmEnabled} contentFrame={contentPresentation?.frame??'screen'}/>
-  <header className="atlas-header"><button className="atlas-brand" onClick={home} aria-label="Hisaab explore"><Target size={28}/><span>hisaab<span>.</span></span></button><div className="atlas-breadcrumb"><button onClick={home}>India</button>{state&&<><ChevronRight size={12}/><button onClick={()=>selectState(state.code)}>{state.name}</button></>}{view.screen==='asset'&&<><ChevronRight size={12}/><span>Project receipt</span></>}</div><div className="atlas-header-actions"><button className="atlas-theme-toggle" onClick={toggleTheme} aria-label={theme==='dark'?'Switch to day mode':'Switch to dark mode'}>{theme==='dark'?<Sun size={18}/>:<Moon size={18}/>}</button><button className="atlas-about" onClick={()=>setPanel('sources')} aria-label="About the data"><Info size={18}/><span>About the data</span></button></div></header>
-  <nav className="atlas-rail rail-left" aria-label="Explore controls"><button ref={railTrigger} aria-label="Explore states and projects" aria-expanded={rail==='explore'} onClick={()=>{explore();setRail(rail==='explore'?null:'explore');}}><Layers3 size={21}/></button><button aria-label="Show funding layer" aria-pressed={layers.funding&&view.exploring} onClick={()=>{explore();setLayers({...layers,funding:!layers.funding});}}><Building2 size={21}/></button><button aria-label="Find a place or project" onClick={()=>{explore();setRail('explore');requestAnimationFrame(()=>document.getElementById('atlas-search')?.focus());}}><Search size={21}/></button></nav>
-  <nav className="atlas-rail rail-right" aria-label="Map controls"><button aria-label="Map settings and layers" aria-expanded={rail==='settings'} onClick={()=>setRail(rail==='settings'?null:'settings')}><Settings2 size={21}/></button><span/><button aria-label="Zoom in" onClick={()=>mapAction('in')}><Plus size={21}/></button><button aria-label="Zoom out" onClick={()=>mapAction('out')}><Minus size={21}/></button><button aria-label="Reset map north" onClick={()=>mapAction('north')}><Compass size={21}/></button><button aria-label="Toggle perspective" onClick={()=>mapAction('perspective')}>3D</button><span/><button aria-label="My private reports" onClick={()=>setPanel('track')}><MessageSquare size={20}/></button></nav>
-  {!view.exploring&&<div className="atlas-welcome"><span className="atlas-kicker">A COUNTRY. A QUESTION.</span><h1>Where does the<br/>money go?</h1><p>Explore India. Follow the development.</p><button onClick={()=>{explore();setRail('explore');}}>Explore India <ArrowRight size={17}/></button></div>}
-  {view.exploring&&<div className="atlas-year-toolbar"><div className="atlas-measures" role="group" aria-label="Funding measure">{Object.entries(measures).map(([key,label])=><button key={key} aria-pressed={view.measure===key} onClick={()=>go({...view,measure:key as Exploration['measure']},true)}>{label}</button>)}</div><label>Financial year<select aria-label="Financial year" value={view.year} onChange={e=>go({...view,year:e.target.value},true)}>{fundingYears.map(y=><option key={y} value={y}>FY {y.slice(0,4)}–{y.slice(-2)}</option>)}</select></label></div>}
-  <AnimatePresence>{rail&&<motion.aside key={rail} className={'atlas-drawer '+(rail==='settings'?'drawer-right':'drawer-left')} initial={{opacity:0,x:reduced?0:rail==='settings'?16:-16}} animate={{opacity:1,x:0}} exit={{opacity:0,x:reduced?0:rail==='settings'?16:-16}} transition={{type:'spring',bounce:0,duration:.3}} aria-label={rail==='settings'?'Map settings':'State and project explorer'}><div className="atlas-panel-heading"><span className="atlas-kicker">{rail==='settings'?'YOUR MAP':'EXPLORE INDIA'}</span><button aria-label="Close controls" onClick={()=>{setRail(null);railTrigger.current?.focus();}}><X size={18}/></button></div>{rail==='settings'?<><h2>Make it yours.</h2><h3>Layers</h3>{(['projects','historical','funding'] as const).map(key=><button className="atlas-layer-row" key={key} aria-pressed={layers[key]} onClick={()=>{explore();setLayers({...layers,[key]:!layers[key]});}}><span><strong>{key==='projects'?'Reviewed development projects':key==='historical'?'Historical locations':'Funding colours'}</strong><small>{key==='projects'?'Financial-year project records':key==='historical'?'812,976 archived locations · not yearly spending':'Recorded development or funding received; see card scope'}</small></span><i className={layers[key]?'is-on':''}>{layers[key]&&<Check size={14}/>}</i></button> )}
-<h3>Coverage in this view</h3><div className="atlas-coverage-list" aria-live="polite"><div className="atlas-coverage-row"><i className="key-project"/><span><strong>Reviewed projects</strong><small>{!layers.projects?'Layer is off':projectMapStatus||'Loading reviewed project locations…'}</small></span></div><div className="atlas-coverage-row"><i className="key-history"/><span><strong>Historical locations</strong><small>{!layers.historical||projectPurpose(view.purpose)==='No matching project category'?'Layer is off':historicalMapStatus||'Loading archived locations…'}</small></span></div><div className="atlas-coverage-row"><i className="key-funding"/><span><strong>Funding colours</strong><small>{layers.funding?'Recorded funding by state':'Layer is off'}</small></span></div></div><p className="atlas-coverage-note">Archived locations are not verified projects or proof of spending. Payment links remain pending.</p><h3>Map controls</h3><div className="atlas-mobile-map-actions">{([["in","Zoom in"],["out","Zoom out"],["north","Reset north"],["perspective","3D perspective"]] as const).map(([type,label])=><button key={type} onClick={()=>mapAction(type)}>{label}</button>)}</div><h3>Appearance</h3><div className="atlas-setting-row">{(['satellite','streets'] as const).map(s=><button key={s} aria-pressed={appearance===s} onClick={()=>mapAction(s)}>{s==='satellite'?'Satellite':'Map'}</button>)}</div><div className="atlas-setting-row">{(['day','dusk','night'] as const).map(s=><button key={s} onClick={()=>mapAction(s)}>{s[0].toUpperCase()+s.slice(1)}</button>)}</div><button className="atlas-text-button" onClick={()=>mapAction('terrain')}>Toggle terrain</button><button className="atlas-text-button" onClick={()=>setPanel('track')}>Open my private reports</button></>:<><h2>Find your place.</h2><label className="atlas-search"><Search size={18}/><input id="atlas-search" aria-label="Search places and projects" placeholder="State, district, project or official ID" value={query} onChange={e=>setQuery(e.target.value)}/></label><label className="atlas-purpose">Purpose<select aria-label="Development purpose" value={view.purpose} onChange={e=>go({...view,purpose:e.target.value},true)}><option value="all">All development</option>{Object.entries(fundingPurposes).map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label><section className="atlas-national-summary" aria-live="polite"><strong>Recorded funding evidence</strong><p>{busy?'Loading reviewed facts…':data?`${data.coverage.reviewedRecords.toLocaleString('en-IN')} facts for this year and measure · partial coverage`:'Funding evidence unavailable.'}</p><p>Development in an area and transfers received remain separate. Figures appear after selecting a state.</p>{data?.national.records.length? <details><summary>Nationwide / state breakdown unavailable</summary>{data.national.records.map(r=><button className="atlas-programme-row" key={r.id} onClick={()=>setProgramme(r)}>{r.programme} · {formatMoney(r.amountRupees)}</button>)}</details>:<small>National programmes without a reviewed state split remain unavailable.</small>}{error&&<p role="status">{error}<button onClick={()=>setRefresh(n=>n+1)}>Retry funding</button></p>}</section><h3>States and Union Territories</h3><div id="atlas-list" className="atlas-state-list">{fundingStates.filter(s=>s.name.toLowerCase().includes(query.toLowerCase())).map(s=><button key={s.code} onClick={()=>selectState(s.code)}><span>{s.name}</span><ChevronRight size={15}/></button>)}</div><h3>Reviewed projects <small>{total.toLocaleString('en-IN')}</small></h3><ProjectList works={works} error={projectError} onSelect={selectWork}/><div className="atlas-pagination"><button disabled={!offset} onClick={()=>setOffset(n=>Math.max(0,n-100))}>Previous</button><small>{total?offset+1:0}–{Math.min(offset+100,total)} of {total.toLocaleString('en-IN')}</small><button disabled={offset+100>=total} onClick={()=>setOffset(n=>n+100)}>Next</button></div><HistoricalList bounds={bounds} query={query} purpose={projectPurpose(view.purpose)} onSelect={selectAsset}/><button className="atlas-text-button" onClick={()=>setPanel('spending')}>Evidence progress and data acquisition <ArrowRight size={15}/></button></>}</motion.aside>}</AnimatePresence>
- <AnimatePresence>{view.screen==='state'&&state&&rail!=='explore'&&<motion.aside key={state.code} className="atlas-state-card atlas-paper" initial={{opacity:0,x:reduced?0:-20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:reduced?0:-20}} transition={{type:'spring',bounce:0,duration:.35}}><div className="atlas-panel-heading"><span className="atlas-kicker">STATE / DEVELOPMENT</span><button aria-label="Close state card" onClick={()=>go({...view,screen:'india',state:null},true)}><X size={18}/></button></div><h1>{state.name}</h1><p className="atlas-caption">FY {view.year.slice(0,4)}–{view.year.slice(-2)} · {measures[view.measure]}</p><JurisdictionSourceInventory jurisdiction={state.name}/><h3>Development within this state</h3><div className="atlas-amount">{busy?'Loading…':formatMoney(area?.development.combinedAmountRupees??null)}</div><p className="atlas-caption">{area?.development.combinedAvailable?'Reviewed records · partial coverage':'A reconciled combined amount is not available.'}</p><div className="atlas-origin-grid">{Object.entries(origins).map(([key,label])=><div key={key}><small>{label}</small><strong>{formatMoney(area?.development.origins.find(o=>o.origin===key)?.amountRupees??null)}</strong></div>)}</div><h3>Funding received by the state</h3><div className="atlas-transfer-amount">{formatMoney(area?.received.amountRupees??null)}</div><p className="atlas-caption">Recorded transfers/programme funding. Separate from downstream spending.</p><h3>By purpose</h3>{area?.purposes.filter(p=>p.records).map(p=><button className="atlas-breakdown-row" key={p.id} onClick={()=>go({...view,purpose:p.id},true)}><span>{p.name}</span><strong>{formatMoney(p.amountRupees)}</strong></button>)}{!area?.purposes.some(p=>p.records)&&<p className="atlas-caption">Purpose-linked development evidence is still being acquired.</p>}<h3>Programmes and evidence</h3>{area?.records.map(r=><button className="atlas-programme-row" key={r.id} onClick={()=>setProgramme(r)}><div><strong>{r.programme}</strong><small>{r.scope==='received'?'Funding received':'Development within the state'} · {origins[r.origin]}</small></div><span>{formatMoney(r.amountRupees)}<ChevronRight size={14}/></span></button>)}<h3>Explore the local works</h3><LocalAreas state={state.code} onQuery={value=>{setQuery(value);setRail('explore');}}/><ProjectList works={works} error={projectError} onSelect={selectWork}/><div className="atlas-pagination"><button disabled={!offset} onClick={()=>setOffset(n=>Math.max(0,n-100))}>Previous</button><small>{total?offset+1:0}–{Math.min(offset+100,total)} of {total.toLocaleString('en-IN')}</small><button disabled={offset+100>=total} onClick={()=>setOffset(n=>n+100)}>Next</button></div><button className="atlas-text-button" onClick={()=>{setRail('explore');}}>Search districts, villages and project IDs <Search size={14}/></button><div className="atlas-gap"><ShieldCheck size={17}/><div><strong>Coverage is partial</strong><p>Missing amounts stay unknown. Source cutoff: {area?.development.cutoff??area?.received.cutoff??'Not available'}.</p></div></div>{error&&<div className="atlas-gap" role="status"><p>{error}</p><button onClick={()=>setRefresh(n=>n+1)}>Retry</button></div>}<button className="atlas-text-button" onClick={()=>setPanel('spending')}>View evidence progress <ArrowRight size={15}/></button></motion.aside>}</AnimatePresence>
-  <AnimatePresence>{view.screen==='asset'&&<motion.aside className="atlas-asset-card atlas-paper cinematic-asset-card" data-asset-card data-expanded={cardExpanded} drag="y" dragListener={false} dragControls={drag} dragConstraints={{top:0,bottom:0}} dragElastic={{top:0,bottom:.5}} dragMomentum={false} onDragEnd={(_,info)=>{if(info.offset.y < -60)setCardExpanded(true);else if(info.offset.y>100||info.velocity.y>650){if(cardExpanded)setCardExpanded(false);else back();}}} initial={{opacity:0,x:reduced?0:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:reduced?0:20}} transition={{type:'spring',bounce:0,duration:.35}} aria-label="Project receipt"><button aria-label={cardExpanded?'Collapse asset card':'Expand asset card'} onClick={()=>setCardExpanded(v=>!v)} className="atlas-sheet-handle" style={{touchAction:'none'}} onPointerDown={e=>{if(innerWidth<760)drag.start(e);}}/><div className="atlas-panel-heading"><button aria-label="Back from project" onClick={back}><ArrowLeft size={18}/></button><span className="atlas-kicker">PROJECT RECEIPT</span><button aria-label="Close project receipt" onClick={back}><X size={18}/></button></div>{work?.demo&&<div className="demo-record-banner" role="note"><strong>{work?.id===roadCardDemo.id?'Illustrative data':'SHOWCASE · ILLUSTRATIVE DATA'}</strong><span>Example card — names, amounts and records are fictional.</span></div>}{filmEnabled&&contentPresentation?.cardFocus!=='overview'&&contentPresentation?.cardFocus!=='hero'&&<div className="content-card-caption"><strong>{work?.title??asset?.title??'Selected record'}</strong><small>{work?.demo?'Demo payment schedule':work?.money.some(e=>e.measure==='payment'&&e.approved)?'Reviewed payment evidence linked':'Financial records not linked'}</small></div>}<AssetVisual id={work?.id??asset?.id??'loading'} title={work?.title??asset?.title??'Selected location'} work={work} preview={preview} media={work?.media??asset?.photos}/><h1>{work?.title??asset?.title??'Loading source record…'}</h1><p className="atlas-caption"><MapPin size={13}/>{work?work.district+', '+work.state:asset?.state??'Location evidence loading'}{work?.demo?' · Showcase at source coordinate':''}</p>{projectError&&<p role="status">{projectError}</p>}<div className="asset-card-badges">{work?.demo&&<span>Fictional demo</span>}<span>{work?'Project record':'Historical asset'}</span><span>{work?.demo?'Sample payments':work?.money.some(e=>e.measure==='payment'&&e.approved)?'Payment records linked':'Funding not linked'}</span></div><div className="atlas-receipt-money" data-card-section="money">{(['sanction','contract','payment'] as const).map(m=>{const result=work?aggregateMoney(work.money,m):null;return <div key={m}><small>{m==='sanction'?'Sanctioned':m==='contract'?'Contract':'Payments'}</small><strong>{result?.eventCount?formatMoney(result.amount):'—'}</strong></div>;})}</div>{work&&<h3 data-card-section="timeline">Funding and progress</h3>}{asset&&linked.length>0&&<><h3>Reviewed projects at this asset</h3><ProjectList works={linked} error="" onSelect={selectWork}/></>}{work?work.stages.map(s=><button className="atlas-timeline-row" key={s.id} onClick={()=>{setReceipt(s.receipts);setPanel('receipt');}}><i className={s.state==='found'?'verified':''}>{s.state==='found'&&<Check size={13}/>}</i><div><strong>{s.label}</strong><small>{displayDate(s.date)} · {s.id==='completion'&&s.completionBasis?s.completionBasis+' evidence':s.state.replaceAll('_',' ')}</small></div><ChevronRight size={15}/></button>):null}{asset?.id===roadAssetId&&<button className="atlas-text-button" onClick={()=>selectWork(roadCardDemo)}>Open ₹50 lakh illustrative road card <ArrowRight size={15}/></button>}{asset?.id===kebaliAssetId&&<button className="atlas-text-button" onClick={()=>selectWork(kebaliCardDemo)}>Open illustrative showcase · fictional payments <ArrowRight size={15}/></button>}<AssetEvidenceSummary hasLocation={!!(work?.location??asset?.location)} hasPayments={!!work?.money.some(e=>e.measure==='payment'&&e.approved)}/>{work?.id===completeCardDemo.id&&<DemoPlaceContext/>}{work&&<><p className="atlas-caption">{work.summary}</p><h3 data-card-section="payments">Recorded payments</h3>{work.money.filter(e=>e.measure==='payment'&&e.approved).map(e=><article className="atlas-payment" key={e.id}><strong>{formatExactMoney(e.amount)}</strong><dl><dt>Recipient</dt><dd>{e.payee??'Not established'}</dd><dt>Date</dt><dd>{displayDate(e.date)}</dd><dt>Amount basis</dt><dd>{e.amountBasis??'Unknown'}</dd><dt>Payment reference</dt><dd>{e.sourcePaymentId??'Not available'}</dd></dl><button onClick={()=>{setReceipt(work.stages.flatMap(s=>s.receipts).filter(r=>r.id===e.receiptId));setPanel('receipt');}}>Supporting record <ExternalLink size={12}/></button></article>)}{!work.money.some(e=>e.measure==='payment'&&e.approved)&&<p className="atlas-caption">No approved individual payment records are attached.</p>}{work.demoProfile&&<section className="demo-payment-breakdown" data-card-section="payments"><h4>Gross bills · deductions · net paid</h4>{work.demoProfile.paymentBreakdown.map(p=><div key={p.paymentId}><strong>{p.paymentId}</strong><span>{displayDate(p.date)}</span><span>Gross {formatExactMoney(p.gross)} − deductions {formatExactMoney(p.deductions)} = net {formatExactMoney(p.net)}</span></div>)}</section>}<h3 data-card-section="people">{work.demo?'Recipient and responsible role':'Responsible organisations and roles'}</h3>{!work.demo&&work.roles?.map(p=><button className="atlas-party-row" key={p.id} onClick={()=>setParty(p)}><span className="atlas-avatar">{p.photoUrl?<img src={p.photoUrl} alt="" referrerPolicy="no-referrer"/>:p.name.slice(0,1)}</span><span><strong>{p.name}</strong><small>{p.role}</small></span><ChevronRight size={15}/></button>)}{work.demoProfile&&<section className="demo-recipient-profile" data-card-section="people"><div className="demo-recipient-header"><div className="demo-recipient-photo"><img src={work.roles?.[0]?.photoUrl??'/images/demo/neela-rao-portrait.png'} alt="AI-generated portrait of a fictional recipient"/>{work.id!==roadCardDemo.id&&<small>Fictional portrait</small>}</div><div className="demo-recipient-identity"><span>{work.id===roadCardDemo.id?'CONTRACTOR':'FICTIONAL RECIPIENT'}</span><h4>{work.roles?.[0]?.name}</h4><p>Award recipient · contractor</p><small>{work.roles?.[0]?.organisation}</small></div></div><dl className="demo-recipient-details"><dt>Business address</dt><dd>{work.demoProfile.recipientAddress}</dd><dt>Telephone</dt><dd>{work.demoProfile.recipientPhone}</dd><dt>Email</dt><dd>{work.demoProfile.recipientEmail}</dd><dt>Registration</dt><dd>{work.demoProfile.registration}</dd>{work.demoProfile.mappedLocality&&<><dt>Mapped locality</dt><dd>{work.demoProfile.mappedLocality}<small>Map context · not a verified project or contractor office</small>{work.demoProfile.mappedLocalitySource&&<a href={work.demoProfile.mappedLocalitySource} target="_blank" rel="noopener noreferrer">Original location source</a>}</dd></>}</dl></section>}{!work.roles?.length&&<p className="atlas-caption">{work.authority??'Responsibility has not been established.'}{work.authorityReceipt&&<button onClick={()=>{setReceipt([work.authorityReceipt!]);setPanel('receipt');}}> See source</button>}</p>}{Boolean(work.media?.length)&&<div className="atlas-site-photos">{work.media?.filter(m=>m.kind==='photo').map(m=><figure key={m.id}><img src={m.url} alt={m.caption} loading="lazy" referrerPolicy="no-referrer"/><figcaption>{m.caption} · {displayDate(m.date)}</figcaption></figure>)}</div>}<div className="atlas-gap"><ShieldCheck size={17}/><p>{work.physicalVerification}. Official records and field verification remain separate.</p></div></>}{asset&&<details className="atlas-location-source" data-card-section="source"><summary>Location and original source</summary><p>Source coordinate, not a certified building footprint.</p><dl><dt>Original asset ID</dt><dd>{asset.sourceIdentity}</dd><dt>Coordinates</dt><dd>{asset.location[1].toFixed(6)}, {asset.location[0].toFixed(6)}</dd><dt>Source edition</dt><dd>{asset.edition}</dd><dt>SHA-256</dt><dd>{asset.sourceHash}</dd></dl><a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer">Original geography archive <ExternalLink size={12}/></a></details>}<div className="asset-card-actions" data-card-section="report"><div className="asset-primary-actions"><button data-card-section="source" className="asset-source-button" onClick={()=>{if(asset)window.open(asset.sourceUrl,'_blank','noopener,noreferrer');else {setReceipt(work?.stages.flatMap(s=>s.receipts)??[]);setPanel('receipt');}}}><ExternalLink size={16}/>View source</button><button className="atlas-report-button" onClick={()=>setPanel('observation')}><MessageSquare size={18}/>Report an issue <ArrowRight size={17}/></button></div><div className="atlas-footer-actions"><button onClick={()=>setPanel('complaint')}>Prepare complaint</button><button onClick={()=>setPanel('rti')}>Request records</button><button onClick={()=>navigator.clipboard.writeText(location.origin+location.pathname+location.search)}>Copy link</button></div></div></motion.aside>}</AnimatePresence>
-  <AnimatePresence>{(programme||party)&&<motion.aside className="atlas-evidence-panel atlas-paper" role="dialog" aria-modal="true" aria-label={programme?"Programme evidence":"Documented role"} initial={{opacity:0,x:reduced?0:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:reduced?0:20}}><div className="atlas-panel-heading"><span className="atlas-kicker">{programme?'PROGRAMME EVIDENCE':'DOCUMENTED ROLE'}</span><button aria-label="Close evidence panel" onClick={()=>{setProgramme(null);setParty(null);}}><X size={18}/></button></div>{programme?<Programme key={programme.id} record={programme}/>:party&&<><h2>{party.name}</h2><p>{party.role}</p><p>{party.organisation}</p><p className="atlas-caption">This role is supported by the attached record. It is not a misconduct finding.</p><a href={party.receipt.url} target="_blank" rel="noopener noreferrer">{party.receipt.title} <ExternalLink size={13}/></a><p>{party.receipt.locator}</p><PartyHistory party={party} year={view.year} onSelect={w=>{setParty(null);selectWork(w);}}/></>}</motion.aside>}</AnimatePresence>
-  <AnimatePresence>{panel&&<motion.div className="modal-backdrop" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setPanel(null)}><motion.section role="dialog" aria-modal="true" aria-labelledby="dialog-title" className={'modal '+(['sources','spending'].includes(panel)?'wide':'')} initial={{opacity:0,y:reduced?0:15}} animate={{opacity:1,y:0}} exit={{opacity:0,y:reduced?0:15}} onClick={e=>e.stopPropagation()}><button className="modal-close icon-button" aria-label="Close dialog" onClick={()=>setPanel(null)}><X size={20}/></button>{panel==='sources'&&<><div className="eyebrow">HISAAB / EVIDENCE</div><h2 id="dialog-title">Every figure has a source.</h2><p className="modal-intro">Historical locations, funding aggregates and individual project payments are different records. Coverage is partial and missing evidence remains unknown.</p><div className="coverage-stats"><div><strong>812,976</strong><span>Historical locations</span></div><div><strong>{catalogue.totalWorks}</strong><span>Reviewed projects</span></div><div><strong>{data?.coverage.reviewedRecords??'—'}</strong><span>Funding facts for this selection</span></div></div>{catalogue.sources.map(s=><article className="receipt-document" key={s.id}><h3>{s.name}</h3><p>{s.coverage}</p><small>{s.restriction}</small><a href={s.url} target="_blank" rel="noopener noreferrer">Original source <ExternalLink size={12}/></a></article>)}<button className="primary" onClick={()=>setPanel('spending')}>Evidence progress and acquisition</button><a className="atlas-text-button" href="/admin">Private owner console ↗</a></>}{panel==='spending'&&<SpendingExplorer catalogue={catalogue} onSources={()=>setPanel('sources')} onWorks={p=>{setQuery('');go({...view,exploring:true,purpose:p==='Roads'?'transport':p==='Water'?'infrastructure':'all'},true);setRail('explore');setPanel(null);}}/>}{panel==='receipt'&&<><div className="eyebrow">ORIGINAL EVIDENCE</div><h2 id="dialog-title">Source receipts</h2>{receipt?.length?receipt.map(r=><article className="receipt-document" key={r.id}><h3>{r.title}</h3><blockquote>{r.rawText}</blockquote><p>{r.locator}</p><small>Retrieved {r.retrievedAt} · {r.permission}</small><p className="atlas-source-hash">{r.documentHash}</p><a href={r.url} target="_blank" rel="noopener noreferrer">Open original <ExternalLink size={13}/></a></article>):<p>No supporting record is attached to this stage.</p>}</>}{['observation','complaint','rti'].includes(panel)&&<CitizenForm kind={panel as 'observation'|'complaint'|'rti'} work={work} onTrack={()=>setPanel('track')}/>} {panel==='track'&&<Tracking/>}</motion.section></motion.div>}</AnimatePresence>
-  {(filmEnabled)&&<ContentCardFocus presentation={contentPresentation} active={contentPresentation?.card!=='hide'} focus={contentPresentation?.cardFocus??'overview'} record={work?.id??asset?.id??null}/>}
-  {filmEnabled&&<FilmCapture map={mapInstance} onAsset={selectAsset} onWork={selectWork} onHome={()=>{setParty(null);setProgramme(null);setRail(null);go({...initialExploration,exploring:true},true);}} onLayers={historical=>setLayers({funding:false,projects:true,historical})} onPresentation={setContentPresentation} onActivity={setCameraPlaying}/>}
- </main>;
+import { ContentCardFocus } from './content-card-focus';
+import { FilmCapture } from './film-capture';
+import type { ContentPresentation } from '@/lib/content-mode';
+import type { MapAction } from './atlas-map';
+import { completeCardDemo } from '@/lib/complete-card-demo';
+import { getShowcaseWork } from '@/lib/showcase-work';
+import { roadAssetId, roadCardDemo } from '@/lib/road-card-demo';
+import { kebaliAssetId, kebaliCardDemo } from '@/lib/kebali-card-demo';
+import { DemoPlaceContext } from './demo-place-context';
+import { JurisdictionSourceInventory } from './jurisdiction-source-inventory';
+const AtlasMap = dynamic(() => import('./atlas-map').then((m) => m.AtlasMap), {
+  ssr: false,
+  loading: () => <div className="atlas-map-loading">Preparing India’s landscape…</div>,
+});
+const measures = { allocated: 'Allocated', released: 'Released', reported_spent: 'Reported spent' };
+const origins = {
+  union: 'Union government',
+  state: 'State government',
+  joint: 'Joint funding',
+  local: 'Local government',
+};
+const projectPurpose = (p: string) =>
+  p === 'all'
+    ? 'All'
+    : ({
+        transport: 'Roads',
+        education: 'Schools & education',
+        health: 'Hospitals & health',
+        infrastructure: 'Buildings',
+      }[p] ?? 'No matching project category');
+const displayDate = (d: string | null) =>
+  d
+    ? new Date(d + 'T00:00:00').toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : 'Date unavailable';
+type Panel =
+  | 'spending'
+  | 'sources'
+  | 'observation'
+  | 'complaint'
+  | 'rti'
+  | 'track'
+  | 'receipt'
+  | 'correction'
+  | null;
+export function AtlasApp({ catalogue }: { catalogue: Catalogue }) {
+  const [view, setView] = useState<Exploration>(initialExploration),
+    [rail, setRail] = useState<'explore' | 'settings' | null>(null),
+    [query, setQuery] = useState(''),
+    [layers, setLayers] = useState({ funding: false, projects: true, historical: true }),
+    [data, setData] = useState<DevelopmentOverview | null>(null),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false),
+    [refresh, setRefresh] = useState(0),
+    [asset, setAsset] = useState<AssetDetail | null>(null),
+    [work, setWork] = useState<Work | null>(null),
+    [works, setWorks] = useState<Work[]>(catalogue.works),
+    [total, setTotal] = useState(catalogue.totalWorks),
+    [offset, setOffset] = useState(0),
+    [linked, setLinked] = useState<Work[]>([]),
+    [projectError, setProjectError] = useState(''),
+    [panel, setPanel] = useState<Panel>(null),
+    [receipt, setReceipt] = useState<SourceReceipt[] | null>(null),
+    [party, setParty] = useState<PartyRole | null>(null),
+    [programme, setProgramme] = useState<DevelopmentRecord | null>(null),
+    [action, setAction] = useState<MapAction | null>(null),
+    [appearance, setAppearance] = useState('satellite'),
+    [bounds, setBounds] = useState<number[]>([65, 5, 100, 39]);
+  const [contentPresentation, setContentPresentation] = useState<ContentPresentation | null>(null),
+    [cameraPlaying, setCameraPlaying] = useState(false),
+    [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
+  const [filmEnabled, setFilmEnabled] = useState(false);
+  useEffect(
+    () => setFilmEnabled(new URL(location.href).searchParams.get('film') === 'capture'),
+    [],
+  );
+  const [projectMapStatus, setProjectMapStatus] = useState(''),
+    [historicalMapStatus, setHistoricalMapStatus] = useState('');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark'),
+    [preview, setPreview] = useState<MapPreview | null>(null),
+    [cardExpanded, setCardExpanded] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('hisaab-theme');
+      if (saved === 'light' || saved === 'dark') setTheme(saved);
+    } catch {}
+  }, []);
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    try {
+      localStorage.setItem('hisaab-theme', next);
+    } catch {}
+  }
+  const reduced = useReducedMotion(),
+    drag = useDragControls(),
+    request = useRef(0),
+    railTrigger = useRef<HTMLButtonElement>(null);
+  useModalFocus(panel ?? (programme || party ? 'receipt' : null));
+  const go = useCallback((next: Exploration, replace = false) => {
+    setView(next);
+    const url = new URL(explorationUrl(next, new URL(location.href)), location.origin);
+    if (getShowcaseWork(next.work)) url.searchParams.set('demo', 'complete');
+    else url.searchParams.delete('demo');
+    history[replace ? 'replaceState' : 'pushState'](null, '', url.pathname + url.search + url.hash);
+  }, []);
+  useEffect(() => {
+    const restore = () => {
+      const url = new URL(location.href),
+        next = readExploration(url);
+      const fixture = getShowcaseWork(next.work);
+      if (url.searchParams.get('demo') === 'complete' && fixture) {
+        setWork(fixture);
+        setAsset(null);
+        setView({
+          ...next,
+          screen: 'asset',
+          state: fundingStates.find((s) => s.name === fixture.state)?.code ?? null,
+          asset: fixture.assetId ?? null,
+          exploring: true,
+        });
+      } else {
+        setView(next);
+        if (!fixture) setWork(null);
+      }
+      if (location.hash.startsWith('#track=')) setPanel('track');
+    };
+    restore();
+    addEventListener('popstate', restore);
+    addEventListener('hashchange', restore);
+    return () => {
+      removeEventListener('popstate', restore);
+      removeEventListener('hashchange', restore);
+    };
+  }, []);
+  useEffect(() => {
+    const c = new AbortController();
+    if (view.screen !== 'asset') {
+      setAsset(null);
+      if (!getShowcaseWork(view.work)) setWork(null);
+      return;
+    }
+    setAsset(null);
+    setProjectError('');
+    const fixture = getShowcaseWork(view.work);
+    if (fixture && new URL(location.href).searchParams.get('demo') === 'complete') {
+      setWork(fixture);
+      return () => c.abort();
+    }
+    setWork(null);
+    const version = ++request.current;
+    const path = view.work ? '/api/v1/works/' : '/api/v1/assets/';
+    const id = view.work ?? view.asset;
+    if (!id) return;
+    void fetch(path + encodeURIComponent(id), { signal: c.signal })
+      .then(async (r) => {
+        if (!r.ok) throw new Error('This record is unavailable or has been withdrawn.');
+        const result = await r.json();
+        if (version !== request.current || c.signal.aborted) return;
+        if (result.work) setWork(result.work);
+        else setAsset(result.asset);
+      })
+      .catch((e) => {
+        if (e.name !== 'AbortError') setProjectError(e.message);
+      });
+    return () => c.abort();
+  }, [view.screen, view.asset, view.work]);
+  const selection = new URLSearchParams({
+    year: view.year,
+    measure: view.measure,
+    purpose: view.purpose,
+  }).toString();
+  useEffect(() => {
+    if (!view.exploring) return;
+    const c = new AbortController();
+    setBusy(true);
+    setData(null);
+    setError('');
+    void fetch('/api/v1/development?' + selection, { signal: c.signal })
+      .then(async (r) => {
+        const value = await r.json();
+        if (!r.ok) throw new Error(value.error);
+        if (!c.signal.aborted) setData(value);
+      })
+      .catch((e) => {
+        if (e.name !== 'AbortError') setError(e.message);
+      })
+      .finally(() => {
+        if (!c.signal.aborted) setBusy(false);
+      });
+    return () => c.abort();
+  }, [selection, view.exploring, refresh]);
+  useEffect(() => {
+    if (!view.exploring) return;
+    const c = new AbortController(),
+      p = new URLSearchParams({ limit: '100', year: view.year, offset: String(offset) });
+    if (query) p.set('q', query);
+    if (view.state) p.set('state', view.state);
+    const purpose = projectPurpose(view.purpose);
+    if (purpose !== 'All') p.set('purpose', purpose);
+    setProjectError('');
+    const timer = setTimeout(() => {
+      void fetch('/api/v1/works?' + p, { signal: c.signal })
+        .then(async (r) => {
+          if (!r.ok) throw new Error('Project records are unavailable.');
+          const result = await r.json();
+          if (!c.signal.aborted) {
+            setWorks(result.works);
+            setTotal(result.total);
+          }
+        })
+        .catch((e) => {
+          if (e.name !== 'AbortError') setProjectError(e.message);
+        });
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      c.abort();
+    };
+  }, [query, view.year, view.purpose, view.state, view.exploring, offset]);
+  useEffect(() => setOffset(0), [query, view.year, view.purpose, view.state]);
+  useEffect(() => {
+    setLinked([]);
+    if (!asset) return;
+    const c = new AbortController();
+    void fetch(`/api/v1/assets/${encodeURIComponent(asset.id)}/projects`, { signal: c.signal })
+      .then(async (r) => {
+        if (!r.ok) throw new Error('Linked projects unavailable');
+        setLinked((await r.json()).works);
+      })
+      .catch((e) => {
+        if (e.name !== 'AbortError') setProjectError(e.message);
+      });
+    return () => c.abort();
+  }, [asset]);
+  useEffect(() => {
+    const close = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (panel) setPanel(null);
+        else if (party) setParty(null);
+        else if (programme) setProgramme(null);
+        else setRail(null);
+      }
+    };
+    addEventListener('keydown', close);
+    return () => removeEventListener('keydown', close);
+  }, [panel, party, programme]);
+  function explore() {
+    if (!view.exploring) go({ ...view, exploring: true }, true);
+  }
+  function selectState(code: string) {
+    setRail(null);
+    setProgramme(null);
+    setProjectError('');
+    go({ ...view, screen: 'state', state: code, asset: null, work: null, exploring: true });
+  }
+  function selectAsset(a: AssetDetail) {
+    setAsset(a);
+    setWork(null);
+    setRail(null);
+    setProjectError('');
+    const code =
+      fundingStates.find((s) => s.name.toLowerCase() === a.state.toLowerCase())?.code ?? view.state;
+    go({ ...view, screen: 'asset', asset: a.id, work: null, state: code, exploring: true });
+  }
+  function selectWork(w: Work) {
+    setWork(w);
+    setAsset(null);
+    setRail(null);
+    setProjectError('');
+    go({
+      ...view,
+      screen: 'asset',
+      work: w.id,
+      asset: w.assetId ?? null,
+      state: fundingStates.find((s) => s.name === w.state)?.code ?? view.state,
+      exploring: true,
+    });
+  }
+  function back() {
+    setParty(null);
+    setProgramme(null);
+    go({
+      ...view,
+      screen: view.state ? 'state' : 'india',
+      asset: null,
+      work: null,
+      exploring: true,
+    });
+  }
+  function home() {
+    setParty(null);
+    setProgramme(null);
+    setRail(null);
+    go({ ...initialExploration, year: view.year, measure: view.measure, purpose: view.purpose });
+    setAction({ sequence: Date.now(), type: 'india' });
+  }
+  function mapAction(type: MapAction['type']) {
+    setAction({ sequence: Date.now(), type });
+    if (type === 'satellite' || type === 'streets') setAppearance(type);
+  }
+  const state = fundingStates.find((s) => s.code === view.state),
+    area = data?.states.find((s) => s.code === view.state),
+    mapStates: FundingOverview['states'] =
+      data?.states.map((s) => ({
+        code: s.code,
+        name: s.name,
+        amountRupees: s.development.combinedAmountRupees ?? s.received.amountRupees,
+        records: s.development.records + s.received.records,
+        coverage: s.development.records + s.received.records ? 'partial' : 'unavailable',
+        cutoff: s.development.cutoff ?? s.received.cutoff,
+        grantsRupees: null,
+        loansRupees: null,
+        directRupees: null,
+        missingAmounts: 0,
+      })) ?? [];
+  return (
+    <main
+      className="app atlas-shell"
+      data-theme={theme}
+      data-road-showcase={work?.id === roadCardDemo.id ? 'true' : 'false'}
+      data-demo-card={work?.demo ? 'true' : 'false'}
+      data-content={filmEnabled ? 'true' : 'false'}
+      data-content-frame={contentPresentation?.frame ?? 'screen'}
+      data-content-clean={contentPresentation?.clean ? 'true' : 'false'}
+      data-content-card={contentPresentation?.card ?? 'show'}
+      data-card-focus={contentPresentation?.cardFocus ?? 'overview'}
+      data-screen={view.screen}
+      data-exploring={view.exploring ? 'true' : 'false'}
+    >
+      <a
+        className="skip-link"
+        href="#atlas-list"
+        onClick={() => {
+          explore();
+          setRail('explore');
+        }}
+      >
+        Skip to state and project list
+      </a>
+      <AtlasMap
+        exploring={view.exploring}
+        states={mapStates}
+        state={view.state}
+        year={view.year}
+        purpose={projectPurpose(view.purpose)}
+        query={query}
+        layers={layers}
+        onState={selectState}
+        onAsset={selectAsset}
+        onWork={selectWork}
+        onExplore={explore}
+        onViewport={setBounds}
+        action={action}
+        asset={asset}
+        work={work}
+        locationSelected={view.screen === 'asset'}
+        theme={theme}
+        onPreview={setPreview}
+        onMapReady={setMapInstance}
+        onProjectStatus={setProjectMapStatus}
+        onAssetStatus={setHistoricalMapStatus}
+        cameraControlled={cameraPlaying}
+        contentMode={filmEnabled}
+        contentFrame={contentPresentation?.frame ?? 'screen'}
+      />
+      <header className="atlas-header">
+        <button className="atlas-brand" onClick={home} aria-label="Hisaab explore">
+          <Target size={28} />
+          <span>
+            hisaab<span>.</span>
+          </span>
+        </button>
+        <div className="atlas-breadcrumb">
+          <button onClick={home}>India</button>
+          {state && (
+            <>
+              <ChevronRight size={12} />
+              <button onClick={() => selectState(state.code)}>{state.name}</button>
+            </>
+          )}
+          {view.screen === 'asset' && (
+            <>
+              <ChevronRight size={12} />
+              <span>Project receipt</span>
+            </>
+          )}
+        </div>
+        <div className="atlas-header-actions">
+          <button
+            className="atlas-theme-toggle"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to day mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button
+            className="atlas-about"
+            onClick={() => setPanel('sources')}
+            aria-label="About the data"
+          >
+            <Info size={18} />
+            <span>About the data</span>
+          </button>
+        </div>
+      </header>
+      <nav className="atlas-rail rail-left" aria-label="Explore controls">
+        <button
+          ref={railTrigger}
+          aria-label="Explore states and projects"
+          aria-expanded={rail === 'explore'}
+          onClick={() => {
+            explore();
+            setRail(rail === 'explore' ? null : 'explore');
+          }}
+        >
+          <Layers3 size={21} />
+        </button>
+        <button
+          aria-label="Show funding layer"
+          aria-pressed={layers.funding && view.exploring}
+          onClick={() => {
+            explore();
+            setLayers({ ...layers, funding: !layers.funding });
+          }}
+        >
+          <Building2 size={21} />
+        </button>
+        <button
+          aria-label="Find a place or project"
+          onClick={() => {
+            explore();
+            setRail('explore');
+            requestAnimationFrame(() => document.getElementById('atlas-search')?.focus());
+          }}
+        >
+          <Search size={21} />
+        </button>
+      </nav>
+      <nav className="atlas-rail rail-right" aria-label="Map controls">
+        <button
+          aria-label="Map settings and layers"
+          aria-expanded={rail === 'settings'}
+          onClick={() => setRail(rail === 'settings' ? null : 'settings')}
+        >
+          <Settings2 size={21} />
+        </button>
+        <span />
+        <button aria-label="Zoom in" onClick={() => mapAction('in')}>
+          <Plus size={21} />
+        </button>
+        <button aria-label="Zoom out" onClick={() => mapAction('out')}>
+          <Minus size={21} />
+        </button>
+        <button aria-label="Reset map north" onClick={() => mapAction('north')}>
+          <Compass size={21} />
+        </button>
+        <button aria-label="Toggle perspective" onClick={() => mapAction('perspective')}>
+          3D
+        </button>
+        <span />
+        <button aria-label="My private reports" onClick={() => setPanel('track')}>
+          <MessageSquare size={20} />
+        </button>
+      </nav>
+      {!view.exploring && (
+        <div className="atlas-welcome">
+          <span className="atlas-kicker">A COUNTRY. A QUESTION.</span>
+          <h1>
+            Where does the
+            <br />
+            money go?
+          </h1>
+          <p>Explore India. Follow the development.</p>
+          <button
+            onClick={() => {
+              explore();
+              setRail('explore');
+            }}
+          >
+            Explore India <ArrowRight size={17} />
+          </button>
+        </div>
+      )}
+      {view.exploring && (
+        <div className="atlas-year-toolbar">
+          <div className="atlas-measures" role="group" aria-label="Funding measure">
+            {Object.entries(measures).map(([key, label]) => (
+              <button
+                key={key}
+                aria-pressed={view.measure === key}
+                onClick={() => go({ ...view, measure: key as Exploration['measure'] }, true)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <label>
+            Financial year
+            <select
+              aria-label="Financial year"
+              value={view.year}
+              onChange={(e) => go({ ...view, year: e.target.value }, true)}
+            >
+              {fundingYears.map((y) => (
+                <option key={y} value={y}>
+                  FY {y.slice(0, 4)}–{y.slice(-2)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+      <AnimatePresence>
+        {rail && (
+          <motion.aside
+            key={rail}
+            className={'atlas-drawer ' + (rail === 'settings' ? 'drawer-right' : 'drawer-left')}
+            initial={{ opacity: 0, x: reduced ? 0 : rail === 'settings' ? 16 : -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: reduced ? 0 : rail === 'settings' ? 16 : -16 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+            aria-label={rail === 'settings' ? 'Map settings' : 'State and project explorer'}
+          >
+            <div className="atlas-panel-heading">
+              <span className="atlas-kicker">
+                {rail === 'settings' ? 'YOUR MAP' : 'EXPLORE INDIA'}
+              </span>
+              <button
+                aria-label="Close controls"
+                onClick={() => {
+                  setRail(null);
+                  railTrigger.current?.focus();
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {rail === 'settings' ? (
+              <>
+                <h2>Make it yours.</h2>
+                <h3>Layers</h3>
+                {(['projects', 'historical', 'funding'] as const).map((key) => (
+                  <button
+                    className="atlas-layer-row"
+                    key={key}
+                    aria-pressed={layers[key]}
+                    onClick={() => {
+                      explore();
+                      setLayers({ ...layers, [key]: !layers[key] });
+                    }}
+                  >
+                    <span>
+                      <strong>
+                        {key === 'projects'
+                          ? 'Reviewed development projects'
+                          : key === 'historical'
+                            ? 'Historical locations'
+                            : 'Funding colours'}
+                      </strong>
+                      <small>
+                        {key === 'projects'
+                          ? 'Financial-year project records'
+                          : key === 'historical'
+                            ? '812,976 archived locations · not yearly spending'
+                            : 'Recorded development or funding received; see card scope'}
+                      </small>
+                    </span>
+                    <i className={layers[key] ? 'is-on' : ''}>
+                      {layers[key] && <Check size={14} />}
+                    </i>
+                  </button>
+                ))}
+                <h3>Coverage in this view</h3>
+                <div className="atlas-coverage-list" aria-live="polite">
+                  <div className="atlas-coverage-row">
+                    <i className="key-project" />
+                    <span>
+                      <strong>Reviewed projects</strong>
+                      <small>
+                        {!layers.projects
+                          ? 'Layer is off'
+                          : projectMapStatus || 'Loading reviewed project locations…'}
+                      </small>
+                    </span>
+                  </div>
+                  <div className="atlas-coverage-row">
+                    <i className="key-history" />
+                    <span>
+                      <strong>Historical locations</strong>
+                      <small>
+                        {!layers.historical ||
+                        projectPurpose(view.purpose) === 'No matching project category'
+                          ? 'Layer is off'
+                          : historicalMapStatus || 'Loading archived locations…'}
+                      </small>
+                    </span>
+                  </div>
+                  <div className="atlas-coverage-row">
+                    <i className="key-funding" />
+                    <span>
+                      <strong>Funding colours</strong>
+                      <small>{layers.funding ? 'Recorded funding by state' : 'Layer is off'}</small>
+                    </span>
+                  </div>
+                </div>
+                <p className="atlas-coverage-note">
+                  Archived locations are not verified projects or proof of spending. Payment links
+                  remain pending.
+                </p>
+                <h3>Map controls</h3>
+                <div className="atlas-mobile-map-actions">
+                  {(
+                    [
+                      ['in', 'Zoom in'],
+                      ['out', 'Zoom out'],
+                      ['north', 'Reset north'],
+                      ['perspective', '3D perspective'],
+                    ] as const
+                  ).map(([type, label]) => (
+                    <button key={type} onClick={() => mapAction(type)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <h3>Appearance</h3>
+                <div className="atlas-setting-row">
+                  {(['satellite', 'streets'] as const).map((s) => (
+                    <button key={s} aria-pressed={appearance === s} onClick={() => mapAction(s)}>
+                      {s === 'satellite' ? 'Satellite' : 'Map'}
+                    </button>
+                  ))}
+                </div>
+                <div className="atlas-setting-row">
+                  {(['day', 'dusk', 'night'] as const).map((s) => (
+                    <button key={s} onClick={() => mapAction(s)}>
+                      {s[0].toUpperCase() + s.slice(1)}
+                    </button>
+                  ))}
+                </div>
+                <button className="atlas-text-button" onClick={() => mapAction('terrain')}>
+                  Toggle terrain
+                </button>
+                <button className="atlas-text-button" onClick={() => setPanel('track')}>
+                  Open my private reports
+                </button>
+              </>
+            ) : (
+              <>
+                <h2>Find your place.</h2>
+                <label className="atlas-search">
+                  <Search size={18} />
+                  <input
+                    id="atlas-search"
+                    aria-label="Search places and projects"
+                    placeholder="State, district, project or official ID"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                </label>
+                <label className="atlas-purpose">
+                  Purpose
+                  <select
+                    aria-label="Development purpose"
+                    value={view.purpose}
+                    onChange={(e) => go({ ...view, purpose: e.target.value }, true)}
+                  >
+                    <option value="all">All development</option>
+                    {Object.entries(fundingPurposes).map(([id, label]) => (
+                      <option key={id} value={id}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <section className="atlas-national-summary" aria-live="polite">
+                  <strong>Recorded funding evidence</strong>
+                  <p>
+                    {busy
+                      ? 'Loading reviewed facts…'
+                      : data
+                        ? `${data.coverage.reviewedRecords.toLocaleString('en-IN')} facts for this year and measure · partial coverage`
+                        : 'Funding evidence unavailable.'}
+                  </p>
+                  <p>
+                    Development in an area and transfers received remain separate. Figures appear
+                    after selecting a state.
+                  </p>
+                  {data?.national.records.length ? (
+                    <details>
+                      <summary>Nationwide / state breakdown unavailable</summary>
+                      {data.national.records.map((r) => (
+                        <button
+                          className="atlas-programme-row"
+                          key={r.id}
+                          onClick={() => setProgramme(r)}
+                        >
+                          {r.programme} · {formatMoney(r.amountRupees)}
+                        </button>
+                      ))}
+                    </details>
+                  ) : (
+                    <small>
+                      National programmes without a reviewed state split remain unavailable.
+                    </small>
+                  )}
+                  {error && (
+                    <p role="status">
+                      {error}
+                      <button onClick={() => setRefresh((n) => n + 1)}>Retry funding</button>
+                    </p>
+                  )}
+                </section>
+                <h3>States and Union Territories</h3>
+                <div id="atlas-list" className="atlas-state-list">
+                  {fundingStates
+                    .filter((s) => s.name.toLowerCase().includes(query.toLowerCase()))
+                    .map((s) => (
+                      <button key={s.code} onClick={() => selectState(s.code)}>
+                        <span>{s.name}</span>
+                        <ChevronRight size={15} />
+                      </button>
+                    ))}
+                </div>
+                <h3>
+                  Reviewed projects <small>{total.toLocaleString('en-IN')}</small>
+                </h3>
+                <ProjectList works={works} error={projectError} onSelect={selectWork} />
+                <div className="atlas-pagination">
+                  <button disabled={!offset} onClick={() => setOffset((n) => Math.max(0, n - 100))}>
+                    Previous
+                  </button>
+                  <small>
+                    {total ? offset + 1 : 0}–{Math.min(offset + 100, total)} of{' '}
+                    {total.toLocaleString('en-IN')}
+                  </small>
+                  <button
+                    disabled={offset + 100 >= total}
+                    onClick={() => setOffset((n) => n + 100)}
+                  >
+                    Next
+                  </button>
+                </div>
+                <HistoricalList
+                  bounds={bounds}
+                  query={query}
+                  purpose={projectPurpose(view.purpose)}
+                  onSelect={selectAsset}
+                />
+                <button className="atlas-text-button" onClick={() => setPanel('spending')}>
+                  Evidence progress and data acquisition <ArrowRight size={15} />
+                </button>
+              </>
+            )}
+          </motion.aside>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {view.screen === 'state' && state && rail !== 'explore' && (
+          <motion.aside
+            key={state.code}
+            className="atlas-state-card atlas-paper"
+            initial={{ opacity: 0, x: reduced ? 0 : -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: reduced ? 0 : -20 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+          >
+            <div className="atlas-panel-heading">
+              <span className="atlas-kicker">STATE / DEVELOPMENT</span>
+              <button
+                aria-label="Close state card"
+                onClick={() => go({ ...view, screen: 'india', state: null }, true)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <h1>{state.name}</h1>
+            <p className="atlas-caption">
+              FY {view.year.slice(0, 4)}–{view.year.slice(-2)} · {measures[view.measure]}
+            </p>
+            <JurisdictionSourceInventory jurisdiction={state.name} />
+            <h3>Development within this state</h3>
+            <div className="atlas-amount">
+              {busy ? 'Loading…' : formatMoney(area?.development.combinedAmountRupees ?? null)}
+            </div>
+            <p className="atlas-caption">
+              {area?.development.combinedAvailable
+                ? 'Reviewed records · partial coverage'
+                : 'A reconciled combined amount is not available.'}
+            </p>
+            <div className="atlas-origin-grid">
+              {Object.entries(origins).map(([key, label]) => (
+                <div key={key}>
+                  <small>{label}</small>
+                  <strong>
+                    {formatMoney(
+                      area?.development.origins.find((o) => o.origin === key)?.amountRupees ?? null,
+                    )}
+                  </strong>
+                </div>
+              ))}
+            </div>
+            <h3>Funding received by the state</h3>
+            <div className="atlas-transfer-amount">
+              {formatMoney(area?.received.amountRupees ?? null)}
+            </div>
+            <p className="atlas-caption">
+              Recorded transfers/programme funding. Separate from downstream spending.
+            </p>
+            <h3>By purpose</h3>
+            {area?.purposes
+              .filter((p) => p.records)
+              .map((p) => (
+                <button
+                  className="atlas-breakdown-row"
+                  key={p.id}
+                  onClick={() => go({ ...view, purpose: p.id }, true)}
+                >
+                  <span>{p.name}</span>
+                  <strong>{formatMoney(p.amountRupees)}</strong>
+                </button>
+              ))}
+            {!area?.purposes.some((p) => p.records) && (
+              <p className="atlas-caption">
+                Purpose-linked development evidence is still being acquired.
+              </p>
+            )}
+            <h3>Programmes and evidence</h3>
+            {area?.records.map((r) => (
+              <button className="atlas-programme-row" key={r.id} onClick={() => setProgramme(r)}>
+                <div>
+                  <strong>{r.programme}</strong>
+                  <small>
+                    {r.scope === 'received' ? 'Funding received' : 'Development within the state'} ·{' '}
+                    {origins[r.origin]}
+                  </small>
+                </div>
+                <span>
+                  {formatMoney(r.amountRupees)}
+                  <ChevronRight size={14} />
+                </span>
+              </button>
+            ))}
+            <h3>Explore the local works</h3>
+            <LocalAreas
+              state={state.code}
+              onQuery={(value) => {
+                setQuery(value);
+                setRail('explore');
+              }}
+            />
+            <ProjectList works={works} error={projectError} onSelect={selectWork} />
+            <div className="atlas-pagination">
+              <button disabled={!offset} onClick={() => setOffset((n) => Math.max(0, n - 100))}>
+                Previous
+              </button>
+              <small>
+                {total ? offset + 1 : 0}–{Math.min(offset + 100, total)} of{' '}
+                {total.toLocaleString('en-IN')}
+              </small>
+              <button disabled={offset + 100 >= total} onClick={() => setOffset((n) => n + 100)}>
+                Next
+              </button>
+            </div>
+            <button
+              className="atlas-text-button"
+              onClick={() => {
+                setRail('explore');
+              }}
+            >
+              Search districts, villages and project IDs <Search size={14} />
+            </button>
+            <div className="atlas-gap">
+              <ShieldCheck size={17} />
+              <div>
+                <strong>Coverage is partial</strong>
+                <p>
+                  Missing amounts stay unknown. Source cutoff:{' '}
+                  {area?.development.cutoff ?? area?.received.cutoff ?? 'Not available'}.
+                </p>
+              </div>
+            </div>
+            {error && (
+              <div className="atlas-gap" role="status">
+                <p>{error}</p>
+                <button onClick={() => setRefresh((n) => n + 1)}>Retry</button>
+              </div>
+            )}
+            <button className="atlas-text-button" onClick={() => setPanel('spending')}>
+              View evidence progress <ArrowRight size={15} />
+            </button>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {view.screen === 'asset' && (
+          <motion.aside
+            className="atlas-asset-card atlas-paper cinematic-asset-card"
+            data-asset-card
+            data-expanded={cardExpanded}
+            drag="y"
+            dragListener={false}
+            dragControls={drag}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            dragMomentum={false}
+            onDragEnd={(_, info) => {
+              if (info.offset.y < -60) setCardExpanded(true);
+              else if (info.offset.y > 100 || info.velocity.y > 650) {
+                if (cardExpanded) setCardExpanded(false);
+                else back();
+              }
+            }}
+            initial={{ opacity: 0, x: reduced ? 0 : 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: reduced ? 0 : 20 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+            aria-label="Project receipt"
+          >
+            <button
+              aria-label={cardExpanded ? 'Collapse asset card' : 'Expand asset card'}
+              onClick={() => setCardExpanded((v) => !v)}
+              className="atlas-sheet-handle"
+              style={{ touchAction: 'none' }}
+              onPointerDown={(e) => {
+                if (innerWidth < 760) drag.start(e);
+              }}
+            />
+            <div className="atlas-panel-heading">
+              <button aria-label="Back from project" onClick={back}>
+                <ArrowLeft size={18} />
+              </button>
+              <span className="atlas-kicker">PROJECT RECEIPT</span>
+              <button aria-label="Close project receipt" onClick={back}>
+                <X size={18} />
+              </button>
+            </div>
+            {work?.demo && (
+              <div className="demo-record-banner" role="note">
+                <strong>
+                  {work?.id === roadCardDemo.id
+                    ? 'Illustrative data'
+                    : 'SHOWCASE · ILLUSTRATIVE DATA'}
+                </strong>
+                <span>Example card — names, amounts and records are fictional.</span>
+              </div>
+            )}
+            {filmEnabled &&
+              contentPresentation?.cardFocus !== 'overview' &&
+              contentPresentation?.cardFocus !== 'hero' && (
+                <div className="content-card-caption">
+                  <strong>{work?.title ?? asset?.title ?? 'Selected record'}</strong>
+                  <small>
+                    {work?.demo
+                      ? 'Demo payment schedule'
+                      : work?.money.some((e) => e.measure === 'payment' && e.approved)
+                        ? 'Reviewed payment evidence linked'
+                        : 'Financial records not linked'}
+                  </small>
+                </div>
+              )}
+            <AssetVisual
+              id={work?.id ?? asset?.id ?? 'loading'}
+              title={work?.title ?? asset?.title ?? 'Selected location'}
+              work={work}
+              preview={preview}
+              media={work?.media ?? asset?.photos}
+            />
+            <h1>{work?.title ?? asset?.title ?? 'Loading source record…'}</h1>
+            <p className="atlas-caption">
+              <MapPin size={13} />
+              {work
+                ? work.district + ', ' + work.state
+                : (asset?.state ?? 'Location evidence loading')}
+              {work?.demo ? ' · Showcase at source coordinate' : ''}
+            </p>
+            {projectError && <p role="status">{projectError}</p>}
+            <div className="asset-card-badges">
+              {work?.demo && <span>Fictional demo</span>}
+              <span>{work ? 'Project record' : 'Historical asset'}</span>
+              <span>
+                {work?.demo
+                  ? 'Sample payments'
+                  : work?.money.some((e) => e.measure === 'payment' && e.approved)
+                    ? 'Payment records linked'
+                    : 'Funding not linked'}
+              </span>
+            </div>
+            <div className="atlas-receipt-money" data-card-section="money">
+              {(['sanction', 'contract', 'payment'] as const).map((m) => {
+                const result = work ? aggregateMoney(work.money, m) : null;
+                return (
+                  <div key={m}>
+                    <small>
+                      {m === 'sanction' ? 'Sanctioned' : m === 'contract' ? 'Contract' : 'Payments'}
+                    </small>
+                    <strong>{result?.eventCount ? formatMoney(result.amount) : '—'}</strong>
+                  </div>
+                );
+              })}
+            </div>
+            {work && <h3 data-card-section="timeline">Funding and progress</h3>}
+            {asset && linked.length > 0 && (
+              <>
+                <h3>Reviewed projects at this asset</h3>
+                <ProjectList works={linked} error="" onSelect={selectWork} />
+              </>
+            )}
+            {work
+              ? work.stages.map((s) => (
+                  <button
+                    className="atlas-timeline-row"
+                    key={s.id}
+                    onClick={() => {
+                      setReceipt(s.receipts);
+                      setPanel('receipt');
+                    }}
+                  >
+                    <i className={s.state === 'found' ? 'verified' : ''}>
+                      {s.state === 'found' && <Check size={13} />}
+                    </i>
+                    <div>
+                      <strong>{s.label}</strong>
+                      <small>
+                        {displayDate(s.date)} ·{' '}
+                        {s.id === 'completion' && s.completionBasis
+                          ? s.completionBasis + ' evidence'
+                          : s.state.replaceAll('_', ' ')}
+                      </small>
+                    </div>
+                    <ChevronRight size={15} />
+                  </button>
+                ))
+              : null}
+            {asset?.id === roadAssetId && (
+              <button className="atlas-text-button" onClick={() => selectWork(roadCardDemo)}>
+                Open ₹50 lakh illustrative road card <ArrowRight size={15} />
+              </button>
+            )}
+            {asset?.id === kebaliAssetId && (
+              <button className="atlas-text-button" onClick={() => selectWork(kebaliCardDemo)}>
+                Open illustrative showcase · fictional payments <ArrowRight size={15} />
+              </button>
+            )}
+            <AssetEvidenceSummary
+              hasLocation={!!(work?.location ?? asset?.location)}
+              hasPayments={!!work?.money.some((e) => e.measure === 'payment' && e.approved)}
+            />
+            {work?.id === completeCardDemo.id && <DemoPlaceContext />}
+            {work && (
+              <>
+                <p className="atlas-caption">{work.summary}</p>
+                <h3 data-card-section="payments">Recorded payments</h3>
+                {work.money
+                  .filter((e) => e.measure === 'payment' && e.approved)
+                  .map((e) => (
+                    <article className="atlas-payment" key={e.id}>
+                      <strong>{formatExactMoney(e.amount)}</strong>
+                      <dl>
+                        <dt>Recipient</dt>
+                        <dd>{e.payee ?? 'Not established'}</dd>
+                        <dt>Date</dt>
+                        <dd>{displayDate(e.date)}</dd>
+                        <dt>Amount basis</dt>
+                        <dd>{e.amountBasis ?? 'Unknown'}</dd>
+                        <dt>Payment reference</dt>
+                        <dd>{e.sourcePaymentId ?? 'Not available'}</dd>
+                      </dl>
+                      <button
+                        onClick={() => {
+                          setReceipt(
+                            work.stages
+                              .flatMap((s) => s.receipts)
+                              .filter((r) => r.id === e.receiptId),
+                          );
+                          setPanel('receipt');
+                        }}
+                      >
+                        Supporting record <ExternalLink size={12} />
+                      </button>
+                    </article>
+                  ))}
+                {!work.money.some((e) => e.measure === 'payment' && e.approved) && (
+                  <p className="atlas-caption">
+                    No approved individual payment records are attached.
+                  </p>
+                )}
+                {work.demoProfile && (
+                  <section className="demo-payment-breakdown" data-card-section="payments">
+                    <h4>Gross bills · deductions · net paid</h4>
+                    {work.demoProfile.paymentBreakdown.map((p) => (
+                      <div key={p.paymentId}>
+                        <strong>{p.paymentId}</strong>
+                        <span>{displayDate(p.date)}</span>
+                        <span>
+                          Gross {formatExactMoney(p.gross)} − deductions{' '}
+                          {formatExactMoney(p.deductions)} = net {formatExactMoney(p.net)}
+                        </span>
+                      </div>
+                    ))}
+                  </section>
+                )}
+                <h3 data-card-section="people">
+                  {work.demo
+                    ? 'Recipient and responsible role'
+                    : 'Responsible organisations and roles'}
+                </h3>
+                {!work.demo &&
+                  work.roles?.map((p) => (
+                    <button className="atlas-party-row" key={p.id} onClick={() => setParty(p)}>
+                      <span className="atlas-avatar">
+                        {p.photoUrl ? (
+                          <img src={p.photoUrl} alt="" referrerPolicy="no-referrer" />
+                        ) : (
+                          p.name.slice(0, 1)
+                        )}
+                      </span>
+                      <span>
+                        <strong>{p.name}</strong>
+                        <small>{p.role}</small>
+                      </span>
+                      <ChevronRight size={15} />
+                    </button>
+                  ))}
+                {work.demoProfile && (
+                  <section className="demo-recipient-profile" data-card-section="people">
+                    <div className="demo-recipient-header">
+                      <div className="demo-recipient-photo">
+                        <img
+                          src={work.roles?.[0]?.photoUrl ?? '/images/demo/neela-rao-portrait.png'}
+                          alt="AI-generated portrait of a fictional recipient"
+                        />
+                        {work.id !== roadCardDemo.id && <small>Fictional portrait</small>}
+                      </div>
+                      <div className="demo-recipient-identity">
+                        <span>
+                          {work.id === roadCardDemo.id ? 'CONTRACTOR' : 'FICTIONAL RECIPIENT'}
+                        </span>
+                        <h4>{work.roles?.[0]?.name}</h4>
+                        <p>Award recipient · contractor</p>
+                        <small>{work.roles?.[0]?.organisation}</small>
+                      </div>
+                    </div>
+                    <dl className="demo-recipient-details">
+                      <dt>Business address</dt>
+                      <dd>{work.demoProfile.recipientAddress}</dd>
+                      <dt>Telephone</dt>
+                      <dd>{work.demoProfile.recipientPhone}</dd>
+                      <dt>Email</dt>
+                      <dd>{work.demoProfile.recipientEmail}</dd>
+                      <dt>Registration</dt>
+                      <dd>{work.demoProfile.registration}</dd>
+                      {work.demoProfile.mappedLocality && (
+                        <>
+                          <dt>Mapped locality</dt>
+                          <dd>
+                            {work.demoProfile.mappedLocality}
+                            <small>Map context · not a verified project or contractor office</small>
+                            {work.demoProfile.mappedLocalitySource && (
+                              <a
+                                href={work.demoProfile.mappedLocalitySource}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Original location source
+                              </a>
+                            )}
+                          </dd>
+                        </>
+                      )}
+                    </dl>
+                  </section>
+                )}
+                {!work.roles?.length && (
+                  <p className="atlas-caption">
+                    {work.authority ?? 'Responsibility has not been established.'}
+                    {work.authorityReceipt && (
+                      <button
+                        onClick={() => {
+                          setReceipt([work.authorityReceipt!]);
+                          setPanel('receipt');
+                        }}
+                      >
+                        {' '}
+                        See source
+                      </button>
+                    )}
+                  </p>
+                )}
+                {Boolean(work.media?.length) && (
+                  <div className="atlas-site-photos">
+                    {work.media
+                      ?.filter((m) => m.kind === 'photo')
+                      .map((m) => (
+                        <figure key={m.id}>
+                          <img
+                            src={m.url}
+                            alt={m.caption}
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                          />
+                          <figcaption>
+                            {m.caption} · {displayDate(m.date)}
+                          </figcaption>
+                        </figure>
+                      ))}
+                  </div>
+                )}
+                <div className="atlas-gap">
+                  <ShieldCheck size={17} />
+                  <p>
+                    {work.physicalVerification}. Official records and field verification remain
+                    separate.
+                  </p>
+                </div>
+              </>
+            )}
+            {asset && (
+              <details className="atlas-location-source" data-card-section="source">
+                <summary>Location and original source</summary>
+                <p>Source coordinate, not a certified building footprint.</p>
+                <dl>
+                  <dt>Original asset ID</dt>
+                  <dd>{asset.sourceIdentity}</dd>
+                  <dt>Coordinates</dt>
+                  <dd>
+                    {asset.location[1].toFixed(6)}, {asset.location[0].toFixed(6)}
+                  </dd>
+                  <dt>Source edition</dt>
+                  <dd>{asset.edition}</dd>
+                  <dt>SHA-256</dt>
+                  <dd>{asset.sourceHash}</dd>
+                </dl>
+                <a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer">
+                  Original geography archive <ExternalLink size={12} />
+                </a>
+              </details>
+            )}
+            <div className="asset-card-actions" data-card-section="report">
+              <div className="asset-primary-actions">
+                <button
+                  data-card-section="source"
+                  className="asset-source-button"
+                  onClick={() => {
+                    if (asset) window.open(asset.sourceUrl, '_blank', 'noopener,noreferrer');
+                    else {
+                      setReceipt(work?.stages.flatMap((s) => s.receipts) ?? []);
+                      setPanel('receipt');
+                    }
+                  }}
+                >
+                  <ExternalLink size={16} />
+                  View source
+                </button>
+                <button className="atlas-report-button" onClick={() => setPanel('observation')}>
+                  <MessageSquare size={18} />
+                  Report an issue <ArrowRight size={17} />
+                </button>
+              </div>
+              <div className="atlas-footer-actions">
+                <button onClick={() => setPanel('complaint')}>Prepare complaint</button>
+                <button onClick={() => setPanel('rti')}>Request records</button>
+                <button
+                  onClick={() =>
+                    navigator.clipboard.writeText(
+                      location.origin + location.pathname + location.search,
+                    )
+                  }
+                >
+                  Copy link
+                </button>
+              </div>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {(programme || party) && (
+          <motion.aside
+            className="atlas-evidence-panel atlas-paper"
+            role="dialog"
+            aria-modal="true"
+            aria-label={programme ? 'Programme evidence' : 'Documented role'}
+            initial={{ opacity: 0, x: reduced ? 0 : 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: reduced ? 0 : 20 }}
+          >
+            <div className="atlas-panel-heading">
+              <span className="atlas-kicker">
+                {programme ? 'PROGRAMME EVIDENCE' : 'DOCUMENTED ROLE'}
+              </span>
+              <button
+                aria-label="Close evidence panel"
+                onClick={() => {
+                  setProgramme(null);
+                  setParty(null);
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {programme ? (
+              <Programme key={programme.id} record={programme} />
+            ) : (
+              party && (
+                <>
+                  <h2>{party.name}</h2>
+                  <p>{party.role}</p>
+                  <p>{party.organisation}</p>
+                  <p className="atlas-caption">
+                    This role is supported by the attached record. It is not a misconduct finding.
+                  </p>
+                  <a href={party.receipt.url} target="_blank" rel="noopener noreferrer">
+                    {party.receipt.title} <ExternalLink size={13} />
+                  </a>
+                  <p>{party.receipt.locator}</p>
+                  <PartyHistory
+                    party={party}
+                    year={view.year}
+                    onSelect={(w) => {
+                      setParty(null);
+                      selectWork(w);
+                    }}
+                  />
+                </>
+              )
+            )}
+          </motion.aside>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {panel && (
+          <motion.div
+            className="modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setPanel(null)}
+          >
+            <motion.section
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="dialog-title"
+              className={'modal ' + (['sources', 'spending'].includes(panel) ? 'wide' : '')}
+              initial={{ opacity: 0, y: reduced ? 0 : 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: reduced ? 0 : 15 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="modal-close icon-button"
+                aria-label="Close dialog"
+                onClick={() => setPanel(null)}
+              >
+                <X size={20} />
+              </button>
+              {panel === 'sources' && (
+                <>
+                  <div className="eyebrow">HISAAB / EVIDENCE</div>
+                  <h2 id="dialog-title">Every figure has a source.</h2>
+                  <p className="modal-intro">
+                    Historical locations, funding aggregates and individual project payments are
+                    different records. Coverage is partial and missing evidence remains unknown.
+                  </p>
+                  <div className="coverage-stats">
+                    <div>
+                      <strong>812,976</strong>
+                      <span>Historical locations</span>
+                    </div>
+                    <div>
+                      <strong>{catalogue.totalWorks}</strong>
+                      <span>Reviewed projects</span>
+                    </div>
+                    <div>
+                      <strong>{data?.coverage.reviewedRecords ?? '—'}</strong>
+                      <span>Funding facts for this selection</span>
+                    </div>
+                  </div>
+                  {catalogue.sources.map((s) => (
+                    <article className="receipt-document" key={s.id}>
+                      <h3>{s.name}</h3>
+                      <p>{s.coverage}</p>
+                      <small>{s.restriction}</small>
+                      <a href={s.url} target="_blank" rel="noopener noreferrer">
+                        Original source <ExternalLink size={12} />
+                      </a>
+                    </article>
+                  ))}
+                  <button className="primary" onClick={() => setPanel('spending')}>
+                    Evidence progress and acquisition
+                  </button>
+                  <a className="atlas-text-button" href="/admin">
+                    Private owner console ↗
+                  </a>
+                </>
+              )}
+              {panel === 'spending' && (
+                <SpendingExplorer
+                  catalogue={catalogue}
+                  onSources={() => setPanel('sources')}
+                  onWorks={(p) => {
+                    setQuery('');
+                    go(
+                      {
+                        ...view,
+                        exploring: true,
+                        purpose:
+                          p === 'Roads' ? 'transport' : p === 'Water' ? 'infrastructure' : 'all',
+                      },
+                      true,
+                    );
+                    setRail('explore');
+                    setPanel(null);
+                  }}
+                />
+              )}
+              {panel === 'receipt' && (
+                <>
+                  <div className="eyebrow">ORIGINAL EVIDENCE</div>
+                  <h2 id="dialog-title">Source receipts</h2>
+                  {receipt?.length ? (
+                    receipt.map((r) => (
+                      <article className="receipt-document" key={r.id}>
+                        <h3>{r.title}</h3>
+                        <blockquote>{r.rawText}</blockquote>
+                        <p>{r.locator}</p>
+                        <small>
+                          Retrieved {r.retrievedAt} · {r.permission}
+                        </small>
+                        <p className="atlas-source-hash">{r.documentHash}</p>
+                        <a href={r.url} target="_blank" rel="noopener noreferrer">
+                          Open original <ExternalLink size={13} />
+                        </a>
+                      </article>
+                    ))
+                  ) : (
+                    <p>No supporting record is attached to this stage.</p>
+                  )}
+                </>
+              )}
+              {['observation', 'complaint', 'rti'].includes(panel) && (
+                <CitizenForm
+                  kind={panel as 'observation' | 'complaint' | 'rti'}
+                  work={work}
+                  onTrack={() => setPanel('track')}
+                />
+              )}{' '}
+              {panel === 'track' && <Tracking />}
+            </motion.section>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {filmEnabled && (
+        <ContentCardFocus
+          presentation={contentPresentation}
+          active={contentPresentation?.card !== 'hide'}
+          focus={contentPresentation?.cardFocus ?? 'overview'}
+          record={work?.id ?? asset?.id ?? null}
+        />
+      )}
+      {filmEnabled && (
+        <FilmCapture
+          map={mapInstance}
+          onAsset={selectAsset}
+          onWork={selectWork}
+          onHome={() => {
+            setParty(null);
+            setProgramme(null);
+            setRail(null);
+            go({ ...initialExploration, exploring: true }, true);
+          }}
+          onLayers={(historical) => setLayers({ funding: false, projects: true, historical })}
+          onPresentation={setContentPresentation}
+          onActivity={setCameraPlaying}
+        />
+      )}
+    </main>
+  );
 }
-function ProjectList({works,error,onSelect}:{works:Work[];error:string;onSelect:(w:Work)=>void}){return <div className="atlas-project-list">{error&&<p role="status">{error}</p>}{works.map(w=><button key={w.id} onClick={()=>onSelect(w)}><MapPin size={16}/><span><strong>{w.title}</strong><small>{w.district} · {w.financialYear}</small></span><ChevronRight size={14}/></button>)}{!works.length&&!error&&<div className="atlas-project-empty"><BookOpen size={22}/><p>No reviewed projects match this selection. Historical locations remain available on the map.</p></div>}</div>;}
-function Programme({record:r}:{record:DevelopmentRecord}){const [history,setHistory]=useState<DevelopmentRecord[]>([]),[error,setError]=useState('');return <><h2>{r.programme}</h2><div className="atlas-transfer-amount">{formatMoney(r.amountRupees)}</div><p>{measures[r.measure]} · FY {r.financialYear} · {r.scope==='received'?'Funding received':'Development within the area'}</p><dl><dt>Exact amount</dt><dd>{formatExactMoney(r.amountRupees)}</dd><dt>Funding origin</dt><dd>{origins[r.origin]}</dd><dt>Ministry / authority</dt><dd>{r.ministry}</dd><dt>Channel and instrument</dt><dd>{r.channel.replaceAll('_',' ')} · {r.instrument.replaceAll('_',' ')}</dd><dt>Accounting basis</dt><dd>{r.accountingBasis.replaceAll('_',' ')}</dd><dt>Reporting period</dt><dd>{r.periodStart} — {r.periodEnd}</dd><dt>Source cutoff</dt><dd>{r.cutoff}</dd><dt>Publication date</dt><dd>{r.publicationDate??'Unavailable'}</dd><dt>Original table</dt><dd>{r.source.locator}</dd></dl><p>{r.notes}</p><a href={r.source.url+(r.source.page?'#page='+r.source.page:'')} target="_blank" rel="noopener noreferrer">Original document <ExternalLink size={13}/></a><button className="atlas-text-button" onClick={()=>{void fetch('/api/v1/development/programmes/'+encodeURIComponent(r.programmeId)+'?'+new URLSearchParams({scope:r.jurisdiction})).then(async response=>{const result=await response.json();if(!response.ok)throw new Error(result.error);setHistory(result.history.map((x:DevelopmentRecord)=>x));}).catch(e=>setError(e.message));}}>Open funding history <ArrowRight size={14}/></button>{error&&<p role="status">{error}</p>}{history.map(x=><article className="atlas-history" key={x.id}><strong>{x.financialYear} · {measures[x.measure]}</strong><p>{formatMoney(x.amountRupees)} · {x.estimate.replaceAll('_',' ')}</p><a href={x.source.url} target="_blank" rel="noopener noreferrer">Original evidence</a></article>)}</>;}
-
-function LocalAreas({state,onQuery}:{state:string;onQuery:(q:string)=>void}){const [areas,setAreas]=useState<{id:string;name:string;kind:string}[]>([]),[parent,setParent]=useState<string|null>(null),[error,setError]=useState('');useEffect(()=>{const c=new AbortController();setError('');void fetch('/api/v1/areas?'+new URLSearchParams(parent?{parent}:{state}),{signal:c.signal}).then(async r=>{const data=await r.json();if(!r.ok)throw new Error(data.error);setAreas(data.areas);}).catch(e=>{if(e.name!=='AbortError')setError(e.message);});return()=>c.abort();},[state,parent]);useEffect(()=>setParent(null),[state]);return <details><summary>District and locality explorer</summary>{parent&&<button className="atlas-text-button" onClick={()=>setParent(null)}>Return to districts</button>}{error&&<p role="status">{error}</p>}{!areas.length&&!error&&<p className="atlas-caption">Further reviewed area records are unavailable. Search by an official project ID or place name.</p>}{areas.map(a=><div className="atlas-locality-row" key={a.id}><button onClick={()=>onQuery(a.name)}>{a.name}<small>{a.kind}</small></button><button aria-label={'Explore subdivisions of '+a.name} onClick={()=>setParent(a.id)}><ChevronRight size={15}/></button></div>)}</details>;}
-
-function HistoricalList({bounds,query,purpose,onSelect}:{bounds:number[];query:string;purpose:string;onSelect:(a:AssetDetail)=>void}){
- const [offset,setOffset]=useState(0),[records,setRecords]=useState<{total:number;assets:{id:string;title:string;state:string;kind:string}[]}|null>(null),[error,setError]=useState(''),[opened,setOpened]=useState(false);const bbox=bounds.join(',');
- useEffect(()=>setOffset(0),[bbox,query,purpose]);useEffect(()=>{if(!opened)return;setRecords(null);setError('');if(purpose==='No matching project category'){setRecords({total:0,assets:[]});return;}const c=new AbortController(),p=new URLSearchParams({bbox,q:query,mode:'members',offset:String(offset)});const kind=purpose==='Roads'?'road':purpose==='Schools & education'?'education':purpose==='Hospitals & health'?'health':null;if(kind)p.set('kind',kind);void fetch('/api/v1/map/assets?'+p,{signal:c.signal}).then(async r=>{if(!r.ok)throw new Error('Historical locations unavailable');setRecords(await r.json());}).catch(e=>{if(e.name!=='AbortError')setError(e.message);});return()=>c.abort();},[opened,bbox,query,purpose,offset]);
- return <details className="atlas-history-list" onToggle={e=>setOpened(e.currentTarget.open)}><summary>Browse historical locations in view</summary><p className="atlas-caption">Archived facilities and road proposals, independent of the financial year. No spending link is implied.</p>{error&&<p role="status">{error}</p>}{!records&&!error&&<p role="status">Loading locations…</p>}{records?.assets.map(a=><button className="atlas-programme-row" key={a.id} onClick={()=>{void fetch('/api/v1/assets/'+encodeURIComponent(a.id)).then(async r=>{if(!r.ok)throw new Error('Original location unavailable');onSelect((await r.json()).asset);}).catch(e=>setError(e.message));}}><strong>{a.title}</strong><small>{a.state} · {a.kind}</small></button>)}{records&&<div className="atlas-pagination"><button disabled={!offset} onClick={()=>setOffset(n=>Math.max(0,n-25))}>Previous locations</button><small>{records.total?offset+1:0}–{Math.min(offset+25,records.total)} of {records.total.toLocaleString('en-IN')}</small><button disabled={offset+25>=records.total} onClick={()=>setOffset(n=>n+25)}>Next locations</button></div>}</details>;
+function ProjectList({
+  works,
+  error,
+  onSelect,
+}: {
+  works: Work[];
+  error: string;
+  onSelect: (w: Work) => void;
+}) {
+  return (
+    <div className="atlas-project-list">
+      {error && <p role="status">{error}</p>}
+      {works.map((w) => (
+        <button key={w.id} onClick={() => onSelect(w)}>
+          <MapPin size={16} />
+          <span>
+            <strong>{w.title}</strong>
+            <small>
+              {w.district} · {w.financialYear}
+            </small>
+          </span>
+          <ChevronRight size={14} />
+        </button>
+      ))}
+      {!works.length && !error && (
+        <div className="atlas-project-empty">
+          <BookOpen size={22} />
+          <p>
+            No reviewed projects match this selection. Historical locations remain available on the
+            map.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+function Programme({ record: r }: { record: DevelopmentRecord }) {
+  const [history, setHistory] = useState<DevelopmentRecord[]>([]),
+    [error, setError] = useState('');
+  return (
+    <>
+      <h2>{r.programme}</h2>
+      <div className="atlas-transfer-amount">{formatMoney(r.amountRupees)}</div>
+      <p>
+        {measures[r.measure]} · FY {r.financialYear} ·{' '}
+        {r.scope === 'received' ? 'Funding received' : 'Development within the area'}
+      </p>
+      <dl>
+        <dt>Exact amount</dt>
+        <dd>{formatExactMoney(r.amountRupees)}</dd>
+        <dt>Funding origin</dt>
+        <dd>{origins[r.origin]}</dd>
+        <dt>Ministry / authority</dt>
+        <dd>{r.ministry}</dd>
+        <dt>Channel and instrument</dt>
+        <dd>
+          {r.channel.replaceAll('_', ' ')} · {r.instrument.replaceAll('_', ' ')}
+        </dd>
+        <dt>Accounting basis</dt>
+        <dd>{r.accountingBasis.replaceAll('_', ' ')}</dd>
+        <dt>Reporting period</dt>
+        <dd>
+          {r.periodStart} — {r.periodEnd}
+        </dd>
+        <dt>Source cutoff</dt>
+        <dd>{r.cutoff}</dd>
+        <dt>Publication date</dt>
+        <dd>{r.publicationDate ?? 'Unavailable'}</dd>
+        <dt>Original table</dt>
+        <dd>{r.source.locator}</dd>
+      </dl>
+      <p>{r.notes}</p>
+      <a
+        href={r.source.url + (r.source.page ? '#page=' + r.source.page : '')}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Original document <ExternalLink size={13} />
+      </a>
+      <button
+        className="atlas-text-button"
+        onClick={() => {
+          void fetch(
+            '/api/v1/development/programmes/' +
+              encodeURIComponent(r.programmeId) +
+              '?' +
+              new URLSearchParams({ scope: r.jurisdiction }),
+          )
+            .then(async (response) => {
+              const result = await response.json();
+              if (!response.ok) throw new Error(result.error);
+              setHistory(result.history.map((x: DevelopmentRecord) => x));
+            })
+            .catch((e) => setError(e.message));
+        }}
+      >
+        Open funding history <ArrowRight size={14} />
+      </button>
+      {error && <p role="status">{error}</p>}
+      {history.map((x) => (
+        <article className="atlas-history" key={x.id}>
+          <strong>
+            {x.financialYear} · {measures[x.measure]}
+          </strong>
+          <p>
+            {formatMoney(x.amountRupees)} · {x.estimate.replaceAll('_', ' ')}
+          </p>
+          <a href={x.source.url} target="_blank" rel="noopener noreferrer">
+            Original evidence
+          </a>
+        </article>
+      ))}
+    </>
+  );
 }
 
-function PartyHistory({party,year,onSelect}:{party:PartyRole;year:string;onSelect:(w:Work)=>void}){const [works,setWorks]=useState<Work[]>([]),[offset,setOffset]=useState(0),[total,setTotal]=useState(0),[error,setError]=useState('');useEffect(()=>{if(!party.identityBasis)return;const c=new AbortController();void fetch('/api/v1/parties/'+encodeURIComponent(party.id)+'?'+new URLSearchParams({year,offset:String(offset)}),{signal:c.signal}).then(async r=>{if(!r.ok)throw new Error('Documented history unavailable');const data=await r.json();setWorks(data.works);setTotal(data.total);}).catch(e=>{if(e.name!=='AbortError')setError(e.message);});return()=>c.abort();},[party.id,party.identityBasis,year,offset]);return <section><h3>Previous five financial years</h3><p className="atlas-caption">{party.identityBasis?'Only reviewed projects connected by the documented official identity appear. Coverage is partial.':'A stable cross-project identity is not established. History cannot be matched by name alone.'}</p>{party.identityBasis&&<><ProjectList works={works} error={error} onSelect={onSelect}/><div className="atlas-pagination"><button disabled={!offset} onClick={()=>setOffset(n=>Math.max(0,n-25))}>Previous</button><small>{total.toLocaleString('en-IN')} documented projects</small><button disabled={offset+25>=total} onClick={()=>setOffset(n=>n+25)}>Next</button></div></>}</section>;}
+function LocalAreas({ state, onQuery }: { state: string; onQuery: (q: string) => void }) {
+  const [areas, setAreas] = useState<{ id: string; name: string; kind: string }[]>([]),
+    [parent, setParent] = useState<string | null>(null),
+    [error, setError] = useState('');
+  useEffect(() => {
+    const c = new AbortController();
+    setError('');
+    void fetch('/api/v1/areas?' + new URLSearchParams(parent ? { parent } : { state }), {
+      signal: c.signal,
+    })
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error);
+        setAreas(data.areas);
+      })
+      .catch((e) => {
+        if (e.name !== 'AbortError') setError(e.message);
+      });
+    return () => c.abort();
+  }, [state, parent]);
+  useEffect(() => setParent(null), [state]);
+  return (
+    <details>
+      <summary>District and locality explorer</summary>
+      {parent && (
+        <button className="atlas-text-button" onClick={() => setParent(null)}>
+          Return to districts
+        </button>
+      )}
+      {error && <p role="status">{error}</p>}
+      {!areas.length && !error && (
+        <p className="atlas-caption">
+          Further reviewed area records are unavailable. Search by an official project ID or place
+          name.
+        </p>
+      )}
+      {areas.map((a) => (
+        <div className="atlas-locality-row" key={a.id}>
+          <button onClick={() => onQuery(a.name)}>
+            {a.name}
+            <small>{a.kind}</small>
+          </button>
+          <button aria-label={'Explore subdivisions of ' + a.name} onClick={() => setParent(a.id)}>
+            <ChevronRight size={15} />
+          </button>
+        </div>
+      ))}
+    </details>
+  );
+}
+
+function HistoricalList({
+  bounds,
+  query,
+  purpose,
+  onSelect,
+}: {
+  bounds: number[];
+  query: string;
+  purpose: string;
+  onSelect: (a: AssetDetail) => void;
+}) {
+  const [offset, setOffset] = useState(0),
+    [records, setRecords] = useState<{
+      total: number;
+      assets: { id: string; title: string; state: string; kind: string }[];
+    } | null>(null),
+    [error, setError] = useState(''),
+    [opened, setOpened] = useState(false);
+  const bbox = bounds.join(',');
+  useEffect(() => setOffset(0), [bbox, query, purpose]);
+  useEffect(() => {
+    if (!opened) return;
+    setRecords(null);
+    setError('');
+    if (purpose === 'No matching project category') {
+      setRecords({ total: 0, assets: [] });
+      return;
+    }
+    const c = new AbortController(),
+      p = new URLSearchParams({ bbox, q: query, mode: 'members', offset: String(offset) });
+    const kind =
+      purpose === 'Roads'
+        ? 'road'
+        : purpose === 'Schools & education'
+          ? 'education'
+          : purpose === 'Hospitals & health'
+            ? 'health'
+            : null;
+    if (kind) p.set('kind', kind);
+    void fetch('/api/v1/map/assets?' + p, { signal: c.signal })
+      .then(async (r) => {
+        if (!r.ok) throw new Error('Historical locations unavailable');
+        setRecords(await r.json());
+      })
+      .catch((e) => {
+        if (e.name !== 'AbortError') setError(e.message);
+      });
+    return () => c.abort();
+  }, [opened, bbox, query, purpose, offset]);
+  return (
+    <details className="atlas-history-list" onToggle={(e) => setOpened(e.currentTarget.open)}>
+      <summary>Browse historical locations in view</summary>
+      <p className="atlas-caption">
+        Archived facilities and road proposals, independent of the financial year. No spending link
+        is implied.
+      </p>
+      {error && <p role="status">{error}</p>}
+      {!records && !error && <p role="status">Loading locations…</p>}
+      {records?.assets.map((a) => (
+        <button
+          className="atlas-programme-row"
+          key={a.id}
+          onClick={() => {
+            void fetch('/api/v1/assets/' + encodeURIComponent(a.id))
+              .then(async (r) => {
+                if (!r.ok) throw new Error('Original location unavailable');
+                onSelect((await r.json()).asset);
+              })
+              .catch((e) => setError(e.message));
+          }}
+        >
+          <strong>{a.title}</strong>
+          <small>
+            {a.state} · {a.kind}
+          </small>
+        </button>
+      ))}
+      {records && (
+        <div className="atlas-pagination">
+          <button disabled={!offset} onClick={() => setOffset((n) => Math.max(0, n - 25))}>
+            Previous locations
+          </button>
+          <small>
+            {records.total ? offset + 1 : 0}–{Math.min(offset + 25, records.total)} of{' '}
+            {records.total.toLocaleString('en-IN')}
+          </small>
+          <button disabled={offset + 25 >= records.total} onClick={() => setOffset((n) => n + 25)}>
+            Next locations
+          </button>
+        </div>
+      )}
+    </details>
+  );
+}
+
+function PartyHistory({
+  party,
+  year,
+  onSelect,
+}: {
+  party: PartyRole;
+  year: string;
+  onSelect: (w: Work) => void;
+}) {
+  const [works, setWorks] = useState<Work[]>([]),
+    [offset, setOffset] = useState(0),
+    [total, setTotal] = useState(0),
+    [error, setError] = useState('');
+  useEffect(() => {
+    if (!party.identityBasis) return;
+    const c = new AbortController();
+    void fetch(
+      '/api/v1/parties/' +
+        encodeURIComponent(party.id) +
+        '?' +
+        new URLSearchParams({ year, offset: String(offset) }),
+      { signal: c.signal },
+    )
+      .then(async (r) => {
+        if (!r.ok) throw new Error('Documented history unavailable');
+        const data = await r.json();
+        setWorks(data.works);
+        setTotal(data.total);
+      })
+      .catch((e) => {
+        if (e.name !== 'AbortError') setError(e.message);
+      });
+    return () => c.abort();
+  }, [party.id, party.identityBasis, year, offset]);
+  return (
+    <section>
+      <h3>Previous five financial years</h3>
+      <p className="atlas-caption">
+        {party.identityBasis
+          ? 'Only reviewed projects connected by the documented official identity appear. Coverage is partial.'
+          : 'A stable cross-project identity is not established. History cannot be matched by name alone.'}
+      </p>
+      {party.identityBasis && (
+        <>
+          <ProjectList works={works} error={error} onSelect={onSelect} />
+          <div className="atlas-pagination">
+            <button disabled={!offset} onClick={() => setOffset((n) => Math.max(0, n - 25))}>
+              Previous
+            </button>
+            <small>{total.toLocaleString('en-IN')} documented projects</small>
+            <button disabled={offset + 25 >= total} onClick={() => setOffset((n) => n + 25)}>
+              Next
+            </button>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}

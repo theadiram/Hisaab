@@ -55,7 +55,6 @@ Local budget integration verifies exact amounts, missing original rejection, ide
 
 The LGD parser checks exact export headers, integral unique codes, state consistency, row locators and assessed total counts. Twenty worker tests pass. Hosted registry tests verify idempotent re-import and rejection of changed identities, partial registries and absent originals. Anonymous registry writes are denied. Docker Desktop was restarted and the pending local migrations were applied. Publication regression tests pass with immutable original payloads, preserved subsequent editions, same-original parser-change rejection, permission gates and withdrawal. The queue regression now covers unfiltered exact counts, offset pages, searches and latest reconciled payloads. The first hosted page limits evidence loading before revision lookup; queue failures are reported separately from authentication failures. Trigram indexes search original or latest reconciled title/state/district text, preserve literal percent/underscore input and exclude superseded titles. Hosted owner search for Pudukkottai returned 177 candidates. A clean CI replay remains pending.
 
-
 Unit and generic ingestion checks pass. Disposable local administrator tests verify password-only denial, authenticator enforcement, membership revocation and signed-out session denial. Publication tests cover source permission, approved geography, linked financial facts, explicit correction versions and withdrawal without exposing an older version. SQL regression tests cover exact totals, conflicting identities, pagination, map bounds beyond the first page and operating limits. All 22 desktop/mobile browser checks passed against hosted storage, including PDF acknowledgements, original-byte equality, cross-case denial and deletion. PDF text extraction and rendered output were separately verified; a variable-font rendering defect was corrected with a static font. Production build, 16 unit tests and four generic ingestion tests passed. Dependency audit reports no vulnerabilities. Hosted advisors report informational default-deny private RLS tables and warnings for the intentionally callable authenticated SECURITY DEFINER administration functions; these functions enforce membership, active sessions and verified MFA internally. Anonymous denial and local session/MFA tests passed. The hosted advisor also flags disabled leaked-password protection; this remains an operational item, and no paid-plan change was made. Remediation: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection . See https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable . Two additional desktop/mobile checks passed for default actual coverage, acquisition counts and public API field restrictions.
 
 ## Unfinished work and release gates
@@ -151,6 +150,7 @@ Prepared official eGramSwaraj Chandanbhati / Balangir / Odisha FY 2025–26 Marc
 The request dossier is now accessible inside the app through an owner-MFA endpoint; public tracker responses exclude request text and email thread IDs. The owner evidence form uses labelled inputs for stage decisions, payment ID, business recipient, gross/net basis, payment type and allocation receipt. It no longer requires editing a technical payload. Twenty-eight application tests pass, type checking passes, production build passes, and the live request endpoint denies unauthenticated access. The preview server was restarted after interruption.
 
 Supabase security advisors reported the existing deliberate deny-by-default private-table RLS configuration and authenticated SECURITY DEFINER entry points. Those entry points enforce the actual owner/MFA membership check; anonymous publication and direct validator access are denied. Leaked-password protection remains disabled in the current project; no billing or authentication settings were changed. No source records were published or financial coverage expanded by this implementation.
+
 # eGramSwaraj sample assessed — 7 October 2026
 
 Further payment verification found the public eGramSwaraj activity-expenditure report but its FY 2025–26 Balangir village selector excludes Chandanbhati. Official Census source confirms village code 420043 = Baghala and 420044 = Chandanbhati (https://censusindia.gov.in/nada/index.php/catalog/6584/study-description); this corroborates API village references but does not independently validate upload coordinates.
@@ -165,7 +165,6 @@ User downloaded the official Chandanbhati March FY 2025–26 cashbook after comp
 
 Tracker and existing owner request dossier now identify the two work references and missing records. No project geometry or official activity mapping inferred; no payment approved or published. Voucher dates are accounting dates, not confirmed bank settlement dates. Gross/net definitions, precise geography, sanctions/contracts, complete payment histories and reuse authorization remain missing. Cashbook original contains personal/utility identifiers and stays in ignored private acquisition storage; public tracker contains only coverage metadata. Parser checks reject duplicate vouchers and unbalanced books, retain recipient conflicts, and preserve decimals (four tests pass). New messages and RTI submissions have not been sent.
 
-
 ### PPMS project evidence update — 7 October 2026
 
 The filtered Balangir geotag report yielded 477 project rows across ten observed report pages. Exact official project codes connect 155 of the 156 treasury-bill projects; one project has no collected detail. Five candidates across Chandanbhati, Baidipali, Barapudgia, Barkani and Bhundimuhan now have private project/bill/location dossiers available inside Spending, protected by owner MFA. These are candidates, not approved payment cards. Source photo dates and final bill dates do not establish payment dates; executants do not establish recipients. Amount units, gross/net basis, payment dates, confirmed recipients, completion certificates and reuse terms remain unresolved. The filtered report is not a full project catalogue.
@@ -173,7 +172,6 @@ The filtered Balangir geotag report yielded 477 project rows across ten observed
 Five observed bill-linked payment-detail downloads now provide cheque dates/numbers and cheque amounts. Originals and beneficiary banking/phone columns are private. Two cheque amounts differ from report bill amounts; allocation semantics need reconciliation. These are cheque records, not verified settlement. Owner-only Spending dossiers display safe cheque fields and the discrepancy flags. The PPMS sample/export/reuse request was explicitly authorized and sent 7 October 2026; response pending.
 
 Next collection checkpoint: inspect observed statewide PPMS report pagination from the first-page assessment, keeping batches bounded and private. Preserve exact report-linked payment downloads; do not infer full Odisha or nationwide totals from page rows. Continue beneficiary-role, cheque/bill discrepancy and settlement review before publication. Hourly acquisition continuation is active; it does not send automatic emails. Latest app verification: 28 tests passed, 10 PPMS parser tests passed, production build passed, unauthenticated private dossier endpoint returns 401.
-
 
 ### Reconciliation and wider collection — 7 October 2026
 
@@ -193,7 +191,6 @@ All three authorized request threads were checked again on 7 October 2026: each 
 
 Next bounded commands: `python3 workers/ppms_state_collection.py --max-pages 10`, bundled Python `workers/ppms_state_payments.py --max-downloads 20`, then `python3 workers/evidence_progress.py --progress-only`. Review source cutoff/editions before refreshing cached public report pages; counts refer to preserved editions. No background process continuously polls source servers; hourly continuation resumes this workflow.
 
-
 ### Incoming custodian response and continuing acquisition — 7 October 2026
 
 NRIDA forwarded the original request to a government contact at 11:52:57 IST, copying Hisaab. This is routing only: no export, attachments, field definitions or reuse authorization arrived. Original Gmail thread data and SHA-256 provenance are preserved in ignored private correspondence storage. eGramSwaraj and PPMS still have only the sent requests. No duplicate or new-recipient email was sent; the existing 16 October follow-up remains subject to office holidays. Public Spending status and the owner request dossier reflect the response.
@@ -206,16 +203,13 @@ Verification: 30 app tests, 14 PPMS tests and type checking pass. All 40 report 
 
 Production build also passes. Preview restarted after finding the prior server had stopped; live health and progress endpoints return 200, and unauthenticated private evidence returns 401.
 
-
 ### Bounded acquisition continuation — 2026-10-07T09:02:31.019653+00:00
 
 Observed statewide collection advanced to 50 report pages, 2,182 unique bill identities and 2,110 project codes. Still partial coverage; two differing bill editions remain quarantined. Eighty cheque documents preserved and parsed; 33 clipped amount columns, 13 bill/cheque differences and ten readable beneficiary-sum discrepancies. No settlement or payment approvals. All 130 report/PDF checksums and bill deduplication pass. Incoming thread IDs unchanged: NRIDA forwarding only, eGramSwaraj and PPMS pending. Expanded the unsent panchayat RTI/pilot drafts to request existing component-level cheque scope and dates; no outbound messages or filing. Tracker regenerated. Continue bounded observed pages/downloads; current counts overlap existing pilots and must not be summed.
 
-
 ### Pilot transaction history and collection — 7 October 2026
 
 Collected four official Transaction Flows events for the exact Chandanbhati project/bill: 24 February initiation/acknowledgement and 26 February treasury receipt/processing. The four-cell/five-header layout ambiguity is explicitly retained. Private minimized snapshot checksum and exact project/bill join pass; no bank fields captured. Added an owner-only source workflow timeline with a clear settlement limitation and projection test. Wider report batch now has 60 preserved pages, 2,695 unique bills and 2,610 project codes; 100 payment PDFs assessed, 35 clipped, 14 cheque/report differences, ten readable beneficiary-sum discrepancies. Two edition conflicts remain quarantined. All 160 report/PDF checksums and bill deduplication pass. Mail threads unchanged; no new outbound message or RTI submission. Public spending coverage remains zero. App tests: 31 pass; PPMS tests: 14 pass.
-
 
 ### Nationwide source research and West Bengal extension — 7 October 2026
 
@@ -225,36 +219,29 @@ New Route A collection: all 22 observed West Bengal PHED district financial-repo
 
 Saved source research, independent-agent prompt and 36-jurisdiction queue. 31 current jurisdiction labels match 32 preserved PMGSY source partitions; older labels/completeness require review. Existing national road/tender holdings are 210,946 unique works, not paid transactions. Research documents are available inside the owner request dossier. No new source claimed nationwide settlement, publication permissions or complete lifetime coverage. Thirty-one app tests and three new WB parser tests pass; type checking completed.
 
-
 ### Bounded acquisition and retry recovery — 2026-10-07T10:18:44.916197+00:00
 
 Ninety observed Odisha report pages now provide 4,176 unique bills and 4,059 project codes across 30 districts. Three differing bill editions are retained and quarantined. One report timeout was recovered through a bounded retry of its previously observed URL; the prior checkpoint is archived by checksum. The tracker now explicitly includes failed-page counts. Payment assessment has 141 original cheque PDFs, 36 clipped amount columns, 15 cheque/report differences and 22 readable beneficiary-sum discrepancies. All 231 report/PDF checksums and bill deduplication pass; source statuses remain distinct from settlement, with no approved payments. Mail checked after one transient connector failure: NRIDA forwarding unchanged; eGramSwaraj and PPMS still have no incoming reply. No outbound messages, fees or RTI submissions. Collection remains partial; continue bounded observed pages and payment downloads.
-
 
 ### Three supplied reports reviewed — 7 October 2026
 
 Read the 37-page PDF and both text reports; preserved originals with checksums and compared claims against current holdings. Acquired one BBMP FY 2025–26 CSV containing 4,729 rows, 3,964 recognizable job codes and exact amount/deduction/net arithmetic. Fourteen bill IDs repeat with different RTGS records; not deduplicated or counted twice. Verified the official public viewer and one job-linked Final bill: RTGS Generated, blank UTR fields, no independent settlement or exact geography. Completion control did not open a file. Identified PDF pilot-department confusion, outdated PPMS discovery claims, disputed MPLADS joins and unsupported TXT endpoints. Added comparison to existing owner research dossier. MGNREGA work-payment chain remains to be independently reproduced. No new messages, filing or payment publication.
 
-
 ### Public payment-source validation — 7 October 2026
 
 Acquired an official Odisha MPLADS public expenditure response: 3,826 rows, 2,195 full work IDs; 3,719 source Payment Success and 107 In-Progress. No transaction identity or settlement inferred; seven encoding-fault rows flagged. Country-wide response exceeded collection bound. Normalized BBMP mirror into 4,715 provisional bills and 4,729 RTGS references; compared two historical official bills, confirming mirror net amounts exceed the displayed Paid values. MGNREGA Amarpur plantation links three musters to one wage list and 30,618 rupees reported paid, but the consolidated date is Data Entry Date and FTO/bank response remains missing. Direct register fetch failed scope validation and is not accepted as the displayed original. Nine new parser tests pass. Updated in-app public progress and private owner research dossier. Zero payment approvals, new messages, filings or paid access. Continue docs/payment-source-validation-2026-10-07.md next bounded steps.
-
 
 ### Nationwide MPLADS default Lok Sabha report collection — 7 October 2026
 
 All 36 official state/UT partitions acquired and assessed, zero failed partitions. 89,497 source expenditure rows, 59,785 distinct full work IDs; 86,335 Payment Success and 3,162 In-Progress source statuses. 194 encoding-fault rows flagged. All state-original checksums pass; repeat run made no new requests and reproduced the summary. No total payment value calculated, transaction identity inferred, settlement approved or geography manufactured. These are scheme-specific source reports; other houses/tenures, supporting documents, payment references/reversals, geography and owner publication review remain. Collector bounds: six new states/run, 35 seconds/request, 20 MiB/response; source state IDs and request format taken from official dashboard scripts. New in-app tracker task summarizes the nationwide collection; private dossier documents exact scope and gaps. All 31 app tests and nine new parser tests pass.
 
-
 ### MPLADS supporting payment documents — 7 October 2026
 
 Acquired official Odisha sanction (4,469 rows) and completion (1,420 rows) reports, matched five projects using scoped recommendation/MP/state/constituency/house identities, and downloaded seven supporting attachments. Visually inspected two final bills and four completion certificates; school photo lacks GPS metadata. Eight source Payment Success expenditure rows map to the five candidate works. Both bills have source-disbursement/gross values exceeding net payable (800000 vs 761100; 200000 vs 183548), with exact deduction arithmetic. Three certificate physical completion dates differ from portal dates; preserve administrative/physical dates separately. One recipient is a junior engineer, and library rows include institutional deduction-like recipients. Transaction references, recipient roles/allocations, bank response, contracts, sanction-order downloads and exact geography remain missing. Five direct sanction ATTACH_ID downloads returned empty lists; completed-work file lists/downloads succeeded. Added private provenance, minimized document observations, reproducible reconciliation worker, targeted unsent record request and in-app progress/owner dossier. Three new review tests pass; zero publication approvals or outbound messages.
 
-
 ### Bounded acquisition continuation — 2026-10-07T11:18:09.654942+00:00
 
 Resumed observed Odisha PPMS pagination: 100 report pages, 4,634 unique bills, 4,510 project codes across 30 districts. One transient page timeout recovered with a bounded retry of its observed URL; four differing-edition comparisons across three bill identities remain quarantined. Six next-page links remain queued; completeness is not claimed. Added twenty bill-linked cheque PDFs: 161 preserved/assessed, zero parsing failures, 38 clipped amount-column layouts, 17 cheque/report differences and 25 readable beneficiary-sum discrepancies. All 261 original checksums verified; 161 source download URLs unique; every payment remains unapproved with settlement unverified. Source PDFs contain leading whitespace; parser warnings did not prevent assessment and original bytes remain unchanged. Mail checked: existing NRIDA forwarding unchanged, no incoming eGramSwaraj or PPMS response. No new messages, fees, filings or approvals. In-app tracker regenerated. Continue bounded observed pagination/payment downloads and the prepared five-project MPLADS gap requests; do not request unanswered access assistance again.
-
 
 ### Owner-only MPLADS receipt cards — 7 October 2026
 
@@ -262,11 +249,9 @@ Added five draft project receipts inside Spending, with sanctions, dated source 
 
 Bounded collection continued through six observed PPMS report pages: 106 preserved pages, 4,937 unique bills and 4,810 project codes across 30 districts; zero failed pages. All 106 report checksums verified. Pagination remains pending; four differing-edition comparisons retained, zero payment approvals.
 
-
 ### Bounded acquisition continuation — 2026-10-07T12:16:28.799206+00:00
 
 Six additional observed Odisha report pages collected: 112 report originals, 5,243 unique bills and 5,110 project codes across 30 districts. Six observed page links remain queued; zero failed pages. Four differing-edition comparisons across three distinct bill identities remain quarantined. Twenty further bill-linked cheque PDFs assessed: 181 originals, zero failures, 38 clipped amount-column layouts, 17 cheque/report differences and 28 readable beneficiary-sum discrepancies. All 293 report/PDF checksums, bill identity deduplication and unique download URLs verified. Amount discrepancies are retained without rounding, settlement inference or publication approval. Mail checked: NRIDA forwarding unchanged; no incoming eGramSwaraj or PPMS response. Existing named RTI and pilot drafts remain prepared, unsubmitted; no outbound messages, fees or new access. In-app tracker regenerated. Continue bounded observed report links and targeted payment-reference/geography acquisition.
-
 
 ### Acquisition and official house-scope extension — 2026-10-07T14:08:59.472886+00:00
 
@@ -274,13 +259,11 @@ Collected six more observed PPMS pages: 118 report originals, 5,547 unique bills
 
 Extended MPLADS collector using the already preserved official Rajya Sabha switch script (house 1), with separate private checkpoints and public summary. First six of 36 state/UT partitions acquired: 2378 source expenditure rows, 2078 full work IDs, 1 encoding-issue row; zero failed partitions. Every returned record checked against requested state and house. Default Rajya Sabha status/tenure scope is not presumed universal; records are not added to Lok Sabha counts or verified-payment totals. Two new tests reject incorrect/missing houses and wrong states; nine MPLADS tests pass. Existing 36 Lok Sabha checkpoints reproduced without network requests, preserving the 89,497-row scope. In-app progress updated with a separate Rajya Sabha acquisition task. No payment approvals, invented geography, new messages, fees or RTI submissions.
 
-
 ### Bounded acquisition continuation — 2026-10-07T15:05:53.769402+00:00
 
 Collected six further observed PPMS pages: 124 originals, 5,800 unique bills and 5,660 project codes across 30 districts. 7 observed links remain queued, zero report failures. Seven differing-edition comparisons now affect five bill identities; retained and quarantined without selecting a newer amount as correct. Twenty additional cheque PDFs assessed: 221 originals, zero failures, 44 clipped amount columns, 20 cheque/report differences and 31 readable beneficiary-sum discrepancies. All 345 report/PDF checksums and deduplication checks passed. Added a no-download --review-only mode to propagate new catalogue conflicts into previously preserved document assessments; two quarantine tests pass. Zero currently assessed documents match the five conflicted bill identities, and no document was approved.
 
 Rajya Sabha collection advanced to 12 of 36 official state/UT partitions: 4818 source expenditure rows, 3750 full work IDs; 0 failed partitions. All house-specific originals verified and returned state/house checks enforced. Remaining states and payment-reference/geography review continue separately from Lok Sabha holdings. Mail unchanged; no new export or permission response. Existing RTI/agency drafts remain unsubmitted; no new messages, fees, filings or publication decisions. Spending tracker regenerated.
-
 
 ### Nationwide source catalogue and Odisha pagination completion — 7 October 2026
 
@@ -292,16 +275,13 @@ Added three prepared, unsent existing-thread follow-up drafts to the private own
 
 Verification: 44 app tests, 10 MPLADS parser tests, type checking and production build passed. SQLite integrity and original checksums verified. Private catalogue API rejects unauthenticated access; hosted read checks confirm private evidence storage and denied anonymous private access. Restored the preview using the existing hosted configuration; public app returns 200. No environment secrets changed, MFA weakened, emails sent, RTIs filed or fees paid.
 
-
 ### MPLADS five-project request sent — 7 October 2026
 
 After explicit user authorization, sent the prepared five-project payment-records/definitions/geography request from the.rupanshu@gmail.com to verified eSAKSHI support cna-mplads@mospi.gov.in. Gmail confirmed SENT; private exact body and receipt retained at data/acquisition/mplads/sent-five-project-request.json, thread 1a117163e632a8fd. Asked for correct custodian/export routing if support does not hold district registers. Added the department request to Spending Evidence progress, response pending and provisional follow-up 16 October. No delivery, response, access permission or payment approval inferred from sending.
 
-
 ### Bounded supporting-record acquisition — 2026-10-07T16:07:38.881618+00:00
 
 Preserved and assessed twenty additional observed bill-linked PPMS payment PDFs: 241 documents total, zero parsing failures. Checksums, unique download URLs and exact catalogue project/bill associations pass; all records remain unapproved with settlement unverified. Forty-four clipped layouts, twenty cheque/report differences and thirty-seven readable beneficiary-sum discrepancies remain explicit. Five report bill identities remain quarantined; no assessed PDFs presently match those conflicts. Original leading whitespace retained without altering bytes. Mail checked for NRIDA, eGramSwaraj, PPMS and newly sent MPLADS request: known NRIDA forwarding unchanged, no new usable response or permission. Follow-ups are not yet due; no new outbound messages, fees or filings. Tracker regenerated; public payment coverage unchanged.
-
 
 ### Expanded project-location and bill dossiers — 7 October 2026
 
@@ -313,13 +293,11 @@ Added owner-only Spending location review with project/purpose/panchayat/village
 
 Updated the existing hourly continuation to prioritize pilot resolution, all four sent request threads, bounded supporting-document batches and app work without asking the user to repeat next-step instructions. No new outbound messages, paid access, RTI filing, authentication weakening or automatic approvals.
 
-
 ### Supporting acquisition and settlement-custodian research — 2026-10-07T17:12:35.003720+00:00
 
 Four bounded batches collected eighty further observed statewide bill-linked PDFs: 486 assessed originals, zero failures. Full hashes, unique download URLs and exact project/bill associations pass. 106 clipped layouts, 58 cheque/report differences and 52 readable beneficiary-sum discrepancies remain unresolved; five conflicted bill identities quarantined, zero approvals. Balangir observed pilot links were already exhausted and not downloaded again. Spending tracker regenerated.
 
 Checked all four department threads: known NRIDA forwarding unchanged; no new usable eGramSwaraj, PPMS or MPLADS response. Follow-ups are not due. Preserved official 413-page Odisha IFMS 3.0 procurement requirements and relevant page text with checksum; added a precise CePC/treasury voucher and bank/RBI feedback-record annex to the unsent owner follow-up draft. Requirements are not deployment evidence, a public API grant or pilot settlement. Initial Python TLS trust lookup failed; system TLS-verified bounded download succeeded without disabling verification. No new messages, fees, RTI filing, private API access or publication.
-
 
 ### Source component recovery and collection — 2026-10-07T17:44:22.948072+00:00
 
@@ -329,7 +307,6 @@ Recovered two clipped Balangir component breakdowns through the official visible
 
 Connected safe component projections to the owner Spending location dossiers, keyed by exact project and bill serial. A new test rejects attaching another bill's breakdown and confirms banking-field exclusion and unverified settlement. All 47 app tests, type checking and production build pass. Tracker regenerated; temporary official review tab closed. All four mail threads checked, with only the existing NRIDA forwarding and no new usable replies. No new messages, fees, filings or publications.
 
-
 ### Bounded evidence acquisition and pilot gap register — 2026-10-07T18:12:31.908846+00:00
 
 Eighty further observed statewide bill-linked PDFs acquired in four checkpointed batches: 646 originals assessed, zero failures. Original hashes, exact catalogue project/bill associations and unique source download URLs pass. 122 clipped layouts, 74 cheque/report differences and 71 readable beneficiary-sum discrepancies retained without approval. Five conflicted bill identities remain quarantined; public spending coverage unchanged.
@@ -337,7 +314,6 @@ Eighty further observed statewide bill-linked PDFs acquired in four checkpointed
 Built a private per-project gap register for the 155 exact-code Balangir dossiers and added its named missing-cheque-field annex to the existing owner expanded evidence dossier. Twelve projects lack an assessed exposed bill document; thirty-one still have clipped components needing visible-dialog recovery; five have original missing cheque dates/numbers; eight have readable beneficiary discrepancies; two include Failed bills. Categories overlap and are not added as distinct project totals. Common site, agreement, units/allocation, final-recipient transaction and reuse gaps remain. Added in-app tracker task.
 
 All four existing request threads checked: known NRIDA forwarding unchanged; no new usable eGramSwaraj, PPMS or MPLADS response. Follow-ups are not due. No new messages, access bypass, fee, RTI submission, MFA change or publication.
-
 
 ### Supporting collection and custodian export preparation — 8 October 2026, 00:47 IST
 
@@ -349,7 +325,6 @@ Removed the tracker generator’s fixed 7 October date: it now uses the current 
 
 All four existing request threads checked: only the known NRIDA forwarding; no new usable department replies or permissions. Follow-ups are not due. Private compact mail-check receipt preserved. No new outbound messages, fees, RTI filing, authentication changes or publication.
 
-
 ### Supporting evidence and exact bill-request annex — 8 October 2026, 01:46 IST
 
 Four checkpointed batches preserved eighty additional observed bill-linked PPMS PDFs, reaching 806 assessed originals with zero failures. All original hashes, exact catalogue project/bill/download associations and unique download URLs pass. Retained 147 clipped layouts, 98 cheque/report differences and 89 readable beneficiary-sum discrepancies; five report bill identities remain quarantined, zero approvals. Completed Balangir and MPLADS collection scopes were not repeated.
@@ -357,7 +332,6 @@ Four checkpointed batches preserved eighty additional observed bill-linked PPMS 
 Prepared a reproducible named-record annex inside the existing owner expanded evidence dossier: twelve projects lacking an exposed assessed bill document and eight exact pilot bills with readable decimal discrepancies. Each request includes official project and bill identifiers; discrepancy table retains source report, cheque and component amounts and exact differences without rounding or interpreting units. Added a worker that selects only exact pilot project/bill matches and excludes conflicted or clipped amounts from the readable-discrepancy table. Refreshed the dossier’s previously stale statewide count. Annex remains unsent/unfiled and requires custodian/PIO verification before use. Syntax and generation checks passed; Spending tracker regenerated.
 
 Checked all four department request threads: only the known NRIDA forwarding, no new usable response or permission. Follow-ups are not due; compact private check retained. No new outbound messages, fees, RTI filing, source-access bypass, authentication changes or publication. Public payment coverage remains unchanged.
-
 
 ### Pilot component recovery and bounded supporting acquisition — 8 October 2026, 16:56 IST
 
@@ -368,7 +342,6 @@ Recovered eight visible Transaction Details components for exact pilot project O
 The originally archived statewide page 585 no longer contains this target identity. Current visible footer reports 42869 entries / last page 858, while prior observed collected scope ended at page 855. Preserved a compact observation and added the caveat to Spending; no current statewide completeness claim or guessed page search. Used the already known official Balangir area report and exact project/bill row for recovery. Browser review tab closed after collection.
 
 All four sent request threads checked; known NRIDA forwarding unchanged, no new usable replies or permissions. Follow-ups not yet due. Regenerated named missing-record annex and tracker; worker syntax check passes. No new messages, fees, RTI filing, access bypass, MFA changes or publication.
-
 
 ### Nationwide collection view and production verification — 8 October 2026
 
@@ -498,7 +471,6 @@ Verified Chandrawal 2026–27 central/state budget-share heads in the Delhi Dema
 
 Saved docs/delhi-evidence-pilot-plan-2026-10-09.md, appended full text to the existing in-app owner nationwide research dossier and added a public feasibility task. Proposed one division and fixed period register census, two complete evidence chains, exact custodian records/inspection, alternate documentary evidence, register/control-total reconciliation, explicit owner review and authority-by-authority expansion. No new outreach, fees, filing, payment/geometry approvals, imported Delhi spending or automation resumption. Source hashes, tracker task uniqueness and plan inclusion verified. This is a proposed evidence acquisition scope, not a new Delhi-complete claim.
 
-
 ### Whole-Delhi acquisition implementation — 9 October 2026
 
 The owner accepted authority-by-authority coverage across Delhi. Saved the accepted two-period scope: full FY 2025–26 and FY 2026–27 through 9 October, including carried contracts/liabilities and relevant earlier originals. Added a Delhi evidence coverage view inside Spending → Evidence progress, with 38 discovered authorities/operators and one selected acquisition unit, SER-2. This is an open inventory, not an exhaustive Delhi census: school/health and other client/estate-owner rosters still need enumeration. Conditional regulated/commercial operators require a confirmed public-spending basis. MCD's 12 observed zones and Revenue's 13 district entries are not used as engineering/payment-register denominators. Unknown denominators remain null, with no coverage percentage; complete units and complete payment cards are currently zero.
@@ -524,7 +496,6 @@ The visible View More Details link produced no changed page/new tab; opening tha
 No tender/award/agreement financial original, actual payment, approved site, completion certificate or publication approval acquired. The named SER-2 and NCRTC requests remain pending records; no new outbound message, RTI filing/fee, schema/MFA change, deployment or automation resumption.
 
 Checkpoint verification passes: all new UI/screenshot hashes and retained original response hashes match; tracker task IDs and Delhi zero-approval counts remain consistent. Three Delhi projection tests pass. The live public evidence-progress endpoint returns 200 and serves the updated lookup/conflict/access blocker.
-
 
 ## Funding Atlas implementation — 9 October 2026
 
@@ -570,13 +541,11 @@ Verification: type checking, all 98 app tests, nine acquisition/parser tests, si
 
 Expanded the selected fiscal-edition budget indices to a bounded twenty observed linked reports per index, preserving departmental volumes and previous URL/hash checkpoints. About 880 MB of distinct state response bytes and 161,254 numeric text lines are preserved; numeric text is not a verified financial-row count. Ninety-two PDF extractions remain incomplete. The seven previously sent department/agency request threads were checked: no new usable export or substantive response. No new outbound action.
 
-
 ### 12 October 2026 — source-specific budget extraction and private controls
 
 Preserved 469 source responses / 347 distinct PDFs. Normalized 2,547 budget candidates across 18 states, with 405 reported-expenditure and 536 project/tender candidates unchanged. The acquisition/reconciliation audit covers all 28 states in owner order and explicitly claims zero complete states. Amounts retain source years, original/revised alternatives and mixed classification. Added OCR support for rotated/scanned English tables and source-specific table checks. Tripura demand-summary review spans all 859 original pages. Three printed-control discrepancies and two missing-component controls remain explicit. No financial autoapproval/publication, MFA weakening, database ingestion, outbound messages or deployment. See state-development-collection-status.md for state counts and detailed caveats.
 
 Validation for this checkpoint: all 99 application tests, including six private-API tests, and 16 acquisition/parser tests pass, TypeScript checks and hosted production build pass. The existing two state-evidence desktop/mobile browser checks passed with the configured hosted preview. All 467 distinct collected response hashes passed comparison with their private original bytes. Across 347 distinct PDFs, 105 document extractions remain incomplete and 23 yielded no text; the targeted Tripura demand-summary supplement does not erase the original full-text extraction gap. Preview remains running for local review.
-
 
 ### 15 October 2026 — resumed all-state extraction
 
@@ -585,7 +554,6 @@ Completed the saved-source retry pass through all 28 states, preserving failures
 Added inspected fiscal tables and bounded OCR/table checkpoints for the ten earlier extraction gaps except the inaccessible Sikkim full budget; Tamil Nadu remains an agriculture/allied subset. Expanded Rajasthan’s 336-page and Gujarat’s 257-page outcome volumes, current Meghalaya/Tripura heads and visually inspected Meghalaya/Uttarakhand monthly summaries. Gross/net, source components, original/revised budgets, target years, unknown cells and overlapping presentations remain separate. Added private classification suggestions, overlap groups and a 31-grant Uttarakhand arithmetic control. The owner console retains MFA; all suggestions and evidence stay unapproved.
 
 100 application tests, 21 parser/acquisition tests, two desktop/mobile state-evidence checks, type checking and original-checksum audit pass. The preview was restarted with its existing hosted configuration after an unconfigured test-server catalogue failure. No database/security mutation, email, RTI filing, publication, automation restart, GitHub push or deployment. Current per-state gaps are in docs/state-development-current-status.md and the app’s Evidence progress tracker.
-
 
 ### 15 October 2026 — detailed programme extraction continuation
 
@@ -597,17 +565,13 @@ Processed complete local Haryana demand-book text (1,999 pages), AP continuation
 
 At this checkpoint, a follow-up extraction resolved the Jharkhand June report-unit question through cross-referenced monthly-trend pages. Sixteen provisional cumulative category actuals were added (eight each for FY2025–26 and FY2026–27), with no parent/category double count; budget-entry count at that moment remained 25,712, reported-expenditure candidates were 437 and project/tender candidates 536. A newly discovered Sikkim CAG appropriation-report link timed out and did not yield source data. Parser tests at that checkpoint: 33 pass.
 
-
 A subsequent extraction added 97 Goa FY2026–27 demand-summary rows. Every code (01–94 and A1–A3) was parsed; revenue plus capital reconciles per row and the aggregate matches the independent printed all-demands control. These rows overlap Goa’s AFS heads and include non-development expenditure, so remain private candidates without development classification or publication. Jharkhand unit-cross-referenced actuals remain provisional cumulative categories. Refreshed totals: 25,809 budget candidates, 437 reported-expenditure candidates, 536 project/tender candidates; 28 states checked, zero complete, three printed-control differences and two missing-component controls. Sikkim’s newly located CAG FY2025–26 appropriation download still times out. Parser suite: 34 pass.
 
-
 Sikkim follow-up: added the live official Information Commission Demand 28 page after direct Finance/CAG PDFs failed. Its table explicitly labels thousands of rupees; the parent and 18 object-head entries reconcile to the printed control in FY2025–26 BE/RE and FY2026–27 BE columns. Adapter preserves 51 nonblank year/edition entries, marks them administrative and unapproved, and excludes the out-of-scope FY2024–25 actual column. They cover one body only and are not development expenditures or a statewide budget. CAG's updated grant-wise FY2025–26 appropriation listing is confirmed, but its PDF route remains inaccessible in this environment. New totals: 25,860 budget candidates, 437 expenditure candidates, 536 project/tender candidates; 601 source-response references, 594 distinct hashes, 469 distinct PDFs; checksum audit finds zero mismatches. Parser tests: 35 pass.
-
 
 Continued state acquisition: Sikkim’s observed CAG report index yielded seven more official monthly account PDFs (May–October and December 2025), preserved with source hashes. Normalization now has 39 cumulative broad expenditure candidates across ten Sikkim snapshots through the provisional March 2026 account; snapshots overlap and are not summed. These are unaudited aggregate accounts, not development-only or project payments. Two exact Sikkim demand PDFs (Commerce/Industries and Urban Development) timed out at the Finance host; the alternative Home Department host failed TLS certificate validation, which was not bypassed. Refreshed current totals: 25,888 private budget candidates, 465 reported-expenditure candidates and 536 project/tender candidates. All 28 states remain incomplete.
 
 Sikkim continuation audit: the official Food & Civil Supplies page links to “Departmental Work” and “Central Assistance.” The first preserved page contains three works explicitly associated with a 2017 Border Area Development Programme, but the cost unit and current/payment status are absent; the second contains per-quintal scheme rates, not state funding totals. Both are documented as historical/interpretation leads and excluded from current project/spending totals. The two pages and seven new monthly reports raise the acquisition archive to 610 response references, 603 distinct originals and 476 distinct PDFs; all 603 checksums match.
-
 
 State-card review pass: refreshed private reconciliation and conservative classification for all 28 state candidate sets; all 34 table controls remain explicitly open/matched as documented, with three differences and two missing components. Added a private completeness audit for 536 project/tender candidates and a visible aggregate task in Spending → Evidence progress. Zero candidates meet the full financial-card test: exact location, sanctioned amount/date, contract amount/date, recipient, payment amount/date and completion-certificate source must be explicit on the same project record. Current field coverage: 198 contract amounts, 186 award dates and 233 contractor names; zero normalized locations, sanction amount/date, payment amount/date or certificate sources. Tender notices are not awards, contract cost is not payment, and agency project statuses are not certificates. The audit creates no links or approvals. Card-audit tests: 2 pass; state acquisition parser tests: 35 pass.
 
@@ -631,11 +595,9 @@ Added a private first-page index for the 27 CAG PDFs. It extracted 178 broad row
 
 Refreshed the jurisdiction matrix and Spending evidence-progress task with the 27-PDF/178-row-candidate status and the Goa source gap. The ledger still has zero complete jurisdictions and zero new payment-backed cards. Verification: 26 focused Python tests pass; all 27 CAG originals pass source-hash checks during indexing; `git diff --check` passes.
 
-
 Statewide PPMS continuation: assessed four bounded batches (80 PDFs) from exact observed project-code/bill-serial download links. Statewide subset now has 1,386 preserved documents. Integrated integrity audit passes exact associations, checksums, URL uniqueness and conflict quarantine; zero failures. The catalogue exposes 37,571 unique non-Failed bill-linked detail PDFs; 1,386 are assessed, 36,185 remain. Current assessed subset: 464 clipped amount layouts, 370 cheque/report differences, 115 readable beneficiary sum differences, zero shared identities detected, zero approved/settled payments. No double-counting: all are overlapping discrepancy flags and unreviewed source fields. District geography, units/amount basis, payee role, report cutoff and actual settlement evidence remain unreviewed. Spending tracker and PPMS review document updated.
 
 15 October follow-up: reran the full 28-state normalizer with the workspace PDF runtime; the 25,888 budget candidates, 465 reported-expenditure candidates and 536 project/tender candidates reproduce without a parser failure. State controls remain 34 checks, three printed differences and two missing components; zero states are complete. The private state card-readiness audit remains 0/536 complete and identifies missing location, sanction, payment and completion fields on every candidate. A further four bounded PPMS batches added 80 exact bill-linked originals: 1,466 assessed, 36,105 observed links still queued, zero acquisition failures and zero payment approvals. Current discrepancy flags are 468 clipped layouts, 372 cheque/report differences and 122 readable beneficiary-sum differences; flags overlap and are not payment counts. Exact association and original-integrity tests pass. No settlement, publication rights or nationwide completeness is inferred.
-
 
 ### 15 October 2026 — cross-state Union grant extraction
 

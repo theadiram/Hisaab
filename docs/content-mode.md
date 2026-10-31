@@ -39,6 +39,7 @@ Wait for imagery is enabled by default, with a bounded loading check and a usefu
 ## Implementation
 
 `src/lib/content-mode.ts` owns presets and validated shot schemas; `src/lib/content-player.ts` owns cancellable playback; `src/components/content-studio.tsx` owns the controls. The existing map handles framing, camera movement, source previews and clipping. No publication, authentication or financial approval gates are changed.
+
 # Remote filming control
 
 The filming tab can pair with a separate `/studio` controller page on the same running Hisaab server. Start a remote session from Content Mode → Director → Pair remote controller; enter the one-use code in `/studio`, then close Content Mode in the filming tab. The hidden target remains paired and accepts camera presets, playback, card framing, theme, and basemap commands. The controller can reopen the fictional complete-card example.

@@ -32,7 +32,6 @@ Open Spending → Evidence progress → Road and panchayat locations → Inspect
 
 The sent five-project PPMS request and named RTI/agency drafts address these gaps. Additional recipients/messages, applicant information and filing/fees require user involvement. Collection of currently exposed links is complete for this pilot scope; record completeness is not.
 
-
 ## Expanded pilot missing-record checklist — 7 October 2026
 
 The private 155-project gap register distinguishes missing exposed documents, original missing cheque fields, clipped PDF columns not yet recovered from official dialogs, readable beneficiary discrepancies and Failed bills. Common gaps remain actual site/route review, agreements, units/component allocation meanings, final-recipient transaction evidence and reuse/publication review. These categories overlap and must not be added as distinct project totals.
@@ -90,38 +89,36 @@ Please supply existing bill/payment-advice records for the following named bills
 
 Please supply the existing dated payment advice, cheque/reference register and recipient transaction/return records for these exact bills. Preserve cheque issue, treasury processing and actual credit dates as separate fields. An empty public workflow result is not evidence that no payment occurred.
 
-| Official project / bill | Project | Report amount | Original cheque amount |
-|---|---|---:|---:|
-| OD/345/3285/115777/420196/00048566 / 345/3285/2024-25/8430000 | Impvt. of Road from Bargaon Pwd Road to Baurijore Nallah | 199948.00 | 199948.00 |
-| OD/345/3285/115778/420184/00018973 / 345/3285/2024-25/9650000 | Impvt. of Road with CC/ Gr-II Metalling from Karlapita Nupali to Padhan pali | 299708.00 | 299708.00 |
-| OD/345/3285/115789/420131/00016449 / 345/3285/2024-25/1065000 | Development Of Rural Haat At Hardatal | 999960.00 | 999960.00 |
-| OD/345/3285/115790/420308/00015410 / 345/3285/2024-25/8910000 | Provision of Facility Centre at Kudasingha GP Hqrs | 455379.00 | 455379.00 |
-| OD/345/3285/115794/420177/00048569 / 345/3285/2024-25/8370000 | Impvt of Road ( CC/Gr-II Metalling ) with drain at Gandhrel (Chantiapali) | 496555.00 | 496555.00 |
+| Official project / bill                                       | Project                                                                      | Report amount | Original cheque amount |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------: | ---------------------: |
+| OD/345/3285/115777/420196/00048566 / 345/3285/2024-25/8430000 | Impvt. of Road from Bargaon Pwd Road to Baurijore Nallah                     |     199948.00 |              199948.00 |
+| OD/345/3285/115778/420184/00018973 / 345/3285/2024-25/9650000 | Impvt. of Road with CC/ Gr-II Metalling from Karlapita Nupali to Padhan pali |     299708.00 |              299708.00 |
+| OD/345/3285/115789/420131/00016449 / 345/3285/2024-25/1065000 | Development Of Rural Haat At Hardatal                                        |     999960.00 |              999960.00 |
+| OD/345/3285/115790/420308/00015410 / 345/3285/2024-25/8910000 | Provision of Facility Centre at Kudasingha GP Hqrs                           |     455379.00 |              455379.00 |
+| OD/345/3285/115794/420177/00048569 / 345/3285/2024-25/8370000 | Impvt of Road ( CC/Gr-II Metalling ) with drain at Gandhrel (Chantiapali)    |     496555.00 |              496555.00 |
 
 ### Readable source amount discrepancies
 
 Please supply existing component/allocation registers, payment-advice editions and correction/reversal references explaining the figures below. Differences use source decimals without conversion; do not infer gross/net basis or settlement from arithmetic.
 
-| Official project / bill | Report amount | Cheque amount | PDF component sum | Visible dialog sum | Cheque minus PDF sum |
-|---|---:|---:|---:|---:|---:|
-| OD/345/3285/115778/420185/00014387 / 345/3285/2024-25/1050000 | 300000.15 | 300000.15 | 300000.00 | 300000.00 | 0.15 |
-| OD/345/3285/115779/419996/00016234 / 345/3285/2024-25/2020000 | 299999.05 | 299999.05 | 299999.00 | 299999.00 | 0.05 |
-| OD/345/3285/115780/420117/00015309 / 345/3285/2023-24/2070000 | 299999.01 | 299999.01 | 299999.00 | 299999.00 | 0.01 |
-| OD/345/3285/115784/420284/00014449 / 345/3285/2024-25/1190000 | 399702.53 | 399702.53 | 399703.00 | 399703.00 | -0.47 |
-| OD/345/3285/115791/420137/00014996 / 345/3285/2024-25/1830000 | 199998.87 | 199998.87 | 199999.00 | 199999.00 | -0.13 |
-| OD/345/3285/115792/419944/00016236 / 345/3285/2024-25/1040000 | 199998.13 | 199998.13 | 199998.00 | 199998.00 | 0.13 |
-| OD/345/3285/115797/420290/00014797 / 345/3285/2024-25/7000000 | 399999.39 | 399999.39 | 399999.00 | 399999.00 | 0.39 |
-| OD/345/3285/275194/420041/00014975 / 345/3285/2024-25/1850000 | 364288.34 | 364288.34 | 364288.00 | 364288.00 | 0.34 |
+| Official project / bill                                       | Report amount | Cheque amount | PDF component sum | Visible dialog sum | Cheque minus PDF sum |
+| ------------------------------------------------------------- | ------------: | ------------: | ----------------: | -----------------: | -------------------: |
+| OD/345/3285/115778/420185/00014387 / 345/3285/2024-25/1050000 |     300000.15 |     300000.15 |         300000.00 |          300000.00 |                 0.15 |
+| OD/345/3285/115779/419996/00016234 / 345/3285/2024-25/2020000 |     299999.05 |     299999.05 |         299999.00 |          299999.00 |                 0.05 |
+| OD/345/3285/115780/420117/00015309 / 345/3285/2023-24/2070000 |     299999.01 |     299999.01 |         299999.00 |          299999.00 |                 0.01 |
+| OD/345/3285/115784/420284/00014449 / 345/3285/2024-25/1190000 |     399702.53 |     399702.53 |         399703.00 |          399703.00 |                -0.47 |
+| OD/345/3285/115791/420137/00014996 / 345/3285/2024-25/1830000 |     199998.87 |     199998.87 |         199999.00 |          199999.00 |                -0.13 |
+| OD/345/3285/115792/419944/00016236 / 345/3285/2024-25/1040000 |     199998.13 |     199998.13 |         199998.00 |          199998.00 |                 0.13 |
+| OD/345/3285/115797/420290/00014797 / 345/3285/2024-25/7000000 |     399999.39 |     399999.39 |         399999.00 |          399999.00 |                 0.39 |
+| OD/345/3285/275194/420041/00014975 / 345/3285/2024-25/1850000 |     364288.34 |     364288.34 |         364288.00 |          364288.00 |                 0.34 |
 
 For every response, retain the official project/bill identifiers, original record reference, revision/cutoff and amount definitions. Ask for documented project shares of package/component payments, recipient capacity and actual credit/return references where held. Do not request bank accounts or unnecessary personal identifiers.
 
 This annex supplements the existing agency/RTI preparation; the responsible authority, submission route and applicant information must still be confirmed before filing. No inferred payment totals or approvals result from this checklist.
 
-
 ## 15 October continuation checkpoint
 
 A further four bounded batches assessed 80 exact official bill-linked documents. The current statewide subset is 1,466 preserved originals with zero acquisition failures; 36,105 of the catalogue's 37,571 observed links remain. The parser flags 468 clipped layouts, 372 cheque/report amount differences and 122 readable beneficiary-sum differences (overlapping categories). All remain private and unapproved; no cheque is represented as settled and zero payments are approved. The assessment still lacks district-wide geography, recipient-role confirmation, amount-basis definitions, settlement/return evidence and source-rights decisions.
-
 
 ## 15 October — continued exact bill-document collection
 

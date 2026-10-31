@@ -34,10 +34,10 @@ Run source retrieval/checkpointing first, then wait for it to finish. Complete l
 
 The current state list and unresolved source/review work are in `docs/state-development-current-status.md`. This method does not claim all28 states complete, or complete national contractor-payment coverage.
 
-
 Sikkim acquisition note, 15 October 2026: the Finance Department's 2026–27 AFS exact PDF URL is now identified from an official-document citation. HTTPS timed out; an HTTP HEAD answered 200 but was not accepted as a safe document-transfer route. The official Assembly notice confirms that the budget, AFS and separate demands were presented/passed in July. This narrows the Sikkim gap to secure source retrieval and full demand extraction; the notice's gross/net budget totals are only broad context.
 
 MoPR cross-state programme context: the 4 August 2026 Ministry of Panchayati Raj scheme-wise BE/RE/actual statement is transcribed separately from state budgets. It is useful as an India-wide ministry funding line only; it supplies no state split and must not be distributed to jurisdictions. Its latest actual (FY2025–26) is distinct from the 2026–27 BE. For the project layer, continue acquiring the activity/work-code → voucher → official payment-status chain and geographic crosswalk documented by eGramSwaraj. See docs/mopr-scheme-finance-source-review.md.
+
 # State-wide Union rural local body grant source (15th Finance Commission)
 
 The Ministry of Panchayati Raj's official statement reports state-wise annual allocations and releases for XV Finance Commission grants to Rural Local Bodies from FY2020–21 through FY2025–26, as of 31 March 2026. It covers 28 States and does not provide a Union Territory table. Preserve the columns as `allocation` and `release`; do not label release as expenditure, contractor payment, or verified bank settlement. These grants are an untied/basic-grant funding channel for local bodies and may support local needs; the source does not allocate the state amounts to development sectors, works or sites. Keep it as a separate RLB-grant measure, not part of a general “development spend” total.

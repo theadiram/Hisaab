@@ -28,17 +28,17 @@ This is a conceptual map of the main evidence chain; consult the generated const
 
 ## Table responsibilities
 
-| Group | Tables | Meaning |
-| --- | --- | --- |
-| Geography | `areas`, `area_crosswalks`, `lgd_registry_editions`, `lgd_registry_members` | Geographic identities, current registry editions and reviewed crosswalks |
-| Sources | `sources`, `source_documents`, `source_permission_reviews` | Source identity, preserved-original hashes, locators, editions and rights review |
-| Project evidence | `works`, `facts`, `financial_events`, `authorities`, `match_decisions`, `flags` | Project identities, individual supported claims, money events and reconciliation |
-| Acquisition | `ingestion_runs`, `ingestion_candidates`, `candidate_revisions`, `candidate_import_editions`, `compacted_candidate_editions`, `atlas_batches` | Private staging, revisions, immutable editions and bounded batches |
-| Publication | `publication_snapshots`, `publication_heads` | Published versions and the currently selected snapshot |
-| Finance | `budget_context`, `funding_records`, `funding_decisions`, `funding_publications`, `funding_budget_lines`, `funding_budget_interpretations`, `funding_budget_drafts` | Budget/programme context, accounting interpretation, review and publication |
-| Development | `development_drafts`, `development_decisions`, `development_publications` | Additional state development evidence and its review/publication state |
-| Private reporting | `private_cases`, `case_events`, `case_media`, `case_attachments`, `case_videos`, `corrections`, `complaint_packets`, `complaint_routes` | Private observations, evidence transport, corrections and routing |
-| Operations | `admin_members`, `audit_events`, `request_limits`, `ai_runs`, `coverage_cells` | Owner access, audit trail, operating limits and scoped coverage |
+| Group             | Tables                                                                                                                                                              | Meaning                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Geography         | `areas`, `area_crosswalks`, `lgd_registry_editions`, `lgd_registry_members`                                                                                         | Geographic identities, current registry editions and reviewed crosswalks         |
+| Sources           | `sources`, `source_documents`, `source_permission_reviews`                                                                                                          | Source identity, preserved-original hashes, locators, editions and rights review |
+| Project evidence  | `works`, `facts`, `financial_events`, `authorities`, `match_decisions`, `flags`                                                                                     | Project identities, individual supported claims, money events and reconciliation |
+| Acquisition       | `ingestion_runs`, `ingestion_candidates`, `candidate_revisions`, `candidate_import_editions`, `compacted_candidate_editions`, `atlas_batches`                       | Private staging, revisions, immutable editions and bounded batches               |
+| Publication       | `publication_snapshots`, `publication_heads`                                                                                                                        | Published versions and the currently selected snapshot                           |
+| Finance           | `budget_context`, `funding_records`, `funding_decisions`, `funding_publications`, `funding_budget_lines`, `funding_budget_interpretations`, `funding_budget_drafts` | Budget/programme context, accounting interpretation, review and publication      |
+| Development       | `development_drafts`, `development_decisions`, `development_publications`                                                                                           | Additional state development evidence and its review/publication state           |
+| Private reporting | `private_cases`, `case_events`, `case_media`, `case_attachments`, `case_videos`, `corrections`, `complaint_packets`, `complaint_routes`                             | Private observations, evidence transport, corrections and routing                |
+| Operations        | `admin_members`, `audit_events`, `request_limits`, `ai_runs`, `coverage_cells`                                                                                      | Owner access, audit trail, operating limits and scoped coverage                  |
 
 Public metadata includes geography, sources, coverage and selected publication surfaces. Most source candidates, decisions and case data live in `private`. Provider-managed `auth` and `storage` schemas are separate and are deliberately excluded from the public reference.
 

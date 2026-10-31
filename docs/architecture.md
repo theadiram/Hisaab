@@ -28,18 +28,18 @@ Owner authentication and private-file services still retain Supabase dependencie
 
 ## Repository responsibilities
 
-| Directory | Responsibility |
-| --- | --- |
-| `src/app` | Next.js routes, page entry points and global styles |
-| `src/features` | Feature-specific components and hooks extracted from the atlas |
-| `src/components` | Existing UI and shared visual components; migrate incrementally |
-| `src/lib` | Domain models, evidence rules, infrastructure and database access |
-| `workers` | Source acquisition, parsing, normalization and Python tests |
-| `scripts` | Local verification, intake, map packaging and operating tools |
-| `supabase/migrations` | Ordered, applied schema and RPC history |
-| `tests` | Unit tests and browser scenarios with synthetic fixtures |
-| `data` | Versioned source registers and scoped acquisition summaries |
-| `docs` | Current guides plus dated source research |
+| Directory             | Responsibility                                                    |
+| --------------------- | ----------------------------------------------------------------- |
+| `src/app`             | Next.js routes, page entry points and global styles               |
+| `src/features`        | Feature-specific components and hooks extracted from the atlas    |
+| `src/components`      | Existing UI and shared visual components; migrate incrementally   |
+| `src/lib`             | Domain models, evidence rules, infrastructure and database access |
+| `workers`             | Source acquisition, parsing, normalization and Python tests       |
+| `scripts`             | Local verification, intake, map packaging and operating tools     |
+| `supabase/migrations` | Ordered, applied schema and RPC history                           |
+| `tests`               | Unit tests and browser scenarios with synthetic fixtures          |
+| `data`                | Versioned source registers and scoped acquisition summaries       |
+| `docs`                | Current guides plus dated source research                         |
 
 Private originals, runtime geography, backups and investigation workspaces remain ignored. A fresh checkout intentionally does not contain the full acquisition collection.
 

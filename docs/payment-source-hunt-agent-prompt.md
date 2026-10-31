@@ -9,6 +9,7 @@ Current baseline: PMGSY road/tender originals cover 32 official source partition
 Missing: officially allocated project-level transactions; stable transaction identity; gross/deductions/net definitions and units; business recipient capacity; bank-confirmed status/date and reversals; split-package allocations; contracts and sanction amendments; independently reviewed project geography; available completion certificates; cutoff/completeness and reuse conditions.
 
 Prioritize these hunts:
+
 1. eGramSwaraj current payment/voucher-read service and state export onboarding. Official NIC exchange design is at https://cdnbbsr.s3waas.gov.in/s316026d60ff9b54410b3435b403afd226/uploads/2023/02/2023022755-1.pdf . Confirm work/activity key and exact allocation, not just voucher remarks. Existing planning APIs do not supply payment coverage.
 2. PMGSY OMMAS→state IFMIS→PFMS claim/payment/reconciliation exports. Find masked records connecting IMS_PR_ROAD_CODE/package→bill→transaction. NRIDA has forwarded our existing request; no data supplied yet.
 3. MGNREGA work→muster→wage-list→FTO→bank-response chain using permitted official MIS. Show one real example, preserve allocation/reissue semantics and protect worker identifiers.

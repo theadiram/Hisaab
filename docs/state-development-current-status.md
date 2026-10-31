@@ -16,100 +16,100 @@ Open Evidence progress → State-by-state development collection. Public visitor
 
 ## State-by-state work remaining
 
-| State | Budget-table entries beyond broad context | Broad budget context | Expenditure | Project/tender | Next work |
-|---|---:|---:|---:|---:|---|
-| Andhra Pradesh | 9,171 | 28 | 28 | 32 | Review 9,108 extracted programme/subhead fiscal entries and incomplete English/accounting-path labels; retain printed sector rounding discrepancy; obtain dated official project/bill allocations. |
-| Arunachal Pradesh | 266 | 8 | 8 | 22 | Review wrapped bilingual heads and blank charge/capital cells; expand schemes and link actual expenditure to official project IDs. |
-| Assam | 1,554 | 15 | 55 | 72 | Review recovered production FY2026–27 AFS grant/head entries; confirm the separate test-labelled FY2025–26 expenditure export against production; expand named schemes and payment joins. |
-| Bihar | 371 | 32 | 32 | 0 | Review scanned AFS monetary cells against originals; expand beyond scheme-group totals and obtain project-linked expenditure. |
-| Chhattisgarh | 494 | 26 | 26 | 1 | Review extracted revenue/capital AFS heads from both editions; translate preserved legacy-font Hindi labels; detailed demands/programmes and actual project spending remain incomplete. |
-| Goa | 1,585 | 0 | 0 | 0 | Added 1,077 major-head fiscal entries from the official full demand volume, checked against 103 printed demand controls. Review overlaps with 97 demand-summary totals and 390 AFS entries; obtain current-window expenditure and project/bill links. |
-| Gujarat | 1,228 | 7 | 7 | 0 | Review outcome-budget scheme subdivisions, missing merged labels and overlapping budget heads; reconcile with development/department totals. |
-| Haryana | 5,180 | 2 | 2 | 0 | Review programme/subhead totals extracted from all 1,999 demand-book pages; recover full wrapped titles/accounting paths and distinguish salary/pension/maintenance transfers from development and utilisation. |
-| Himachal Pradesh | 438 | 21 | 21 | 20 | Review recovered revenue/capital/loan AFS heads and demand summary; full schemes and project-linked actuals remain pending. Public Union/state-share report failed and remains unavailable. |
-| Jharkhand | 345 | 0 | 16 | 20 | Review 16 provisional cumulative June account categories (eight per year), whose crore unit is confirmed by explicitly cross-referenced trend pages. Obtain detailed major-head actuals and project-linked bills. |
-| Karnataka | 348 | 10 | 10 | 0 | Review regional-programme subset and broader AFS heads; preserve department/statement overlap; extract remaining saved demands and obtain FY2025–26 detail. |
-| Kerala | 222 | 3 | 3 | 20 | Reconcile revised and original budget/plan editions and parent/child overlaps; extract named schemes and project accounts. |
-| Madhya Pradesh | 127 | 28 | 28 | 0 | Review scanned 127-scheme provisions; acquire FY2025–26 detailed grants/AFS and preserve maintenance/administrative exclusions. |
-| Maharashtra | 638 | 15 | 15 | 20 | Review recovered gender/child targeted programme outlays, distinct from beneficiary counts and full programme budgets; obtain corrected departmental PDF paths; all 35 observed 2026–27 links from the official index returned HTTP 404 and obtain project accounts. |
-| Manipur | 408 | 31 | 31 | 54 | Review recovered FY2026–27 revenue/capital/debt/loan heads. Missing capital component splits in the separate overview remain unresolved; expand programmes and actual-expenditure links. |
-| Meghalaya | 783 | 8 | 8 | 38 | Review current named heads and directly anchored voted/charged children; no unfunded parent or unanchored continuation is counted. Reconcile earlier scheme-channel overlaps and scanned monthly actuals. |
-| Mizoram | 328 | 6 | 6 | 21 | Reconcile FY2025–26 demand charge/vote rows with FY2026–27 AFS; expand named schemes and preserve CSS/other share uncertainty. |
-| Nagaland | 282 | 14 | 14 | 25 | Expand AFS major heads into schemes and demands; review scanned introduction/summary sources and reported-expenditure scope. |
-| Odisha | 42 | 6 | 6 | 0 | All 68 observed budget-index PDF links attempted; extract scanned FY2025–26/scheme demand books with visual checks, preserve gender/child/department overlap and the ceiling rounding discrepancy. |
-| Punjab | 330 | 8 | 8 | 20 | Expand recovered AFS heads into detailed grants/programmes; review wrapped/missing labels and obtain actual expenditure/project registers. |
-| Rajasthan | 756 | 3 | 3 | 20 | Review full outcome-budget scheme/BFC repeats and state/central components; acquire FY2025–26 detailed programmes and expenditure. |
-| Sikkim | 51 | 39 | 11 | 18 | Review the one-department Information Commission table (51 entries across three estimates; administrative only). The exact official FY2026–27 AFS PDF is now located, but the Finance Department HTTPS host times out here; do not use its HTTP-only response. CAG has ten overlapping monthly snapshots through provisional FY2025–26 year-end. Obtain the AFS and full demand books, then project-linked actuals. |
-| Tamil Nadu | 49 | 12 | 12 | 20 | FY2025–26 statewide AFS recovered and all 42 pages OCR-processed; nine original-page revenue heads transcribed. Review remaining scanned heads and public-works annexure; acquire correct FY2026–27 statewide edition, not a mislabeled index. |
-| Telangana | 135 | 28 | 28 | 0 | Retain rounding discrepancies; expand FY2025–26 schemes and check scheme/department/capital overlap and failed source links. |
-| Tripura | 640 | 3 | 3 | 34 | Reconcile FY2026–27 gross major heads with recovery/net rows; expand full demands and link expenditure to named projects. |
-| Uttar Pradesh | 324 | 32 | 32 | 20 | Expand beyond gross/net statewide object summaries into grant/programme heads; review Hindi labels and preserve maintenance exclusions. |
-| Uttarakhand | 31 | 8 | 8 | 24 | Expand beyond 31 grant totals into scanned major/programme heads; read monthly actuals and keep debt/administration outside development totals. |
-| West Bengal | 430 | 16 | 16 | 35 | Confirm interim/original/revised budget editions and acquire remaining scheme tables; reconcile department and head overlaps. |
+| State             | Budget-table entries beyond broad context | Broad budget context | Expenditure | Project/tender | Next work                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------- | ----------------------------------------: | -------------------: | ----------: | -------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Andhra Pradesh    |                                     9,171 |                   28 |          28 |             32 | Review 9,108 extracted programme/subhead fiscal entries and incomplete English/accounting-path labels; retain printed sector rounding discrepancy; obtain dated official project/bill allocations.                                                                                                                                                                                                                  |
+| Arunachal Pradesh |                                       266 |                    8 |           8 |             22 | Review wrapped bilingual heads and blank charge/capital cells; expand schemes and link actual expenditure to official project IDs.                                                                                                                                                                                                                                                                                  |
+| Assam             |                                     1,554 |                   15 |          55 |             72 | Review recovered production FY2026–27 AFS grant/head entries; confirm the separate test-labelled FY2025–26 expenditure export against production; expand named schemes and payment joins.                                                                                                                                                                                                                           |
+| Bihar             |                                       371 |                   32 |          32 |              0 | Review scanned AFS monetary cells against originals; expand beyond scheme-group totals and obtain project-linked expenditure.                                                                                                                                                                                                                                                                                       |
+| Chhattisgarh      |                                       494 |                   26 |          26 |              1 | Review extracted revenue/capital AFS heads from both editions; translate preserved legacy-font Hindi labels; detailed demands/programmes and actual project spending remain incomplete.                                                                                                                                                                                                                             |
+| Goa               |                                     1,585 |                    0 |           0 |              0 | Added 1,077 major-head fiscal entries from the official full demand volume, checked against 103 printed demand controls. Review overlaps with 97 demand-summary totals and 390 AFS entries; obtain current-window expenditure and project/bill links.                                                                                                                                                               |
+| Gujarat           |                                     1,228 |                    7 |           7 |              0 | Review outcome-budget scheme subdivisions, missing merged labels and overlapping budget heads; reconcile with development/department totals.                                                                                                                                                                                                                                                                        |
+| Haryana           |                                     5,180 |                    2 |           2 |              0 | Review programme/subhead totals extracted from all 1,999 demand-book pages; recover full wrapped titles/accounting paths and distinguish salary/pension/maintenance transfers from development and utilisation.                                                                                                                                                                                                     |
+| Himachal Pradesh  |                                       438 |                   21 |          21 |             20 | Review recovered revenue/capital/loan AFS heads and demand summary; full schemes and project-linked actuals remain pending. Public Union/state-share report failed and remains unavailable.                                                                                                                                                                                                                         |
+| Jharkhand         |                                       345 |                    0 |          16 |             20 | Review 16 provisional cumulative June account categories (eight per year), whose crore unit is confirmed by explicitly cross-referenced trend pages. Obtain detailed major-head actuals and project-linked bills.                                                                                                                                                                                                   |
+| Karnataka         |                                       348 |                   10 |          10 |              0 | Review regional-programme subset and broader AFS heads; preserve department/statement overlap; extract remaining saved demands and obtain FY2025–26 detail.                                                                                                                                                                                                                                                         |
+| Kerala            |                                       222 |                    3 |           3 |             20 | Reconcile revised and original budget/plan editions and parent/child overlaps; extract named schemes and project accounts.                                                                                                                                                                                                                                                                                          |
+| Madhya Pradesh    |                                       127 |                   28 |          28 |              0 | Review scanned 127-scheme provisions; acquire FY2025–26 detailed grants/AFS and preserve maintenance/administrative exclusions.                                                                                                                                                                                                                                                                                     |
+| Maharashtra       |                                       638 |                   15 |          15 |             20 | Review recovered gender/child targeted programme outlays, distinct from beneficiary counts and full programme budgets; obtain corrected departmental PDF paths; all 35 observed 2026–27 links from the official index returned HTTP 404 and obtain project accounts.                                                                                                                                                |
+| Manipur           |                                       408 |                   31 |          31 |             54 | Review recovered FY2026–27 revenue/capital/debt/loan heads. Missing capital component splits in the separate overview remain unresolved; expand programmes and actual-expenditure links.                                                                                                                                                                                                                            |
+| Meghalaya         |                                       783 |                    8 |           8 |             38 | Review current named heads and directly anchored voted/charged children; no unfunded parent or unanchored continuation is counted. Reconcile earlier scheme-channel overlaps and scanned monthly actuals.                                                                                                                                                                                                           |
+| Mizoram           |                                       328 |                    6 |           6 |             21 | Reconcile FY2025–26 demand charge/vote rows with FY2026–27 AFS; expand named schemes and preserve CSS/other share uncertainty.                                                                                                                                                                                                                                                                                      |
+| Nagaland          |                                       282 |                   14 |          14 |             25 | Expand AFS major heads into schemes and demands; review scanned introduction/summary sources and reported-expenditure scope.                                                                                                                                                                                                                                                                                        |
+| Odisha            |                                        42 |                    6 |           6 |              0 | All 68 observed budget-index PDF links attempted; extract scanned FY2025–26/scheme demand books with visual checks, preserve gender/child/department overlap and the ceiling rounding discrepancy.                                                                                                                                                                                                                  |
+| Punjab            |                                       330 |                    8 |           8 |             20 | Expand recovered AFS heads into detailed grants/programmes; review wrapped/missing labels and obtain actual expenditure/project registers.                                                                                                                                                                                                                                                                          |
+| Rajasthan         |                                       756 |                    3 |           3 |             20 | Review full outcome-budget scheme/BFC repeats and state/central components; acquire FY2025–26 detailed programmes and expenditure.                                                                                                                                                                                                                                                                                  |
+| Sikkim            |                                        51 |                   39 |          11 |             18 | Review the one-department Information Commission table (51 entries across three estimates; administrative only). The exact official FY2026–27 AFS PDF is now located, but the Finance Department HTTPS host times out here; do not use its HTTP-only response. CAG has ten overlapping monthly snapshots through provisional FY2025–26 year-end. Obtain the AFS and full demand books, then project-linked actuals. |
+| Tamil Nadu        |                                        49 |                   12 |          12 |             20 | FY2025–26 statewide AFS recovered and all 42 pages OCR-processed; nine original-page revenue heads transcribed. Review remaining scanned heads and public-works annexure; acquire correct FY2026–27 statewide edition, not a mislabeled index.                                                                                                                                                                      |
+| Telangana         |                                       135 |                   28 |          28 |              0 | Retain rounding discrepancies; expand FY2025–26 schemes and check scheme/department/capital overlap and failed source links.                                                                                                                                                                                                                                                                                        |
+| Tripura           |                                       640 |                    3 |           3 |             34 | Reconcile FY2026–27 gross major heads with recovery/net rows; expand full demands and link expenditure to named projects.                                                                                                                                                                                                                                                                                           |
+| Uttar Pradesh     |                                       324 |                   32 |          32 |             20 | Expand beyond gross/net statewide object summaries into grant/programme heads; review Hindi labels and preserve maintenance exclusions.                                                                                                                                                                                                                                                                             |
+| Uttarakhand       |                                        31 |                    8 |           8 |             24 | Expand beyond 31 grant totals into scanned major/programme heads; read monthly actuals and keep debt/administration outside development totals.                                                                                                                                                                                                                                                                     |
+| West Bengal       |                                       430 |                   16 |          16 |             35 | Confirm interim/original/revised budget editions and acquire remaining scheme tables; reconcile department and head overlaps.                                                                                                                                                                                                                                                                                       |
 
 ## What changed in this continuation
 
-| State | FY2025–26 XV FC RLB allocation (₹ crore) | FY2025–26 reported release (₹ crore) |
-|---|---:|---:|
-| Andhra Pradesh | 2099.00 | 2053.81 |
-| Arunachal Pradesh | 185.00 | 0.00 |
-| Assam | 1283.00 | 1283.00 |
-| Bihar | 4012.00 | 4012.00 |
-| Chhattisgarh | 1163.00 | 1161.99 |
-| Goa | 61.00 | 0.00 |
-| Gujarat | 2555.00 | 2553.39 |
-| Haryana | 1011.00 | 988.14 |
-| Himachal Pradesh | 343.00 | 341.50 |
-| Jharkhand | 1351.00 | 674.26 |
-| Karnataka | 2572.00 | 0.00 |
-| Kerala | 1301.00 | 1301.00 |
-| Madhya Pradesh | 3185.00 | 3150.35 |
-| Maharashtra | 4659.00 | 3942.25 |
-| Manipur | 142.00 | 0.00 |
-| Meghalaya | 146.00 | 0.00 |
-| Mizoram | 74.00 | 74.00 |
-| Nagaland | 99.00 | 0.00 |
-| Odisha | 1805.00 | 1801.20 |
-| Punjab | 1110.00 | 1109.46 |
-| Rajasthan | 3087.00 | 1568.01 |
-| Sikkim | 33.00 | 33.00 |
-| Tamil Nadu | 2884.00 | 637.93 |
-| Telangana | 1477.00 | 619.85 |
-| Tripura | 153.00 | 153.00 |
-| Uttar Pradesh | 7797.00 | 7797.00 |
-| Uttarakhand | 458.00 | 455.73 |
-| West Bengal | 3528.00 | 3403.92 |
+| State             | FY2025–26 XV FC RLB allocation (₹ crore) | FY2025–26 reported release (₹ crore) |
+| ----------------- | ---------------------------------------: | -----------------------------------: |
+| Andhra Pradesh    |                                  2099.00 |                              2053.81 |
+| Arunachal Pradesh |                                   185.00 |                                 0.00 |
+| Assam             |                                  1283.00 |                              1283.00 |
+| Bihar             |                                  4012.00 |                              4012.00 |
+| Chhattisgarh      |                                  1163.00 |                              1161.99 |
+| Goa               |                                    61.00 |                                 0.00 |
+| Gujarat           |                                  2555.00 |                              2553.39 |
+| Haryana           |                                  1011.00 |                               988.14 |
+| Himachal Pradesh  |                                   343.00 |                               341.50 |
+| Jharkhand         |                                  1351.00 |                               674.26 |
+| Karnataka         |                                  2572.00 |                                 0.00 |
+| Kerala            |                                  1301.00 |                              1301.00 |
+| Madhya Pradesh    |                                  3185.00 |                              3150.35 |
+| Maharashtra       |                                  4659.00 |                              3942.25 |
+| Manipur           |                                   142.00 |                                 0.00 |
+| Meghalaya         |                                   146.00 |                                 0.00 |
+| Mizoram           |                                    74.00 |                                74.00 |
+| Nagaland          |                                    99.00 |                                 0.00 |
+| Odisha            |                                  1805.00 |                              1801.20 |
+| Punjab            |                                  1110.00 |                              1109.46 |
+| Rajasthan         |                                  3087.00 |                              1568.01 |
+| Sikkim            |                                    33.00 |                                33.00 |
+| Tamil Nadu        |                                  2884.00 |                               637.93 |
+| Telangana         |                                  1477.00 |                               619.85 |
+| Tripura           |                                   153.00 |                               153.00 |
+| Uttar Pradesh     |                                  7797.00 |                              7797.00 |
+| Uttarakhand       |                                   458.00 |                               455.73 |
+| West Bengal       |                                  3528.00 |                              3403.92 |
 
-| State | FY2026–27 XVI FC RLB recommendation (₹ crore) | FY2026–27 XVI FC ULB recommendation (₹ crore) |
-|---|---:|---:|
-| Andhra Pradesh | 2136 | 1562 |
-| Arunachal Pradesh | 218 | 30 |
-| Assam | 1873 | 417 |
-| Bihar | 6670 | 1178 |
-| Chhattisgarh | 1498 | 641 |
-| Goa | 22 | 93 |
-| Gujarat | 2415 | 3053 |
-| Haryana | 1062 | 1006 |
-| Himachal Pradesh | 481 | 56 |
-| Jharkhand | 1828 | 783 |
-| Karnataka | 2427 | 2374 |
-| Kerala | 425 | 2143 |
-| Madhya Pradesh | 4115 | 2057 |
-| Maharashtra | 4216 | 6012 |
-| Manipur | 162 | 78 |
-| Meghalaya | 190 | 49 |
-| Mizoram | 73 | 49 |
-| Nagaland | 90 | 86 |
-| Odisha | 2404 | 652 |
-| Punjab | 1090 | 1006 |
-| Rajasthan | 4042 | 1629 |
-| Sikkim | 28 | 26 |
-| Tamil Nadu | 2175 | 3220 |
-| Telangana | 1280 | 1483 |
-| Tripura | 151 | 130 |
-| Uttar Pradesh | 10695 | 4309 |
-| Uttarakhand | 520 | 321 |
-| West Bengal | 3623 | 2829 |
+| State             | FY2026–27 XVI FC RLB recommendation (₹ crore) | FY2026–27 XVI FC ULB recommendation (₹ crore) |
+| ----------------- | --------------------------------------------: | --------------------------------------------: |
+| Andhra Pradesh    |                                          2136 |                                          1562 |
+| Arunachal Pradesh |                                           218 |                                            30 |
+| Assam             |                                          1873 |                                           417 |
+| Bihar             |                                          6670 |                                          1178 |
+| Chhattisgarh      |                                          1498 |                                           641 |
+| Goa               |                                            22 |                                            93 |
+| Gujarat           |                                          2415 |                                          3053 |
+| Haryana           |                                          1062 |                                          1006 |
+| Himachal Pradesh  |                                           481 |                                            56 |
+| Jharkhand         |                                          1828 |                                           783 |
+| Karnataka         |                                          2427 |                                          2374 |
+| Kerala            |                                           425 |                                          2143 |
+| Madhya Pradesh    |                                          4115 |                                          2057 |
+| Maharashtra       |                                          4216 |                                          6012 |
+| Manipur           |                                           162 |                                            78 |
+| Meghalaya         |                                           190 |                                            49 |
+| Mizoram           |                                            73 |                                            49 |
+| Nagaland          |                                            90 |                                            86 |
+| Odisha            |                                          2404 |                                           652 |
+| Punjab            |                                          1090 |                                          1006 |
+| Rajasthan         |                                          4042 |                                          1629 |
+| Sikkim            |                                            28 |                                            26 |
+| Tamil Nadu        |                                          2175 |                                          3220 |
+| Telangana         |                                          1280 |                                          1483 |
+| Tripura           |                                           151 |                                           130 |
+| Uttar Pradesh     |                                         10695 |                                          4309 |
+| Uttarakhand       |                                           520 |                                           321 |
+| West Bengal       |                                          3623 |                                          2829 |
 
 - **Current-award-period state recommendations:** a second official source now covers FY2026–27 through FY2030–31. The Sixteenth Finance Commission report provides rural and urban local-body grant recommendations for each of the 28 States; MoPR’s parliamentary reply adds state-wise rural tied, untied and performance totals. They reconcile to ₹4,35,236 crore for RLBs and ₹2,90,157 crore for ULBs across the award period. For FY2026–27, the recommendations are ₹55,909 crore rural and ₹37,272 crore urban. These remain recommendations, not releases or expenditure; no local work has been identified by the state aggregates. MoPR’s explicit Gram-Panchayat-detail limitation in the parliamentary response concerns the 14th-FC performance-grant release information and is not generalized to later systems. See `docs/fc16-local-body-recommendations-source-review.md`.
 - **New 28-state source layer:** preserved and visually checked the Ministry of Panchayati Raj's official XV Finance Commission year-wise Rural Local Body (RLB) allocation/release table, cutoff 31 March 2026. It reports one Union grant channel across all 28 States for FY2020–21 through FY2025–26. The printed FY2025–26 amounts are ₹48,573.00 crore allocated and ₹39,114.77 crore released; the source's six-year printed totals are ₹2,97,555.00 crore allocated and ₹2,82,632.34 crore released. These are not total state development budgets, state utilisation, project costs or contractor payments. The private state-by-year transcription is `data/acquisition/national-panchayat-finance/15th-fc-rlb-allocation-release.json`; original PDF SHA-256 is `912acccbf36f106d8943d42185bd31a316540a041d73aa4cc9d9202b7e4f15ad`.
@@ -152,15 +152,11 @@ The new 536-row card-readiness audit has two unit tests, including checks that c
 
 100 application tests and 35 acquisition/parser tests pass. All 603 distinct original-response hashes match their saved bytes. Newly adapted Haryana/Karnataka/Goa/Tamil Nadu tables were visually checked, alongside AP, Assam, Himachal Pradesh, Chhattisgarh, Maharashtra and Manipur examples. Visual examples do not constitute complete cell-by-cell review. No Next.js implementation, database schema or security changes were made in this continuation; the earlier production-build/browser checks are historical, not newly rerun claims. Preview health passes, and the unauthenticated private evidence endpoint returns 401.
 
-
 Sikkim source discovery note: the state government confirms that the 2026–27 General Budget and separate department demands passed in July 2026, but that does not make a single department’s public table statewide coverage. The Information Commission page is used only as a limited administrative budget sample. See the [official Sikkim budget-session record](https://www.sikkim.gov.in/media/news-announcement/news-info?name=General+Budget+Session+2026-27+Concludes%3B+House+Passes+Key+Bill+and+Separate+Demands+for+Grants) and [CAG Sikkim appropriation listing](https://www.cag.gov.in/ae/sikkim/en/subsite-whats-new).
-
 
 Latest Sikkim source expansion: seven further CAG monthly reports have been preserved and normalized, increasing the current cross-state totals to 25,888 budget candidates, 465 expenditure candidates and 536 project/tender candidates. They do not change the claim of zero complete states.
 
-
 15 October continuation: the cross-state candidate normalizer was rerun using the workspace PDF runtime and reproduced 25,888 budget, 465 expenditure and 536 project/tender candidates. The state reconciliation still finds 28 partial states, zero complete states, 34 controls with three printed differences and two missing-component checks. The state-wide PPMS supporting-document subset advanced by another 80 exact bill-linked originals to 1,466 assessed; see the PPMS review for limitations.
-
 
 Sikkim source-route correction (15 October): the Assembly's official July notice confirms the FY2026–27 General Budget and separate departmental demands were passed and the Annual Financial Statement was laid before the House. It reports gross expenditure ₹19,215 crore and net ₹18,455 crore after recoveries; this is broad budget context, not development-only funding. The Finance Department AFS PDF URL was identified through a precise official-document citation, but HTTPS timed out in this environment. An HTTP HEAD returned a PDF response, which was not downloaded over insecure transport. See the [official Assembly notice](https://www.sikkim.gov.in/media/news-announcement/news-info?name=General+Budget+Session+of+the+Sikkim+Legislative+Assembly+Commences+in+the+Capital) and current source blocker in Spending.
 
@@ -180,36 +176,36 @@ Sources: [MoRD answer on VB-G RAM-G allocation and MGNREGS releases](https://www
 
 ### 28-State rural programme comparison (separate measures; not additive)
 
-| State | MGNREGS funds reported released, FY2025–26 (₹ crore) | MGNREGS water-work expenditure, FY2025–26 (₹ lakh) | VB-G RAM-G interim allocation, FY2026–27 as of 16 Jul 2026 (₹ crore) | First-installment mother sanction (₹ crore) |
-|---|---:|---:|---:|---:|
-| Andhra Pradesh | 7,607.09 | 423,743.72 | 7,707.21 | 2,545.50 |
-| Arunachal Pradesh | 665.58 | 12,814.33 | 560.70 | 147.55 |
-| Assam | 1,974.24 | 30,092.80 | 1,929.70 | 630.96 |
-| Bihar | 8,169.50 | 254,134.30 | 6,715.83 | 1,663.56 |
-| Chhattisgarh | 2,971.66 | 115,646.53 | 3,354.85 | 1,006.46 |
-| Goa | 2.98 | 177.76 | 3.70 | 1.23 |
-| Gujarat | 999.56 | 35,689.53 | 1,540.54 | 310.64 |
-| Haryana | 487.57 | 19,811.66 | 590.19 | 194.93 |
-| Himachal Pradesh | 1,057.55 | 18,808.80 | 1,203.28 | 397.41 |
-| Jharkhand | 3,203.45 | 137,349.49 | 2,705.64 | 437.06 |
-| Karnataka | 3,592.65 | 196,425.94 | 5,709.90 | 1,750.88 |
-| Kerala | 3,745.44 | 63,323.44 | 3,136.44 | 925.33 |
-| Madhya Pradesh | 5,390.23 | 296,290.68 | 6,252.03 | 630.76 |
-| Maharashtra | 7,519.55 | 214,455.12 | 4,420.32 | 1,459.92 |
-| Manipur | 1,146.56 | 48,466.65 | 581.99 | 192.21 |
-| Meghalaya | 1,249.23 | 20,059.91 | 1,155.09 | 381.50 |
-| Mizoram | 661.83 | 24,349.95 | 611.65 | 199.21 |
-| Nagaland | 416.19 | 3,834.66 | 287.85 | 95.07 |
-| Odisha | 4,005.15 | 218,176.51 | 3,763.80 | 932.32 |
-| Punjab | 1,060.69 | 43,996.76 | 1,331.61 | 439.80 |
-| Rajasthan | 7,221.92 | 299,567.98 | 7,581.87 | 2,274.37 |
-| Sikkim | 112.57 | 2,261.88 | 97.57 | 32.23 |
-| Tamil Nadu | 8,151.68 | 369,323.28 | 7,585.49 | 2,176.84 |
-| Telangana | 2,856.99 | 94,712.17 | 3,825.31 | 1,263.41 |
-| Tripura | 837.17 | 24,045.43 | 1,041.70 | 344.05 |
-| Uttar Pradesh | 9,437.47 | 274,515.94 | 9,721.48 | 3,210.76 |
-| Uttarakhand | 498.02 | 16,633.42 | 626.43 | 193.78 |
-| West Bengal | 0.00 | 3.03 | 8,508.00 | 1,264.49 |
+| State             | MGNREGS funds reported released, FY2025–26 (₹ crore) | MGNREGS water-work expenditure, FY2025–26 (₹ lakh) | VB-G RAM-G interim allocation, FY2026–27 as of 16 Jul 2026 (₹ crore) | First-installment mother sanction (₹ crore) |
+| ----------------- | ---------------------------------------------------: | -------------------------------------------------: | -------------------------------------------------------------------: | ------------------------------------------: |
+| Andhra Pradesh    |                                             7,607.09 |                                         423,743.72 |                                                             7,707.21 |                                    2,545.50 |
+| Arunachal Pradesh |                                               665.58 |                                          12,814.33 |                                                               560.70 |                                      147.55 |
+| Assam             |                                             1,974.24 |                                          30,092.80 |                                                             1,929.70 |                                      630.96 |
+| Bihar             |                                             8,169.50 |                                         254,134.30 |                                                             6,715.83 |                                    1,663.56 |
+| Chhattisgarh      |                                             2,971.66 |                                         115,646.53 |                                                             3,354.85 |                                    1,006.46 |
+| Goa               |                                                 2.98 |                                             177.76 |                                                                 3.70 |                                        1.23 |
+| Gujarat           |                                               999.56 |                                          35,689.53 |                                                             1,540.54 |                                      310.64 |
+| Haryana           |                                               487.57 |                                          19,811.66 |                                                               590.19 |                                      194.93 |
+| Himachal Pradesh  |                                             1,057.55 |                                          18,808.80 |                                                             1,203.28 |                                      397.41 |
+| Jharkhand         |                                             3,203.45 |                                         137,349.49 |                                                             2,705.64 |                                      437.06 |
+| Karnataka         |                                             3,592.65 |                                         196,425.94 |                                                             5,709.90 |                                    1,750.88 |
+| Kerala            |                                             3,745.44 |                                          63,323.44 |                                                             3,136.44 |                                      925.33 |
+| Madhya Pradesh    |                                             5,390.23 |                                         296,290.68 |                                                             6,252.03 |                                      630.76 |
+| Maharashtra       |                                             7,519.55 |                                         214,455.12 |                                                             4,420.32 |                                    1,459.92 |
+| Manipur           |                                             1,146.56 |                                          48,466.65 |                                                               581.99 |                                      192.21 |
+| Meghalaya         |                                             1,249.23 |                                          20,059.91 |                                                             1,155.09 |                                      381.50 |
+| Mizoram           |                                               661.83 |                                          24,349.95 |                                                               611.65 |                                      199.21 |
+| Nagaland          |                                               416.19 |                                           3,834.66 |                                                               287.85 |                                       95.07 |
+| Odisha            |                                             4,005.15 |                                         218,176.51 |                                                             3,763.80 |                                      932.32 |
+| Punjab            |                                             1,060.69 |                                          43,996.76 |                                                             1,331.61 |                                      439.80 |
+| Rajasthan         |                                             7,221.92 |                                         299,567.98 |                                                             7,581.87 |                                    2,274.37 |
+| Sikkim            |                                               112.57 |                                           2,261.88 |                                                                97.57 |                                       32.23 |
+| Tamil Nadu        |                                             8,151.68 |                                         369,323.28 |                                                             7,585.49 |                                    2,176.84 |
+| Telangana         |                                             2,856.99 |                                          94,712.17 |                                                             3,825.31 |                                    1,263.41 |
+| Tripura           |                                               837.17 |                                          24,045.43 |                                                             1,041.70 |                                      344.05 |
+| Uttar Pradesh     |                                             9,437.47 |                                         274,515.94 |                                                             9,721.48 |                                    3,210.76 |
+| Uttarakhand       |                                               498.02 |                                          16,633.42 |                                                               626.43 |                                      193.78 |
+| West Bengal       |                                                 0.00 |                                               3.03 |                                                             8,508.00 |                                    1,264.49 |
 
 The four measures answer different questions. In particular, the FY2025–26 MGNREGS release table's West Bengal zero applies to the legacy scheme's stated period; the ministry says that scheme resumed there in June 2026, before the new VB-G RAM-G programme began on 1 July. It is not evidence of zero overall development funding. The water-work column has a different unit (₹ lakh) and reports state expenditure, not Union releases. Do not sum these columns or treat any one as a state's all-sector development total.
 

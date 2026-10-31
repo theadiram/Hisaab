@@ -19,17 +19,17 @@ The phase is implemented as a separate Union-funding product in Spending. A revi
 
 ## Verified acquisition
 
-| Holding | Acquired | What it establishes |
-|---|---:|---|
-| Annual expenditure originals | 11 FY editions, 2016–17 to 2026–27 | 1,109 contiguous demand identities |
-| Original numeric/text row inventory | 69,039 rows | Preserved hierarchy/columns for private classification; not separately additive programmes |
-| Fiscal-column interpretations | 56,926 rows; four discrepancies quarantined | Exact source crore columns, original/revised estimates and actuals; Plan/Non-Plan versus Revenue/Capital preserved |
-| Disaster-funding facts | 1,651 preserved candidates | Parliamentary/FC originals plus 264 independently sourced PIB facts; 86 published after explicit review |
-| Parsed disaster rows requiring assistance | 16 quarantined rows | No invented identities or changed-column interpretation |
-| Hosted originals | 20 checksum-verified originals | Earlier 17 originals plus two PIB releases and their reuse policy, privately preserved |
-| Licensed display geometry | 36 current LGD/ISO jurisdictions | geoBoundaries/DataMeet, CC BY 2.5 IN; community geometry |
-| SOI administrative boundaries | Original archive privately preserved | 40 source polygons, including disputed areas; projected LCC CRS; reuse/edition review pending |
-| Public funding facts | **86** | Explicit owner MFA decisions and documented PIB attributed-reuse policy; partial funding coverage |
+| Holding                                   |                                    Acquired | What it establishes                                                                                                |
+| ----------------------------------------- | ------------------------------------------: | ------------------------------------------------------------------------------------------------------------------ |
+| Annual expenditure originals              |          11 FY editions, 2016–17 to 2026–27 | 1,109 contiguous demand identities                                                                                 |
+| Original numeric/text row inventory       |                                 69,039 rows | Preserved hierarchy/columns for private classification; not separately additive programmes                         |
+| Fiscal-column interpretations             | 56,926 rows; four discrepancies quarantined | Exact source crore columns, original/revised estimates and actuals; Plan/Non-Plan versus Revenue/Capital preserved |
+| Disaster-funding facts                    |                  1,651 preserved candidates | Parliamentary/FC originals plus 264 independently sourced PIB facts; 86 published after explicit review            |
+| Parsed disaster rows requiring assistance |                         16 quarantined rows | No invented identities or changed-column interpretation                                                            |
+| Hosted originals                          |              20 checksum-verified originals | Earlier 17 originals plus two PIB releases and their reuse policy, privately preserved                             |
+| Licensed display geometry                 |            36 current LGD/ISO jurisdictions | geoBoundaries/DataMeet, CC BY 2.5 IN; community geometry                                                           |
+| SOI administrative boundaries             |        Original archive privately preserved | 40 source polygons, including disputed areas; projected LCC CRS; reuse/edition review pending                      |
+| Public funding facts                      |                                      **86** | Explicit owner MFA decisions and documented PIB attributed-reuse policy; partial funding coverage                  |
 
 The supplemental mitigation annexure provides 168 SDMF/NDMF release candidates. Its caption conflicts with its fund headings and displayed fiscal years; all 168 remain explicitly conflicting. No caption is silently corrected. The private set has 256 conflict-flagged facts in total, and 16 separately quarantined source rows.
 
@@ -87,12 +87,12 @@ At the owner's request, all 812,976 stored historical locations remain accessibl
 
 86 immutable source facts were published using the real owner session and all five evidence checks. No service-role publication, synthetic MFA, default approvals or private figure leakage was used. The database checkpoint confirms two PIB originals have documented reuse reviews and zero remaining eligible PIB facts in this batch.
 
-| Selection | Reviewed facts | Jurisdictions | Recorded Union funding |
-|---|---:|---:|---:|
-| FY 2026–27 Allocated | 1 | Maharashtra | ₹4,288.50 crore SDRF |
-| FY 2024–25 Released | 47 | 28 states | ₹24,991.17 crore SDRF/NDRF recorded subset |
-| FY 2023–24 Released | 30 | 28 states | ₹20,288.74 crore SDRF/NDRF recorded subset |
-| Other published history | 8 | Maharashtra | FY 2021–22/2022–23 allocations/releases and FY 2023–24/2024–25/2025–26 allocations |
+| Selection               | Reviewed facts | Jurisdictions |                                                             Recorded Union funding |
+| ----------------------- | -------------: | ------------: | ---------------------------------------------------------------------------------: |
+| FY 2026–27 Allocated    |              1 |   Maharashtra |                                                               ₹4,288.50 crore SDRF |
+| FY 2024–25 Released     |             47 |     28 states |                                         ₹24,991.17 crore SDRF/NDRF recorded subset |
+| FY 2023–24 Released     |             30 |     28 states |                                         ₹20,288.74 crore SDRF/NDRF recorded subset |
+| Other published history |              8 |   Maharashtra | FY 2021–22/2022–23 allocations/releases and FY 2023–24/2024–25/2025–26 allocations |
 
 PIB release 2294241 (4 August 2026) supplies the all-state annexure. Seven of nine financial columns reconcile. FY 2025–26 SDRF releases differ from the printed state sums by ₹210 crore; FY 2025–26 NDRF releases differ by ₹99.93 crore. Both columns stay conflicting and unpublished. Source dashes remain unknown. Combined state/Union allocations are excluded. The Maharashtra fire-service-modernisation entries require purpose reconciliation and stay withheld. Older overlapping releases are not published alongside the newer annexure.
 

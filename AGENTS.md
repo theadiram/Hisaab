@@ -8,7 +8,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-
 # Hisaab development rules
 
 - Start with CONTRIBUTING.md, docs/architecture.md and docs/database.md. Dated research is not a current operating instruction.

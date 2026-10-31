@@ -3,6 +3,7 @@
 User requested 1–2 hours of independent work while at the gym, without interruption. Existing continuation automation temporarily runs every ten minutes until 20:10 IST; then restores hourly cadence. Record questions/blockers here and inside Spending rather than repeating requests during this window. This is a bounded continuation schedule, not a promise that outside records will arrive or all nationwide work will finish.
 
 Priorities:
+
 1. Completed the pilot clipped-component recovery: all remaining fifteen projects were inspected; forty-two minimized visible bill dossiers are retained across thirty-five projects. Zero clipped-project recoveries remain. Review treasury workflow evidence for missing original cheque dates and distinguish those processing events from payment settlement. In-app-browser tab 5 is handed off at report page 2; re-observe before using it. Never capture bank/IFSC columns.
 2. Integrate recovered fields into the existing private owner dossiers and recompute gap counts. Arithmetic matches establish only a reconciliation; dates, recipient roles and settlement remain unknown without evidence.
 3. Assess observed bill documents in bounded batches (up to four batches of twenty per run); use the new integrated original-integrity gate. The initial four-batch loop completed: 1206 documents assessed, zero failures, full integrity gate passed. Avoid concurrent collection loops writing the same checkpoints.

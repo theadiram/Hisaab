@@ -16,71 +16,71 @@ Source response files, complete originals, extracted page/line evidence, hashes,
 
 ## State source ledger
 
-| Order | State | Preserved responses | Distinct PDFs | Recorded source failures |
-|---|---|---:|---:|---:|
-| 1 | Andhra Pradesh | 31 | 26 | 0 |
-| 2 | Arunachal Pradesh | 12 | 6 | 4 |
-| 3 | Assam | 14 | 9 | 3 |
-| 4 | Bihar | 9 | 5 | 0 |
-| 5 | Chhattisgarh | 37 | 30 | 14 |
-| 6 | Goa | 25 | 21 | 3 |
-| 7 | Gujarat | 15 | 9 | 2 |
-| 8 | Haryana | 19 | 15 | 0 |
-| 9 | Himachal Pradesh | 10 | 6 | 1 |
-| 10 | Jharkhand | 29 | 24 | 1 |
-| 11 | Karnataka | 12 | 8 | 1 |
-| 12 | Kerala | 30 | 25 | 0 |
-| 13 | Madhya Pradesh | 8 | 5 | 1 |
-| 14 | Maharashtra | 21 | 15 | 1 |
-| 15 | Manipur | 9 | 6 | 0 |
-| 16 | Meghalaya | 9 | 6 | 0 |
-| 17 | Mizoram | 9 | 6 | 0 |
-| 18 | Nagaland | 21 | 15 | 0 |
-| 19 | Odisha | 24 | 21 | 0 |
-| 20 | Punjab | 7 | 4 | 1 |
-| 21 | Rajasthan | 15 | 11 | 0 |
-| 22 | Sikkim | 8 | 3 | 1 |
-| 23 | Tamil Nadu | 7 | 4 | 2 |
-| 24 | Telangana | 18 | 14 | 10 |
-| 25 | Tripura | 9 | 5 | 0 |
-| 26 | Uttar Pradesh | 11 | 7 | 0 |
-| 27 | Uttarakhand | 21 | 17 | 0 |
-| 28 | West Bengal | 29 | 24 | 1 |
+| Order | State             | Preserved responses | Distinct PDFs | Recorded source failures |
+| ----- | ----------------- | ------------------: | ------------: | -----------------------: |
+| 1     | Andhra Pradesh    |                  31 |            26 |                        0 |
+| 2     | Arunachal Pradesh |                  12 |             6 |                        4 |
+| 3     | Assam             |                  14 |             9 |                        3 |
+| 4     | Bihar             |                   9 |             5 |                        0 |
+| 5     | Chhattisgarh      |                  37 |            30 |                       14 |
+| 6     | Goa               |                  25 |            21 |                        3 |
+| 7     | Gujarat           |                  15 |             9 |                        2 |
+| 8     | Haryana           |                  19 |            15 |                        0 |
+| 9     | Himachal Pradesh  |                  10 |             6 |                        1 |
+| 10    | Jharkhand         |                  29 |            24 |                        1 |
+| 11    | Karnataka         |                  12 |             8 |                        1 |
+| 12    | Kerala            |                  30 |            25 |                        0 |
+| 13    | Madhya Pradesh    |                   8 |             5 |                        1 |
+| 14    | Maharashtra       |                  21 |            15 |                        1 |
+| 15    | Manipur           |                   9 |             6 |                        0 |
+| 16    | Meghalaya         |                   9 |             6 |                        0 |
+| 17    | Mizoram           |                   9 |             6 |                        0 |
+| 18    | Nagaland          |                  21 |            15 |                        0 |
+| 19    | Odisha            |                  24 |            21 |                        0 |
+| 20    | Punjab            |                   7 |             4 |                        1 |
+| 21    | Rajasthan         |                  15 |            11 |                        0 |
+| 22    | Sikkim            |                   8 |             3 |                        1 |
+| 23    | Tamil Nadu        |                   7 |             4 |                        2 |
+| 24    | Telangana         |                  18 |            14 |                       10 |
+| 25    | Tripura           |                   9 |             5 |                        0 |
+| 26    | Uttar Pradesh     |                  11 |             7 |                        0 |
+| 27    | Uttarakhand       |                  21 |            17 |                        0 |
+| 28    | West Bengal       |                  29 |            24 |                        1 |
 
 These counts describe checked source entry points and collected files; a zero failure count is not complete authority/programme coverage. The deeper pass preserved up to twenty observed linked reports per selected fiscal-edition index, without re-downloading unchanged originals.
 
 ## Candidate extraction coverage
 
-| State | Budget candidates | Reported-expenditure candidates | Project/tender candidates |
-|---|---:|---:|---:|
-| Andhra Pradesh | 63 | 28 | 32 |
-| Arunachal Pradesh | 266 | 8 | 22 |
-| Assam | 318 | 55 | 72 |
-| Bihar | 11 | 32 | 0 |
-| Chhattisgarh | 12 | 26 | 1 |
-| Goa | 21 | 0 | 0 |
-| Gujarat | 82 | 7 | 0 |
-| Haryana | 44 | 2 | 0 |
-| Himachal Pradesh | 72 | 21 | 20 |
-| Jharkhand | 0 | 0 | 20 |
-| Karnataka | 0 | 10 | 0 |
-| Kerala | 222 | 3 | 20 |
-| Madhya Pradesh | 0 | 28 | 0 |
-| Maharashtra | 36 | 15 | 20 |
-| Manipur | 36 | 31 | 54 |
-| Meghalaya | 180 | 0 | 38 |
-| Mizoram | 0 | 6 | 21 |
-| Nagaland | 282 | 14 | 25 |
-| Odisha | 42 | 6 | 0 |
-| Punjab | 0 | 8 | 20 |
-| Rajasthan | 0 | 3 | 20 |
-| Sikkim | 0 | 11 | 18 |
-| Tamil Nadu | 0 | 12 | 20 |
-| Telangana | 135 | 28 | 0 |
-| Tripura | 295 | 3 | 34 |
-| Uttar Pradesh | 0 | 32 | 20 |
-| Uttarakhand | 0 | 0 | 24 |
-| West Bengal | 430 | 16 | 35 |
+| State             | Budget candidates | Reported-expenditure candidates | Project/tender candidates |
+| ----------------- | ----------------: | ------------------------------: | ------------------------: |
+| Andhra Pradesh    |                63 |                              28 |                        32 |
+| Arunachal Pradesh |               266 |                               8 |                        22 |
+| Assam             |               318 |                              55 |                        72 |
+| Bihar             |                11 |                              32 |                         0 |
+| Chhattisgarh      |                12 |                              26 |                         1 |
+| Goa               |                21 |                               0 |                         0 |
+| Gujarat           |                82 |                               7 |                         0 |
+| Haryana           |                44 |                               2 |                         0 |
+| Himachal Pradesh  |                72 |                              21 |                        20 |
+| Jharkhand         |                 0 |                               0 |                        20 |
+| Karnataka         |                 0 |                              10 |                         0 |
+| Kerala            |               222 |                               3 |                        20 |
+| Madhya Pradesh    |                 0 |                              28 |                         0 |
+| Maharashtra       |                36 |                              15 |                        20 |
+| Manipur           |                36 |                              31 |                        54 |
+| Meghalaya         |               180 |                               0 |                        38 |
+| Mizoram           |                 0 |                               6 |                        21 |
+| Nagaland          |               282 |                              14 |                        25 |
+| Odisha            |                42 |                               6 |                         0 |
+| Punjab            |                 0 |                               8 |                        20 |
+| Rajasthan         |                 0 |                               3 |                        20 |
+| Sikkim            |                 0 |                              11 |                        18 |
+| Tamil Nadu        |                 0 |                              12 |                        20 |
+| Telangana         |               135 |                              28 |                         0 |
+| Tripura           |               295 |                               3 |                        34 |
+| Uttar Pradesh     |                 0 |                              32 |                        20 |
+| Uttarakhand       |                 0 |                               0 |                        24 |
+| West Bengal       |               430 |                              16 |                        35 |
 
 Zero candidates means no supported normalization in that section yet; it is not zero allocation, spending or projects. Other documents remain preserved for table/OCR review. Contractor names are present in 233 project/award candidate rows; source dashes remain unknown and the original placeholder is retained. A business name is not an independently resolved party identity or proof of payment.
 
@@ -104,7 +104,6 @@ No new financial publication, outbound request, RTI filing/fee, billing change, 
 99 application tests and 16 acquisition/parser tests pass. The two state-evidence desktop/mobile browser checks passed after the configured preview restart; earlier relevant screen checks remain recorded in the prior checkpoint. Type checking and the hosted production build pass. All 76 production route traces exclude private originals, acquisition files and environment secrets. The live preview passes its health check, and the new private evidence endpoint returns 401 without owner MFA. All 467 distinct collected state response hashes match their unchanged originals (469 source response references). Source fiscal/amount tables were visually checked for AP, Assam, Telangana and the additional CAG layouts. Twenty-three PDFs with no text extraction are explicitly marked incomplete and need OCR/visual review.
 
 The earlier expanded pass contained about 880 MB of distinct state source bytes; the new originals are additional. 105 PDF extractions are marked incomplete, including page caps and text-empty/scanned files; the full source response is preserved. Newly discovered broken Chhattisgarh and Telangana budget links remain recorded. No failed download is represented as a zero amount. The seven existing NRIDA, eGramSwaraj, PPMS, MPLADS, Balangir, SER-2 and NCRTC threads were checked on 12 October: no new usable export or substantive response, only the previously preserved NRIDA forwarding. No message was sent.
-
 
 ## 12 October extraction and reconciliation checkpoint
 

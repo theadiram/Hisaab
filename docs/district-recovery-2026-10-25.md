@@ -14,11 +14,11 @@ The [official Kerala Forest Department description](https://forest.kerala.gov.in
 
 Each proposal retains the candidate ID, proposed LGD district ID, saved registry hash, original state and district labels, source receipt URL/hash/locator and correspondence reference. Approval, site verification and payment linkage remain false.
 
-| Measure | Existing proposals | Combined with this recovery |
-|---|---:|---:|
-| Candidate district proposals | 52,584 | 53,055 |
-| Districts with candidate proposals | 570 | 584 |
-| Share of saved 784-district register | 72.70% | 74.49% |
+| Measure                              | Existing proposals | Combined with this recovery |
+| ------------------------------------ | -----------------: | --------------------------: |
+| Candidate district proposals         |             52,584 |                      53,055 |
+| Districts with candidate proposals   |                570 |                         584 |
+| Share of saved 784-district register |             72.70% |                      74.49% |
 
 The 14 additional districts are Alappuzha, Ernakulam, Idukki, Kannur, Kasaragod, Kollam, Kottayam, Kozhikode, Malappuram, Palakkad, Pathanamthitta, Thiruvananthapuram, Thrissur and Wayanad. This is improved administrative association, not 471 newly proved project sites or payments.
 

@@ -4,7 +4,9 @@ import { writeFileSync } from 'node:fs';
 const index = process.argv.indexOf('--container');
 const container = index >= 0 ? process.argv[index + 1] : undefined;
 if (!container || !/^supabase_db_[A-Za-z0-9_-]+$/.test(container)) {
-  throw new Error('Pass --container supabase_db_<disposable-project>. No hosted connection is accepted.');
+  throw new Error(
+    'Pass --container supabase_db_<disposable-project>. No hosted connection is accepted.',
+  );
 }
 // Catalog metadata only: no application rows, user identities or stored payloads.
 const query = `select jsonb_build_object(
@@ -18,7 +20,26 @@ const query = `select jsonb_build_object(
  'functions',(select jsonb_agg(jsonb_build_object('schema',n.nspname,'name',p.proname,'arguments',pg_get_function_identity_arguments(p.oid),'result',pg_get_function_result(p.oid),'securityDefiner',p.prosecdef,'settings',p.proconfig,'acl',p.proacl) order by n.nspname,p.proname,pg_get_function_identity_arguments(p.oid)) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','private') and p.prokind='f'),
  'policies',(select jsonb_agg(to_jsonb(p) order by p.schemaname,p.tablename,p.policyname) from pg_policies p where p.schemaname in ('public','private'))
 );`;
-const raw = execFileSync('docker', ['exec', '-i', container, 'psql', '-X', '-qAt', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres', '-d', 'postgres'], { input: query, encoding: 'utf8' });
+const raw = execFileSync(
+  'docker',
+  [
+    'exec',
+    '-i',
+    container,
+    'psql',
+    '-X',
+    '-qAt',
+    '-v',
+    'ON_ERROR_STOP=1',
+    '-U',
+    'postgres',
+    '-d',
+    'postgres',
+  ],
+  { input: query, encoding: 'utf8' },
+);
 const reference = JSON.parse(raw);
 writeFileSync('docs/database-reference.json', JSON.stringify(reference, null, 2) + '\n');
-console.log(`Generated schema-only reference: ${reference.tables.length} tables, ${reference.functions.length} functions. No application rows exported.`);
+console.log(
+  `Generated schema-only reference: ${reference.tables.length} tables, ${reference.functions.length} functions. No application rows exported.`,
+);

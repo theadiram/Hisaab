@@ -4,16 +4,16 @@ Updated 15 October 2026. **All eight have a separate private review register. No
 
 ## What is collected in this register
 
-| Territory | Project/tender source records | Union-demand context rows | Recorded failed source routes |
-|---|---:|---:|---:|
-| Andaman and Nicobar Islands | 25 | 2 | 0 |
-| Chandigarh | 20 | 2 | 2 |
-| Dadra and Nagar Haveli and Daman and Diu | 25 | 2 | 0 |
-| Delhi | 20 | 2 | 0 |
-| Jammu and Kashmir | 32 | 2 | 1 |
-| Ladakh | 24 | 2 | 0 |
-| Lakshadweep | 16 | 2 | 0 |
-| Puducherry | 20 | 2 | 0 |
+| Territory                                | Project/tender source records | Union-demand context rows | Recorded failed source routes |
+| ---------------------------------------- | ----------------------------: | ------------------------: | ----------------------------: |
+| Andaman and Nicobar Islands              |                            25 |                         2 |                             0 |
+| Chandigarh                               |                            20 |                         2 |                             2 |
+| Dadra and Nagar Haveli and Daman and Diu |                            25 |                         2 |                             0 |
+| Delhi                                    |                            20 |                         2 |                             0 |
+| Jammu and Kashmir                        |                            32 |                         2 |                             1 |
+| Ladakh                                   |                            24 |                         2 |                             0 |
+| Lakshadweep                              |                            16 |                         2 |                             0 |
+| Puducherry                               |                            20 |                         2 |                             0 |
 
 182 source-record card drafts comprise 161 portal notice samples and 21 recovered NHIDCL rows (5 Andaman and Nicobar, 12 Jammu and Kashmir, 4 Ladakh). These are not 182 unique verified projects, awards or payments. Portal samples are not full procurement exports. The 16 Union-demand context rows cover FY2025–26 and FY2026–27; they are mixed budget context, not development-only amounts. Delhi, J&K and Puducherry transfer demands are not their complete local budgets. All normalized figures remain private and unapproved.
 

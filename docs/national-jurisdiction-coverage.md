@@ -4,59 +4,59 @@ As of 2026-10-15. This is a **source-coverage inventory**, not a claim of comple
 
 Counts are not additive across schemes. MPLADS counts are source rows, PMGSY counts are source road/tender candidates, state-budget counts are extracted candidates, and MoRD records are scheme-level aggregates. None is a count of verified payment-backed project cards.
 
-| Jurisdiction | State budget candidates (budget / expenditure / project) | Union UT demand rows (FY26 / FY27) | PMGSY (source rows / candidates) | MPLADS default rows (Lok Sabha + Rajya Sabha) | MoRD scheme aggregates | Complete cards |
-|---|---:|---:|---:|---:|---|---:|
-| Andhra Pradesh | 9,199 / 28 / 32 | — | 6,091 / 1,512 | 1,898 + 496 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Arunachal Pradesh | 274 / 8 / 22 | — | 1,993 / 1,013 | 364 + 0 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Assam | 1,569 / 55 / 72 | — | 11,562 / 5,958 | 2,734 + 401 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Bihar | 403 / 32 / 0 | — | 20,879 / 5,627 | 3,944 + 1,422 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Chhattisgarh | 520 / 26 / 1 | — | 11,160 / 4,354 | 3,154 + 565 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Goa | 1,585 / 0 / 0 | — | 82 / 12 | 109 + 38 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Gujarat | 1,235 / 7 / 0 | — | 5,309 / 769 | 3,847 + 543 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Haryana | 5,182 / 2 / 0 | — | 791 / 264 | 1,611 + 269 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Himachal Pradesh | 459 / 21 / 20 | — | 4,316 / 1,966 | 1,999 + 978 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Jharkhand | 345 / 16 / 20 | — | 9,558 / 4,569 | 3,343 + 1,454 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Karnataka | 358 / 10 / 0 | — | 4,618 / 980 | 3,315 + 1,350 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Kerala | 225 / 3 / 20 | — | 1,808 / 471 | 1,582 + 693 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Madhya Pradesh | 155 / 28 / 0 | — | 24,115 / 6,263 | 7,798 + 2,014 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Maharashtra | 653 / 15 / 20 | — | 8,263 / 1,648 | 1,855 + 445 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Manipur | 439 / 31 / 54 | — | 2,261 / 718 | 143 + 19 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Meghalaya | 791 / 8 / 38 | — | 1,473 / 753 | 807 + 0 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Mizoram | 334 / 6 / 21 | — | 374 / 157 | 323 + 0 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Nagaland | 296 / 14 / 25 | — | 551 / 246 | 81 + 130 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Odisha | 48 / 6 / 0 | — | 19,504 / 7,630 | 3,826 + 557 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Punjab | 338 / 8 / 20 | — | 1,575 / 395 | 8,860 + 3,226 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Rajasthan | 759 / 3 / 20 | — | 19,444 / 4,082 | 6,737 + 1,857 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Sikkim | 90 / 39 / 18 | — | 1,264 / 493 | 83 + 187 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Tamil Nadu | 61 / 12 / 20 | — | 10,591 / 3,897 | 3,947 + 1,077 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Telangana | 163 / 28 / 0 | — | 4,095 / 1,151 | 2,769 + 478 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Tripura | 643 / 3 / 34 | — | 1,755 / 390 | 54 + 39 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Uttar Pradesh | 356 / 32 / 20 | — | 21,307 / 3,409 | 18,358 + 6,896 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Uttarakhand | 39 / 8 / 24 | — | 3,184 / 2,065 | 1,598 + 562 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| West Bengal | 446 / 16 / 35 | — | 8,314 / 3,506 | 3,296 + 194 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Andaman and Nicobar Islands | Not in 28-state register | 115 / 103 | 133 / 120 | 10 + 0 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Chandigarh | Not in 28-state register | 55 / 53 | No partition | 137 + 59 | None in collected tables | 0 |
-| Dadra and Nagar Haveli and Daman and Diu | Not in 28-state register | 89 / 83 | No partition | 1 + 0 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Delhi | Not in 28-state register | 15 / 14 | No partition | 292 + 47 | None in collected tables | 0 |
-| Jammu and Kashmir | Not in 28-state register | 16 / 15 | 4,388 / 2,492 | 557 + 195 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Ladakh | Not in 28-state register | 74 / 71 | 199 / 117 | 13 + 0 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Lakshadweep | Not in 28-state register | 77 / 69 | No partition | 23 + 0 | MGNREGS release, water works, VB-G RAM-G | 0 |
-| Puducherry | Not in 28-state register | 14 / 14 | 72 / 72 | 29 + 95 | MGNREGS release, water works, VB-G RAM-G | 0 |
+| Jurisdiction                             | State budget candidates (budget / expenditure / project) | Union UT demand rows (FY26 / FY27) | PMGSY (source rows / candidates) | MPLADS default rows (Lok Sabha + Rajya Sabha) | MoRD scheme aggregates                   | Complete cards |
+| ---------------------------------------- | -------------------------------------------------------: | ---------------------------------: | -------------------------------: | --------------------------------------------: | ---------------------------------------- | -------------: |
+| Andhra Pradesh                           |                                          9,199 / 28 / 32 |                                  — |                    6,091 / 1,512 |                                   1,898 + 496 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Arunachal Pradesh                        |                                             274 / 8 / 22 |                                  — |                    1,993 / 1,013 |                                       364 + 0 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Assam                                    |                                          1,569 / 55 / 72 |                                  — |                   11,562 / 5,958 |                                   2,734 + 401 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Bihar                                    |                                             403 / 32 / 0 |                                  — |                   20,879 / 5,627 |                                 3,944 + 1,422 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Chhattisgarh                             |                                             520 / 26 / 1 |                                  — |                   11,160 / 4,354 |                                   3,154 + 565 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Goa                                      |                                            1,585 / 0 / 0 |                                  — |                          82 / 12 |                                      109 + 38 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Gujarat                                  |                                            1,235 / 7 / 0 |                                  — |                      5,309 / 769 |                                   3,847 + 543 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Haryana                                  |                                            5,182 / 2 / 0 |                                  — |                        791 / 264 |                                   1,611 + 269 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Himachal Pradesh                         |                                            459 / 21 / 20 |                                  — |                    4,316 / 1,966 |                                   1,999 + 978 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Jharkhand                                |                                            345 / 16 / 20 |                                  — |                    9,558 / 4,569 |                                 3,343 + 1,454 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Karnataka                                |                                             358 / 10 / 0 |                                  — |                      4,618 / 980 |                                 3,315 + 1,350 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Kerala                                   |                                             225 / 3 / 20 |                                  — |                      1,808 / 471 |                                   1,582 + 693 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Madhya Pradesh                           |                                             155 / 28 / 0 |                                  — |                   24,115 / 6,263 |                                 7,798 + 2,014 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Maharashtra                              |                                            653 / 15 / 20 |                                  — |                    8,263 / 1,648 |                                   1,855 + 445 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Manipur                                  |                                            439 / 31 / 54 |                                  — |                      2,261 / 718 |                                      143 + 19 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Meghalaya                                |                                             791 / 8 / 38 |                                  — |                      1,473 / 753 |                                       807 + 0 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Mizoram                                  |                                             334 / 6 / 21 |                                  — |                        374 / 157 |                                       323 + 0 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Nagaland                                 |                                            296 / 14 / 25 |                                  — |                        551 / 246 |                                      81 + 130 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Odisha                                   |                                               48 / 6 / 0 |                                  — |                   19,504 / 7,630 |                                   3,826 + 557 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Punjab                                   |                                             338 / 8 / 20 |                                  — |                      1,575 / 395 |                                 8,860 + 3,226 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Rajasthan                                |                                             759 / 3 / 20 |                                  — |                   19,444 / 4,082 |                                 6,737 + 1,857 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Sikkim                                   |                                             90 / 39 / 18 |                                  — |                      1,264 / 493 |                                      83 + 187 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Tamil Nadu                               |                                             61 / 12 / 20 |                                  — |                   10,591 / 3,897 |                                 3,947 + 1,077 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Telangana                                |                                             163 / 28 / 0 |                                  — |                    4,095 / 1,151 |                                   2,769 + 478 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Tripura                                  |                                             643 / 3 / 34 |                                  — |                      1,755 / 390 |                                       54 + 39 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Uttar Pradesh                            |                                            356 / 32 / 20 |                                  — |                   21,307 / 3,409 |                                18,358 + 6,896 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Uttarakhand                              |                                              39 / 8 / 24 |                                  — |                    3,184 / 2,065 |                                   1,598 + 562 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| West Bengal                              |                                            446 / 16 / 35 |                                  — |                    8,314 / 3,506 |                                   3,296 + 194 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Andaman and Nicobar Islands              |                                 Not in 28-state register |                          115 / 103 |                        133 / 120 |                                        10 + 0 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Chandigarh                               |                                 Not in 28-state register |                            55 / 53 |                     No partition |                                      137 + 59 | None in collected tables                 |              0 |
+| Dadra and Nagar Haveli and Daman and Diu |                                 Not in 28-state register |                            89 / 83 |                     No partition |                                         1 + 0 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Delhi                                    |                                 Not in 28-state register |                            15 / 14 |                     No partition |                                      292 + 47 | None in collected tables                 |              0 |
+| Jammu and Kashmir                        |                                 Not in 28-state register |                            16 / 15 |                    4,388 / 2,492 |                                     557 + 195 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Ladakh                                   |                                 Not in 28-state register |                            74 / 71 |                        199 / 117 |                                        13 + 0 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Lakshadweep                              |                                 Not in 28-state register |                            77 / 69 |                     No partition |                                        23 + 0 | MGNREGS release, water works, VB-G RAM-G |              0 |
+| Puducherry                               |                                 Not in 28-state register |                            14 / 14 |                          72 / 72 |                                       29 + 95 | MGNREGS release, water works, VB-G RAM-G |              0 |
 
 ## Eight-UT project and evidence review register
 
 This separate register closes the former state-only card-view gap. Counts are candidate source records, not unique projects, approved payments or complete local budgets. Existing Delhi and Puducherry dossiers remain separately linked; none is overwritten.
 
-| Union territory | Mixed Union demand-context entries | Project/tender records | Source gaps |
-|---|---:|---:|---:|
-| Andaman and Nicobar Islands | 2 | 25 | 0 |
-| Chandigarh | 2 | 20 | 2 |
-| Dadra and Nagar Haveli and Daman and Diu | 2 | 25 | 0 |
-| Delhi | 2 | 20 | 0 |
-| Jammu and Kashmir | 2 | 32 | 1 |
-| Ladakh | 2 | 24 | 0 |
-| Lakshadweep | 2 | 16 | 0 |
-| Puducherry | 2 | 20 | 0 |
+| Union territory                          | Mixed Union demand-context entries | Project/tender records | Source gaps |
+| ---------------------------------------- | ---------------------------------: | ---------------------: | ----------: |
+| Andaman and Nicobar Islands              |                                  2 |                     25 |           0 |
+| Chandigarh                               |                                  2 |                     20 |           2 |
+| Dadra and Nagar Haveli and Daman and Diu |                                  2 |                     25 |           0 |
+| Delhi                                    |                                  2 |                     20 |           0 |
+| Jammu and Kashmir                        |                                  2 |                     32 |           1 |
+| Ladakh                                   |                                  2 |                     24 |           0 |
+| Lakshadweep                              |                                  2 |                     16 |           0 |
+| Puducherry                               |                                  2 |                     20 |           0 |
 
 Twenty-one in-scope NHIDCL project rows previously excluded by the 28-state adapter are recovered for Andaman and Nicobar (5), Jammu and Kashmir (12) and Ladakh (4). Remaining candidates are observed public procurement notices. Awards, exact locations, bill allocations, recipient payments, reuse review and source completeness remain outstanding.
 
@@ -64,30 +64,30 @@ Twenty-one in-scope NHIDCL project rows previously excluded by the 28-state adap
 
 The following FY2026–27 net budget-demand figures are taken from the MHA/UT demand summary and are retained as private candidates. The five territory demands include administrative and other expenditure; Delhi, Jammu and Kashmir, and Puducherry are transfer demands, not the complete UT budgets. These values are not published Hisaab development totals, state utilization, project allocations, or contractor payments.
 
-| UT | Union demand scope | FY2026–27 BE net total (₹ crore) |
-|---|---|---:|
-| Andaman and Nicobar Islands | Demand 52 · UT territory demand | 6680.94 |
-| Chandigarh | Demand 53 · UT territory demand | 5720.17 |
-| Dadra and Nagar Haveli and Daman and Diu | Demand 54 · UT territory demand | 2832.70 |
-| Delhi | Demand 57 · Transfer demand | 1348.01 |
-| Jammu and Kashmir | Demand 58 · Transfer demand | 43290.29 |
-| Ladakh | Demand 55 · UT territory demand | 4869.31 |
-| Lakshadweep | Demand 56 · UT territory demand | 1682.35 |
-| Puducherry | Demand 59 · Transfer demand | 3517.88 |
+| UT                                       | Union demand scope              | FY2026–27 BE net total (₹ crore) |
+| ---------------------------------------- | ------------------------------- | -------------------------------: |
+| Andaman and Nicobar Islands              | Demand 52 · UT territory demand |                          6680.94 |
+| Chandigarh                               | Demand 53 · UT territory demand |                          5720.17 |
+| Dadra and Nagar Haveli and Daman and Diu | Demand 54 · UT territory demand |                          2832.70 |
+| Delhi                                    | Demand 57 · Transfer demand     |                          1348.01 |
+| Jammu and Kashmir                        | Demand 58 · Transfer demand     |                         43290.29 |
+| Ladakh                                   | Demand 55 · UT territory demand |                          4869.31 |
+| Lakshadweep                              | Demand 56 · UT territory demand |                          1682.35 |
+| Puducherry                               | Demand 59 · Transfer demand     |                          3517.88 |
 
 ## UT detailed budgets and monthly accounts acquired
 
 These are private acquisition records, not approved development amounts. Account vouchers can include refunds, receipts, and suspense activity; they are not automatically contractor settlements. Do not sum voucher rows or infer project links.
 
-| Territory / source | Acquired | Meaning and open gap |
-|---|---|---|
-| All eight UTs · Union Budget MHA/UT Demands 52–59 | 877 raw lines from FY2025–26 and FY2026–27 | Source locators preserved; gross/net, parent-child rows and development classification remain unreviewed. |
-| Puducherry · Directorate of Accounts monthly compilation | 21 PDFs · 9,199 pages · 74,933 voucher lines · 2,021 distinct account-head descriptions | FY2026–27, April–September 2026, from the official downloads page. 3 of 24 possible region/month combinations were not listed at retrieval. No project allocation/settlement link; source rights review pending. |
-| Ladakh | LIFMS and public Finance Department reviews located | Raw system requires credentials and verification code; no access bypassed. Public review summaries do not replace source registers. |
-| Lakshadweep | Pay and Accounts Office identified as bill/account custodian | Its official page describes monthly e-Lekha/PFMS accounts and annual accounts; no public project-payment export verified. |
-| Jammu and Kashmir | BEAMS and 2026–27 authorization order located | Allocation controls explain release and expenditure controls; they do not prove expenditure or contractor payment. Detailed AFS and public project-linked exports remain to be indexed. |
-| Puducherry budget | Official BEAMS exposes 2026–27 Budget at a Glance and AFS | AFS is available; granular budget download was linked through a route that timed out in this check. Broad AFS heads are not development-only figures. |
-| Andaman and Nicobar, Chandigarh, Dadra and Nagar Haveli and Daman and Diu | MHA territory demands and local portals mapped | Need full local accounts/budget series and links from departments to works and bills; no complete UT expenditure register yet. |
+| Territory / source                                                        | Acquired                                                                                | Meaning and open gap                                                                                                                                                                                             |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| All eight UTs · Union Budget MHA/UT Demands 52–59                         | 877 raw lines from FY2025–26 and FY2026–27                                              | Source locators preserved; gross/net, parent-child rows and development classification remain unreviewed.                                                                                                        |
+| Puducherry · Directorate of Accounts monthly compilation                  | 21 PDFs · 9,199 pages · 74,933 voucher lines · 2,021 distinct account-head descriptions | FY2026–27, April–September 2026, from the official downloads page. 3 of 24 possible region/month combinations were not listed at retrieval. No project allocation/settlement link; source rights review pending. |
+| Ladakh                                                                    | LIFMS and public Finance Department reviews located                                     | Raw system requires credentials and verification code; no access bypassed. Public review summaries do not replace source registers.                                                                              |
+| Lakshadweep                                                               | Pay and Accounts Office identified as bill/account custodian                            | Its official page describes monthly e-Lekha/PFMS accounts and annual accounts; no public project-payment export verified.                                                                                        |
+| Jammu and Kashmir                                                         | BEAMS and 2026–27 authorization order located                                           | Allocation controls explain release and expenditure controls; they do not prove expenditure or contractor payment. Detailed AFS and public project-linked exports remain to be indexed.                          |
+| Puducherry budget                                                         | Official BEAMS exposes 2026–27 Budget at a Glance and AFS                               | AFS is available; granular budget download was linked through a route that timed out in this check. Broad AFS heads are not development-only figures.                                                            |
+| Andaman and Nicobar, Chandigarh, Dadra and Nagar Haveli and Daman and Diu | MHA territory demands and local portals mapped                                          | Need full local accounts/budget series and links from departments to works and bills; no complete UT expenditure register yet.                                                                                   |
 
 ## CAG state-account snapshot collection
 
@@ -95,79 +95,79 @@ The CAG portal provides broad monthly account indicators, not project receipts. 
 
 **Collected:** 27 of 28 state PDFs. The latest downloadable set spans April–September 2026. A first-page index captured 214 broad candidate rows in 27 reports, including visual transcriptions for 3; 0 PDFs still need extraction review. These rows are private, unclassified and unapproved.
 
-| State | Latest report observed | PDF / extraction status |
-|---|---|---|
-| Andhra Pradesh | [June 2026](https://cag.gov.in/ae/andhra-pradesh/en/state-accounts-report?defuat_account_report_type=360) | Original preserved privately; 10 broad account rows indexed, still unreviewed |
-| Arunachal Pradesh | [April 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=65) | Original preserved privately; 6 broad account rows indexed, still unreviewed |
-| Assam | [September 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=66) | Original preserved privately; 11 broad account rows indexed, still unreviewed |
-| Bihar | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=67) | Original preserved privately; 10 broad account rows indexed, still unreviewed |
-| Chhattisgarh | [July 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=68) | Original preserved privately; 9 broad account rows indexed, still unreviewed |
-| Goa | — | No FY2026–27 report section was visible |
-| Gujarat | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=71) | Original preserved privately; 11 broad account rows indexed, still unreviewed |
-| Haryana | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=72) | Original preserved privately; 5 broad account rows indexed, still unreviewed |
-| Himachal Pradesh | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=73) | Original preserved privately; 10 broad account rows indexed, still unreviewed |
-| Jharkhand | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=75) | Original preserved privately; 10 broad account rows indexed, still unreviewed |
-| Karnataka | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=76) | Original preserved privately; 6 broad account rows indexed, still unreviewed |
-| Kerala | [September 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=77) | Original preserved privately; 4 broad account rows indexed, still unreviewed |
-| Madhya Pradesh | [July 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=78) | Original preserved privately; 10 broad account rows indexed, still unreviewed |
-| Maharashtra | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=79) | Original preserved privately; 7 broad account rows indexed, still unreviewed |
-| Manipur | [April 2026](https://cag.gov.in/ae/manipur/en/state-accounts-report?defuat_account_report_type=360) | Original preserved privately; 9 broad account rows indexed, still unreviewed |
-| Meghalaya | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=81) | Original preserved privately; 11 broad account rows indexed, still unreviewed |
-| Mizoram | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=82) | Original preserved privately; 4 broad account rows indexed, still unreviewed |
-| Nagaland | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=83) | Original preserved privately; 9 broad account rows indexed, still unreviewed |
-| Odisha | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=84) | Original preserved privately; 10 broad account rows indexed, still unreviewed |
-| Punjab | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=85) | Original preserved privately; 5 broad account rows indexed, still unreviewed |
-| Rajasthan | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=86) | Original preserved privately; 7 broad account rows indexed, still unreviewed |
-| Sikkim | [May 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=87) | Original preserved privately; 3 broad account rows indexed, still unreviewed |
-| Tamil Nadu | [July 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=88) | Original preserved privately; 6 broad account rows indexed, still unreviewed |
-| Telangana | [June 2026](https://cag.gov.in/ae/telangana/en/state-accounts-report?defuat_account_report_type=360) | Original preserved privately; 6 broad account rows indexed, still unreviewed |
-| Tripura | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=89) | Original preserved privately; 4 broad account rows indexed, still unreviewed |
-| Uttar Pradesh | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=90) | Original preserved privately; 10 broad account rows indexed, still unreviewed |
-| Uttarakhand | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=91) | Original preserved privately; 14 broad account rows indexed, still unreviewed |
-| West Bengal | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=92) | Original preserved privately; 7 broad account rows indexed, still unreviewed |
+| State             | Latest report observed                                                                                    | PDF / extraction status                                                       |
+| ----------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Andhra Pradesh    | [June 2026](https://cag.gov.in/ae/andhra-pradesh/en/state-accounts-report?defuat_account_report_type=360) | Original preserved privately; 10 broad account rows indexed, still unreviewed |
+| Arunachal Pradesh | [April 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=65)                              | Original preserved privately; 6 broad account rows indexed, still unreviewed  |
+| Assam             | [September 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=66)                          | Original preserved privately; 11 broad account rows indexed, still unreviewed |
+| Bihar             | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=67)                               | Original preserved privately; 10 broad account rows indexed, still unreviewed |
+| Chhattisgarh      | [July 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=68)                               | Original preserved privately; 9 broad account rows indexed, still unreviewed  |
+| Goa               | —                                                                                                         | No FY2026–27 report section was visible                                       |
+| Gujarat           | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=71)                               | Original preserved privately; 11 broad account rows indexed, still unreviewed |
+| Haryana           | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=72)                               | Original preserved privately; 5 broad account rows indexed, still unreviewed  |
+| Himachal Pradesh  | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=73)                               | Original preserved privately; 10 broad account rows indexed, still unreviewed |
+| Jharkhand         | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=75)                               | Original preserved privately; 10 broad account rows indexed, still unreviewed |
+| Karnataka         | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=76)                               | Original preserved privately; 6 broad account rows indexed, still unreviewed  |
+| Kerala            | [September 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=77)                          | Original preserved privately; 4 broad account rows indexed, still unreviewed  |
+| Madhya Pradesh    | [July 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=78)                               | Original preserved privately; 10 broad account rows indexed, still unreviewed |
+| Maharashtra       | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=79)                               | Original preserved privately; 7 broad account rows indexed, still unreviewed  |
+| Manipur           | [April 2026](https://cag.gov.in/ae/manipur/en/state-accounts-report?defuat_account_report_type=360)       | Original preserved privately; 9 broad account rows indexed, still unreviewed  |
+| Meghalaya         | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=81)                               | Original preserved privately; 11 broad account rows indexed, still unreviewed |
+| Mizoram           | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=82)                               | Original preserved privately; 4 broad account rows indexed, still unreviewed  |
+| Nagaland          | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=83)                               | Original preserved privately; 9 broad account rows indexed, still unreviewed  |
+| Odisha            | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=84)                               | Original preserved privately; 10 broad account rows indexed, still unreviewed |
+| Punjab            | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=85)                               | Original preserved privately; 5 broad account rows indexed, still unreviewed  |
+| Rajasthan         | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=86)                               | Original preserved privately; 7 broad account rows indexed, still unreviewed  |
+| Sikkim            | [May 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=87)                                | Original preserved privately; 3 broad account rows indexed, still unreviewed  |
+| Tamil Nadu        | [July 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=88)                               | Original preserved privately; 6 broad account rows indexed, still unreviewed  |
+| Telangana         | [June 2026](https://cag.gov.in/ae/telangana/en/state-accounts-report?defuat_account_report_type=360)      | Original preserved privately; 6 broad account rows indexed, still unreviewed  |
+| Tripura           | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=89)                               | Original preserved privately; 4 broad account rows indexed, still unreviewed  |
+| Uttar Pradesh     | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=90)                               | Original preserved privately; 10 broad account rows indexed, still unreviewed |
+| Uttarakhand       | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=91)                               | Original preserved privately; 14 broad account rows indexed, still unreviewed |
+| West Bengal       | [June 2026](https://cag.gov.in/en/state-accounts-report?defuat_state_id=92)                               | Original preserved privately; 7 broad account rows indexed, still unreviewed  |
 
 ## Official procurement discovery routes for all jurisdictions
 
 The Government of India GePNIC/CPPP directory lists 35 jurisdictions; Ladakh is absent there. Andaman and Nicobar is listed as ePublishing only, so its separately verified administration tender portal is added as a second route. The separately verified Ladakh eProcurement portal completes the 36-jurisdiction route map. Some places have multiple department/state systems. Treat this as a source-discovery map, not a complete tender, award, or payment dataset. Search forms may require CAPTCHA; local platforms may use separate formats and access rules.
 
-| Jurisdiction | Official portal route(s) | Current evidence meaning |
-|---|---|---|
-| Andhra Pradesh | [shared_cppp](https://www.eprocurement.gov.in/) | Tender discovery route identified; award/payment extraction not established |
-| Arunachal Pradesh | [nic_gepnic](https://arunachaltenders.gov.in/nicgep/app) | Tender discovery route identified; award/payment extraction not established |
-| Assam | [nic_gepnic](https://assamtenders.gov.in/nicgep/app) | Tender discovery route identified; award/payment extraction not established |
-| Bihar | [state_platform](https://www.eproc.bihar.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Chhattisgarh | [state_platform](https://cgeprocurement.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Goa | [state_platform](https://www.etender.goa.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Gujarat | [state_platform](https://www.nprocure.com/asp/home/new_home_tenders.asp) | Tender discovery route identified; award/payment extraction not established |
-| Haryana | [nic_gepnic](https://etenders.hry.nic.in), [department_platform](https://haryanaphed.etenders.in) | Tender discovery route identified; award/payment extraction not established |
-| Himachal Pradesh | [nic_gepnic](https://hptenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Jharkhand | [nic_gepnic](https://jharkhandtenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Karnataka | [state_platform](https://eproc.karnataka.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Kerala | [nic_gepnic](https://etenders.kerala.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Madhya Pradesh | [nic_gepnic](https://mptenders.gov.in/nicgep/app), [state_platform](https://mpeprocurement.com) | Tender discovery route identified; award/payment extraction not established |
-| Maharashtra | [nic_gepnic](https://mahatenders.gov.in), [department_platform](https://maharashtra.etenders.in) | Tender discovery route identified; award/payment extraction not established |
-| Manipur | [nic_gepnic](https://manipurtenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Meghalaya | [nic_gepnic](https://meghalayatenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Mizoram | [nic_gepnic](https://mizoramtenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Nagaland | [nic_gepnic](https://nagalandtenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Odisha | [nic_gepnic](https://tendersodisha.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Punjab | [department_platform](http://eprocpbpwd.gov.in), [state_platform](https://etender.punjabgovt.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Rajasthan | [nic_gepnic](https://eproc.rajasthan.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Sikkim | [nic_gepnic](http://sikkimtender.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Tamil Nadu | [nic_gepnic](https://tntenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Telangana | [shared_cppp](https://www.eprocurement.gov.in/) | Tender discovery route identified; award/payment extraction not established |
-| Tripura | [nic_gepnic](http://tripuratenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Uttar Pradesh | [nic_gepnic](https://etender.up.nic.in) | Tender discovery route identified; award/payment extraction not established |
-| Uttarakhand | [nic_gepnic](https://uktenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| West Bengal | [nic_gepnic](https://wbtenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Andaman and Nicobar Islands | [cppp_epublishing](https://eprocure.gov.in/epublish/app), [nic_gepnic](https://eprocure.andamannicobar.gov.in/nicgep/app) | ePublishing plus separate official eProcurement portal; payment coverage unverified |
-| Chandigarh | [nic_gepnic](https://etenders.chd.nic.in) | Tender discovery route identified; award/payment extraction not established |
-| Dadra and Nagar Haveli and Daman and Diu | [nic_gepnic_dnh](https://dnhtenders.gov.in/nicgep/app), [nic_gepnic_dd](https://ddtenders.gov.in/nicgep/app) | Tender discovery route identified; award/payment extraction not established |
-| Delhi | [nic_gepnic](https://govtprocurement.delhi.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Jammu and Kashmir | [nic_gepnic](https://jktenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
-| Ladakh | [nic_gepnic](https://tenders.ladakh.gov.in/nicgep/app) | Tender discovery route identified; award/payment extraction not established |
-| Lakshadweep | [nic_gepnic](https://tendersutl.gov.in/nicgep/app) | Tender discovery route identified; award/payment extraction not established |
-| Puducherry | [nic_gepnic](https://pudutenders.gov.in) | Tender discovery route identified; award/payment extraction not established |
+| Jurisdiction                             | Official portal route(s)                                                                                                  | Current evidence meaning                                                            |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Andhra Pradesh                           | [shared_cppp](https://www.eprocurement.gov.in/)                                                                           | Tender discovery route identified; award/payment extraction not established         |
+| Arunachal Pradesh                        | [nic_gepnic](https://arunachaltenders.gov.in/nicgep/app)                                                                  | Tender discovery route identified; award/payment extraction not established         |
+| Assam                                    | [nic_gepnic](https://assamtenders.gov.in/nicgep/app)                                                                      | Tender discovery route identified; award/payment extraction not established         |
+| Bihar                                    | [state_platform](https://www.eproc.bihar.gov.in)                                                                          | Tender discovery route identified; award/payment extraction not established         |
+| Chhattisgarh                             | [state_platform](https://cgeprocurement.gov.in)                                                                           | Tender discovery route identified; award/payment extraction not established         |
+| Goa                                      | [state_platform](https://www.etender.goa.gov.in)                                                                          | Tender discovery route identified; award/payment extraction not established         |
+| Gujarat                                  | [state_platform](https://www.nprocure.com/asp/home/new_home_tenders.asp)                                                  | Tender discovery route identified; award/payment extraction not established         |
+| Haryana                                  | [nic_gepnic](https://etenders.hry.nic.in), [department_platform](https://haryanaphed.etenders.in)                         | Tender discovery route identified; award/payment extraction not established         |
+| Himachal Pradesh                         | [nic_gepnic](https://hptenders.gov.in)                                                                                    | Tender discovery route identified; award/payment extraction not established         |
+| Jharkhand                                | [nic_gepnic](https://jharkhandtenders.gov.in)                                                                             | Tender discovery route identified; award/payment extraction not established         |
+| Karnataka                                | [state_platform](https://eproc.karnataka.gov.in)                                                                          | Tender discovery route identified; award/payment extraction not established         |
+| Kerala                                   | [nic_gepnic](https://etenders.kerala.gov.in)                                                                              | Tender discovery route identified; award/payment extraction not established         |
+| Madhya Pradesh                           | [nic_gepnic](https://mptenders.gov.in/nicgep/app), [state_platform](https://mpeprocurement.com)                           | Tender discovery route identified; award/payment extraction not established         |
+| Maharashtra                              | [nic_gepnic](https://mahatenders.gov.in), [department_platform](https://maharashtra.etenders.in)                          | Tender discovery route identified; award/payment extraction not established         |
+| Manipur                                  | [nic_gepnic](https://manipurtenders.gov.in)                                                                               | Tender discovery route identified; award/payment extraction not established         |
+| Meghalaya                                | [nic_gepnic](https://meghalayatenders.gov.in)                                                                             | Tender discovery route identified; award/payment extraction not established         |
+| Mizoram                                  | [nic_gepnic](https://mizoramtenders.gov.in)                                                                               | Tender discovery route identified; award/payment extraction not established         |
+| Nagaland                                 | [nic_gepnic](https://nagalandtenders.gov.in)                                                                              | Tender discovery route identified; award/payment extraction not established         |
+| Odisha                                   | [nic_gepnic](https://tendersodisha.gov.in)                                                                                | Tender discovery route identified; award/payment extraction not established         |
+| Punjab                                   | [department_platform](http://eprocpbpwd.gov.in), [state_platform](https://etender.punjabgovt.gov.in)                      | Tender discovery route identified; award/payment extraction not established         |
+| Rajasthan                                | [nic_gepnic](https://eproc.rajasthan.gov.in)                                                                              | Tender discovery route identified; award/payment extraction not established         |
+| Sikkim                                   | [nic_gepnic](http://sikkimtender.gov.in)                                                                                  | Tender discovery route identified; award/payment extraction not established         |
+| Tamil Nadu                               | [nic_gepnic](https://tntenders.gov.in)                                                                                    | Tender discovery route identified; award/payment extraction not established         |
+| Telangana                                | [shared_cppp](https://www.eprocurement.gov.in/)                                                                           | Tender discovery route identified; award/payment extraction not established         |
+| Tripura                                  | [nic_gepnic](http://tripuratenders.gov.in)                                                                                | Tender discovery route identified; award/payment extraction not established         |
+| Uttar Pradesh                            | [nic_gepnic](https://etender.up.nic.in)                                                                                   | Tender discovery route identified; award/payment extraction not established         |
+| Uttarakhand                              | [nic_gepnic](https://uktenders.gov.in)                                                                                    | Tender discovery route identified; award/payment extraction not established         |
+| West Bengal                              | [nic_gepnic](https://wbtenders.gov.in)                                                                                    | Tender discovery route identified; award/payment extraction not established         |
+| Andaman and Nicobar Islands              | [cppp_epublishing](https://eprocure.gov.in/epublish/app), [nic_gepnic](https://eprocure.andamannicobar.gov.in/nicgep/app) | ePublishing plus separate official eProcurement portal; payment coverage unverified |
+| Chandigarh                               | [nic_gepnic](https://etenders.chd.nic.in)                                                                                 | Tender discovery route identified; award/payment extraction not established         |
+| Dadra and Nagar Haveli and Daman and Diu | [nic_gepnic_dnh](https://dnhtenders.gov.in/nicgep/app), [nic_gepnic_dd](https://ddtenders.gov.in/nicgep/app)              | Tender discovery route identified; award/payment extraction not established         |
+| Delhi                                    | [nic_gepnic](https://govtprocurement.delhi.gov.in)                                                                        | Tender discovery route identified; award/payment extraction not established         |
+| Jammu and Kashmir                        | [nic_gepnic](https://jktenders.gov.in)                                                                                    | Tender discovery route identified; award/payment extraction not established         |
+| Ladakh                                   | [nic_gepnic](https://tenders.ladakh.gov.in/nicgep/app)                                                                    | Tender discovery route identified; award/payment extraction not established         |
+| Lakshadweep                              | [nic_gepnic](https://tendersutl.gov.in/nicgep/app)                                                                        | Tender discovery route identified; award/payment extraction not established         |
+| Puducherry                               | [nic_gepnic](https://pudutenders.gov.in)                                                                                  | Tender discovery route identified; award/payment extraction not established         |
 
 ## First official tender leads from jurisdictions missing PMGSY partitions
 
@@ -179,7 +179,6 @@ These are source-stage examples found on official portals. Tender value is an es
 - **Delhi:** the PWD tender-status system exposes stage records; an indexed 2026 road-related tender, `2026_PWD_293115_1`, is marked cancelled. It must not be counted as an award or spend. [Official tender-status record](https://govtprocurement.delhi.gov.in/nicgep/app?component=view&page=WebTenderStatusLists&service=direct&sp=S%2BEQGrhNVpQgVOPtdkzX8fg%3D%3D).
 - **Ladakh:** the official portal lists named road, water, irrigation, and flood-protection works, and has tender-status/result routes. These establish a source path, not payment coverage. [Official Ladakh eProcurement](https://tenders.ladakh.gov.in/).
 - **Lakshadweep:** the official portal provides active, archived, cancelled/retendered, result and tender-status sections. Its search form requires CAPTCHA; no road award/payment sample was verified in this pass. [Official Lakshadweep portal](https://tendersutl.gov.in/nicgep/app).
-
 
 ## What this proves—and what it does not
 
