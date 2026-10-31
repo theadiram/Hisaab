@@ -8,18 +8,18 @@ Cover all **28 states and eight Union Territories**, initially **FY 2016–17 th
 
 ## Records to collect
 
-| Data | What we need |
-|---|---|
-| **Funding** | Programme/budget head, funding government, grant/loan/channel, Union and state shares, allocated/released/reported-spent amounts, year and reporting cutoff. Keep transfers received separate from development within an area. |
-| **Project identity and purpose** | Official project/activity ID, title, purpose, implementing agency, financial year and state/district/locality identifiers. |
-| **Actual location** | Official coordinates, road alignment or building footprint, linked to the named project or asset; location precision and source. |
-| **Sanction** | Approval/order ID, amount, date and revised sanction/amendment records. |
-| **Contract** | Tender and agreement/work-order IDs, winning contractor or organisation, contract amount, award date and delivery period. |
-| **Payments** | Transaction/bill/voucher IDs, documented project allocation, recipient name and role, gross amount, deductions, net amount, recorded dates and their meanings, status, reversals and reissues. |
-| **Completion** | Reported progress, inspection records, completion dates and certificates where held. Preserve reported status separately from certificate evidence. |
-| **Responsible parties and media** | Documented agency, contractor and official roles; verified public photos/logos, site images and geometry where available, with dates and reuse basis. |
-| **Sources and coverage** | Original files, URLs, checksums, exact page/table/row references, retrieval dates, units, field definitions, reuse terms and missing records. |
-| **Complaint routes** | Responsible authority, verified official portal/contact, accepted submission method and required applicant details/evidence. |
+| Data                              | What we need                                                                                                                                                                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Funding**                       | Programme/budget head, funding government, grant/loan/channel, Union and state shares, allocated/released/reported-spent amounts, year and reporting cutoff. Keep transfers received separate from development within an area. |
+| **Project identity and purpose**  | Official project/activity ID, title, purpose, implementing agency, financial year and state/district/locality identifiers.                                                                                                     |
+| **Actual location**               | Official coordinates, road alignment or building footprint, linked to the named project or asset; location precision and source.                                                                                               |
+| **Sanction**                      | Approval/order ID, amount, date and revised sanction/amendment records.                                                                                                                                                        |
+| **Contract**                      | Tender and agreement/work-order IDs, winning contractor or organisation, contract amount, award date and delivery period.                                                                                                      |
+| **Payments**                      | Transaction/bill/voucher IDs, documented project allocation, recipient name and role, gross amount, deductions, net amount, recorded dates and their meanings, status, reversals and reissues.                                 |
+| **Completion**                    | Reported progress, inspection records, completion dates and certificates where held. Preserve reported status separately from certificate evidence.                                                                            |
+| **Responsible parties and media** | Documented agency, contractor and official roles; verified public photos/logos, site images and geometry where available, with dates and reuse basis.                                                                          |
+| **Sources and coverage**          | Original files, URLs, checksums, exact page/table/row references, retrieval dates, units, field definitions, reuse terms and missing records.                                                                                  |
+| **Complaint routes**              | Responsible authority, verified official portal/contact, accepted submission method and required applicant details/evidence.                                                                                                   |
 
 ## The connection we must prove
 

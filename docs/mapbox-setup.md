@@ -11,6 +11,7 @@ The public map token is configured locally and the Mapbox integration is active 
 7. Verify actual Indian urban and rural coverage, retained point identities and totals, individual selection, mobile performance, style switching and attribution. Production geography hosting, reviewed payment evidence and release gates remain separate unfinished work.
 
 Checked 6 October 2026. Official references:
+
 - https://docs.mapbox.com/accounts/guides/signup/
 - https://docs.mapbox.com/accounts/guides/tokens/
 - https://www.mapbox.com/pricing

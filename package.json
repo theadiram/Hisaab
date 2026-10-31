@@ -19,7 +19,11 @@
     "build:hosted": "node scripts/run-hosted.mjs build",
     "start:hosted": "node scripts/run-hosted.mjs start",
     "check:hosted": "node scripts/hosted-read-check.mjs",
-    "intake:validate": "tsx scripts/validate-intake.ts"
+    "intake:validate": "tsx scripts/validate-intake.ts",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/*.{ts,mjs}\" \"*.{ts,mjs,json,md}\" \"docs/*.md\" \".github/**/*.{md,yml}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/*.{ts,mjs}\" \"*.{ts,mjs,json,md}\" \"docs/*.md\" \".github/**/*.{md,yml}\"",
+    "check:publication": "node scripts/check-publication.mjs",
+    "db:reference": "node scripts/database-reference.mjs"
   },
   "dependencies": {
     "@mapbox/vector-tile": "2.0.4",
@@ -49,6 +53,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/three": "0.186.0",
+    "prettier": "3.9.10",
     "supabase": "2.119.0",
     "tsx": "4.23.15",
     "typescript": "5.9.3",

@@ -21,13 +21,13 @@ The existing records can support concrete source-evidenced project cards with ca
 
 All five are in Balangir district/block, have source technical-sanction and administrative-approval dates, a consistent readable bill, and an exact-code photo page. We chose distinct panchayats, source `New Work` labels and construction titles, then prioritised small coordinate spread. Small spread is a review heuristic, not proof of accuracy.
 
-| Work | Panchayat | Source photo point (latitude, longitude) | Source status | Maximum photo-coordinate spread |
-|---|---|---|---|---:|
-| Road from Dabkani village to Gotha Pada, 106 m | Khujenpali | 20.658717, 83.5227008 | Bill Final | 6.52 m |
-| Road from Barkani to Pandarapita, 144 m | Barkani | 20.633847, 83.4960065 | Bill Final | 7.45 m |
-| Guardwall at Banjikata Barpita | Barapudgia | 20.7110912, 83.3201947 | Bill Final | 8.17 m |
-| Road from RD Road to Kaladunguri Bidighat, 100 m | Bidighat | 20.6742967, 83.3562636 | Billing In Progress | 8.35 m |
-| CC road from Khaisbahali village to Sauntmunda Chhak | Sikachhida | 20.613711, 83.3879234 | Bill Final | 9.49 m |
+| Work                                                 | Panchayat  | Source photo point (latitude, longitude) | Source status       | Maximum photo-coordinate spread |
+| ---------------------------------------------------- | ---------- | ---------------------------------------- | ------------------- | ------------------------------: |
+| Road from Dabkani village to Gotha Pada, 106 m       | Khujenpali | 20.658717, 83.5227008                    | Bill Final          |                          6.52 m |
+| Road from Barkani to Pandarapita, 144 m              | Barkani    | 20.633847, 83.4960065                    | Bill Final          |                          7.45 m |
+| Guardwall at Banjikata Barpita                       | Barapudgia | 20.7110912, 83.3201947                   | Bill Final          |                          8.17 m |
+| Road from RD Road to Kaladunguri Bidighat, 100 m     | Bidighat   | 20.6742967, 83.3562636                   | Billing In Progress |                          8.35 m |
+| CC road from Khaisbahali village to Sauntmunda Chhak | Sikachhida | 20.613711, 83.3879234                    | Bill Final          |                          9.49 m |
 
 Coordinates above are the first source photo coordinate, not a centroid, road alignment, building footprint or independently checked project site. Multiple source points are retained in the packet. Any map presentation must say **“official project-linked photo location; actual site unverified.”**
 
@@ -63,13 +63,13 @@ The checks above are evidence-lineage and field/arithmetic checks. We did not in
 
 The second review checks **35 documentary claims across five works** against the preserved fresh official pages: exact project identity/title, technical approval date, administrative approval date, execution authority/level, execution mode, source photo-point membership and reported work status. All 35 source comparisons pass, with no source fact mismatches. All five proposed points occur as exact longitude/latitude strings on the correct official project photo page. No centroid, nearby-name match or guessed site is used.
 
-| Project ID suffix | Technical date reported | Administrative date reported | Execution-level evidence |
-|---|---|---|---|
-| `00125402` | 16 May 2026 | 21 May 2026 | Panchayat Samiti; Balangir block; Department mode |
-| `00125715` | 17 May 2026 | 21 May 2026 | Panchayat Samiti; Balangir block; Department mode |
-| `00097986` | 22 March 2026 | 30 March 2026 | Panchayat Samiti; Balangir block; Department mode |
-| `00098434` | 16 March 2026 | 16 March 2026 | Panchayat Samiti; Balangir block; Department mode |
-| `00063541` | 8 March 2026 | 9 March 2026 | Panchayat Samiti; Balangir block; Department mode |
+| Project ID suffix | Technical date reported | Administrative date reported | Execution-level evidence                          |
+| ----------------- | ----------------------- | ---------------------------- | ------------------------------------------------- |
+| `00125402`        | 16 May 2026             | 21 May 2026                  | Panchayat Samiti; Balangir block; Department mode |
+| `00125715`        | 17 May 2026             | 21 May 2026                  | Panchayat Samiti; Balangir block; Department mode |
+| `00097986`        | 22 March 2026           | 30 March 2026                | Panchayat Samiti; Balangir block; Department mode |
+| `00098434`        | 16 March 2026           | 16 March 2026                | Panchayat Samiti; Balangir block; Department mode |
+| `00063541`        | 8 March 2026            | 9 March 2026                 | Panchayat Samiti; Balangir block; Department mode |
 
 These are source-reported approval dates, not claims that the signed approval orders or sanction amounts have been recovered. The five rows report the administrative approver role as BDO. An independent [official district directory](https://balangir.odisha.gov.in/en/directory/balangir-contact-directory) identifies the Balangir Sadar Block Development Office, and the [official RTI handbook](https://rtiodisha.gov.in/Pages/printAllManual/office_id%3A4240/lang%3A) identifies Panchayat Samiti Office, Balangir. Originals for both have been preserved. This supports the narrow implementing-level label **“Panchayat Samiti, Balangir (source-reported execution level)”** with the exact project row as its receipt. It does not certify a current named officeholder or every agency relationship. The general staff directory names a different BDO from these project rows, so no current-incumbent claim is made.
 

@@ -8,10 +8,10 @@ For every selected road, the worker checks the exact preserved original JSON row
 
 Forty original checksums were checked, including previous editions and three policy/calendar originals. The two intake packages cite 32 originals, all already represented in the first batch preservation manifest. No additional original uploads are required.
 
-| Private package | Projects | Assets | Sources | UTF-8 bytes |
-|---|---:|---:|---:|---:|
-| `data/acquisition/first-dots/two-hundred/intake-part-1.json` | 100 | 100 | 16 | 528,845 |
-| `data/acquisition/first-dots/two-hundred/intake-part-2.json` | 100 | 100 | 16 | 532,160 |
+| Private package                                              | Projects | Assets | Sources | UTF-8 bytes |
+| ------------------------------------------------------------ | -------: | -----: | ------: | ----------: |
+| `data/acquisition/first-dots/two-hundred/intake-part-1.json` |      100 |    100 |      16 |     528,845 |
+| `data/acquisition/first-dots/two-hundred/intake-part-2.json` |      100 |    100 |      16 |     532,160 |
 
 Both packages pass the existing strict intake validator. Their raw combined size exceeds the previously observed approximately 494 KB database guard headroom. Diagnostic gzip sizes total approximately 71 KB, but this is not a measurement or guarantee of PostgreSQL storage growth. Check actual remaining capacity before and after each protected intake; do not raise or bypass the 425 MiB guard. Existing original records are reused by exact source ID/hash/URL/path.
 

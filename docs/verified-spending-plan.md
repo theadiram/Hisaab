@@ -3,15 +3,18 @@
 Accepted 7 October 2026. This is the working roadmap, not a claim of nationwide financial coverage.
 
 ## Goal
+
 Clickable project dots explain location, purpose, sanction, contract, actual allocated payments, dates, business recipient and available completion evidence, each with original source receipts. Start with ten Odisha roads, then 7,161 proposed geography matches; select the strongest-evidenced panchayat rather than inventing a pilot area.
 
 ## Four concurrent acquisition routes
+
 1. **Public reports:** inspect OMMAS sanction/agreement/expenditure/payment reports for the ten roads and implementing units. Seek official bill-to-road IDs, verify units and preserve conflicting editions. Investigate nine-parent/ten-row discrepancy. Assess up to five eGramSwaraj panchayats with activity, location and voucher links for FY 2025–26 and FY 2026–27. Prefer Odisha on equal evidence. Source access/reuse restrictions are explicit blockers.
 2. **Department exports/APIs:** NRIDA and eGramSwaraj requests sent. Seek small official samples before nationwide exports, with stable IDs, allocation splits, units, revisions, net/gross definitions, recipients, status/reversals, completion references, coverage and reuse terms. Check replies when acquisition resumes; follow up after seven working days; escalate after fourteen without a usable route. Verify office holidays before sending. No automatic outbound follow-up is scheduled; acquisition continuation runs separately.
 3. **Targeted RTI:** request existing records for the ten named roads and later selected panchayat activities. Identify current custodian/PIO and correct central/state route. Prepare exact record lists rather than broad demands. Owner provides applicant information, submits and pays applicable fees. Track registration, responses and appeals as separate factual steps.
 4. **Agency partnerships:** propose a small named-project pilot to relevant implementing units and panchayat accounting/engineering staff. Verify official contacts and obtain authorization for new messages. Seek registers, locations, bill allocations, payment definitions, completion evidence, reuse terms, update cadence and correction contact. Informal assurances do not replace evidence.
 
 ## Workflow
+
 ```mermaid
 flowchart TD
  A[Public reports] --> E[Preserve originals]
@@ -29,6 +32,7 @@ flowchart TD
 ```
 
 ## Evidence and implementation rules
+
 - Preserve original bytes, hash, retrieval time, source filters, field meanings and permission evidence privately.
 - Official IDs or documented allocations establish links; similar names, dates or nearby points are suggestions only.
 - Never replace actual project geography with a district centre.
@@ -40,15 +44,16 @@ flowchart TD
 - The in-app Evidence progress view has four lanes, task owner/status/blocker/next action/follow-up/supporting record, project checklists and milestones. Public summaries exclude correspondence and private evidence; owner MFA protects details.
 
 ## Milestones
-| Gate | Acceptance |
-|---|---|
-| M1 | Four-lane tracker and holdings visible in app |
-| M2 | Ten road dossiers, selected panchayat and specific missing-record requests |
-| M3 | First reviewed map location with officially allocated payment, date and sources |
-| M4 | Ten complete evidence-chain cards; unavailable completion certificates labelled |
-| M5 | Repeat imports update without duplicate payments or loss of prior evidence |
-| M6 | Wider state/year collection with truthful financial coverage |
-| M7 | Other sectors, hosted evidence/geography, reviewed GitHub upload and deployment |
+
+| Gate | Acceptance                                                                      |
+| ---- | ------------------------------------------------------------------------------- |
+| M1   | Four-lane tracker and holdings visible in app                                   |
+| M2   | Ten road dossiers, selected panchayat and specific missing-record requests      |
+| M3   | First reviewed map location with officially allocated payment, date and sources |
+| M4   | Ten complete evidence-chain cards; unavailable completion certificates labelled |
+| M5   | Repeat imports update without duplicate payments or loss of prior evidence      |
+| M6   | Wider state/year collection with truthful financial coverage                    |
+| M7   | Other sectors, hosted evidence/geography, reviewed GitHub upload and deployment |
 
 Partial projects may be published honestly; they do not count as complete. Authority response times and data completeness are not guaranteed. Historical assets stay optional and separate.
 
@@ -74,15 +79,14 @@ Use this as an additional Route A source for the five-panchayat assessment. Foll
 The eGramSwaraj activity-expenditure search omits Chandanbhati from its FY 2025–26 Balangir selector. Record the accessible-report limitation; do not substitute another panchayat or manipulate hidden filters. Continue permitted sources and targeted custodian requests.
 
 ## Verification
-Test exact units and decimals, duplicates/revisions/conflicts, split allocations/reversals/transfers, name-only/proximity rejection, missing fields, explicit publication approvals, MFA/private originals, map selection, full coverage counts and repeat imports/outages. Free acquisition is the default. No paid access, RTI fees or new external messages are assumed authorized.
 
+Test exact units and decimals, duplicates/revisions/conflicts, split allocations/reversals/transfers, name-only/proximity rejection, missing fields, explicit publication approvals, MFA/private originals, map selection, full coverage counts and repeat imports/outages. Free acquisition is the default. No paid access, RTI fees or new external messages are assumed authorized.
 
 ### PPMS project evidence update — 7 October 2026
 
 The filtered Balangir geotag report yielded 477 project rows across ten observed report pages. Exact official project codes connect 155 of the 156 treasury-bill projects; one project has no collected detail. Five candidates across Chandanbhati, Baidipali, Barapudgia, Barkani and Bhundimuhan now have private project/bill/location dossiers available inside Spending, protected by owner MFA. These are candidates, not approved payment cards. Source photo dates and final bill dates do not establish payment dates; executants do not establish recipients. Amount units, gross/net basis, payment dates, confirmed recipients, completion certificates and reuse terms remain unresolved. The filtered report is not a full project catalogue.
 
 Five observed bill-linked payment-detail downloads now provide cheque dates/numbers and cheque amounts. Originals and beneficiary banking/phone columns are private. Two cheque amounts differ from report bill amounts; allocation semantics need reconciliation. These are cheque records, not verified settlement. Owner-only Spending dossiers display safe cheque fields and the discrepancy flags. The PPMS sample/export/reuse request was explicitly authorized and sent 7 October 2026; response pending.
-
 
 ### Reconciliation and wider collection — 7 October 2026
 

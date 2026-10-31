@@ -1,0 +1,15 @@
+node_modules/
+.next/
+.hisaab/
+data/
+public/
+assets/
+design/
+supabase/
+package-lock.json
+next-env.d.ts
+tmp/
+output/
+videos/
+test-results/
+playwright-report/

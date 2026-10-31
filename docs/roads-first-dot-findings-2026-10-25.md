@@ -21,24 +21,24 @@ The records should enter owner review with every decision pending. They must not
 
 ## First 16 proposal-route packets
 
-| State in source | District in source | Official road ID | Title |
-|---|---|---|---|
-| Andhra Pradesh | Kurnool | 232001 | T01-Gudekal to Ganjihalli via S.Nagalapuram |
-| Assam | Baksa | 244768 | MRL06-NH 127 A to Bhabanipur Salbari Road via Hollongbari,Karnachara,Hudukhata uttar chupa. |
-| Bihar | Aurangabad | 248665 | MRL10-AMJHAR-SHARIF T03 TO SHAHPUR |
-| Chhattisgarh | Balod | 231096 | T02-piperchhedi to Limora Mujhagahan |
-| Haryana | Ambala | 242944 | T04-SBK road (SH-4) to jagdhauli via zefarpur ,alisapur |
-| Jharkhand | Bokaro | 251443 | MRL02-Khatritola to Chargi Chowk via Chargi |
-| Karnataka | Bidar | 238307 | MRL07-Ghatboral to Sonekera |
-| Keralam | Alappuzha | 245927 | MRL16-Vathallurkoickal temple to pokkattumill road |
-| Madhya Pradesh | Alirajpur | 247679 | MRL05-Alirajpur mathwad road to kiloda |
-| Maharashtra | Akola | 240341 | MRL03-NH-06 (Kurum) to ODR-75 to Madhapuri - jethapure -  Hyatpure to join  NH-06 ROAD |
-| Odisha | Balangir | 247148 | MRL04-Chandanbhati to Bolangir Kagon Mirdhapali ,tulandi, Chhatamakhana |
-| Punjab | Amritsar | 250538 | T07-APK Road to Amritsar Mehta Road via Fatehgarh Shukarchak Nizampur |
-| Rajasthan | Churu | 236254 | MRL01-Bhanin (SH-36) Bain |
-| Tamil Nadu | Dharmapuri | 237293 | MRL23-Ramagondahalli to Neruppur road-Pudur Nagamari (via)Malaiyur |
-| Telangana | Adilabad | 245414 | T01-Road from Adilabad to Indervelly via Ankoli,Wanwat,Pippaldhari, Khandala,Chichdhari and Bursanpatar |
-| Uttar Pradesh | Agra | 255877 | T04-Saiyan to Kheriya Road via Ladukhera |
+| State in source | District in source | Official road ID | Title                                                                                                   |
+| --------------- | ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------- |
+| Andhra Pradesh  | Kurnool            | 232001           | T01-Gudekal to Ganjihalli via S.Nagalapuram                                                             |
+| Assam           | Baksa              | 244768           | MRL06-NH 127 A to Bhabanipur Salbari Road via Hollongbari,Karnachara,Hudukhata uttar chupa.             |
+| Bihar           | Aurangabad         | 248665           | MRL10-AMJHAR-SHARIF T03 TO SHAHPUR                                                                      |
+| Chhattisgarh    | Balod              | 231096           | T02-piperchhedi to Limora Mujhagahan                                                                    |
+| Haryana         | Ambala             | 242944           | T04-SBK road (SH-4) to jagdhauli via zefarpur ,alisapur                                                 |
+| Jharkhand       | Bokaro             | 251443           | MRL02-Khatritola to Chargi Chowk via Chargi                                                             |
+| Karnataka       | Bidar              | 238307           | MRL07-Ghatboral to Sonekera                                                                             |
+| Keralam         | Alappuzha          | 245927           | MRL16-Vathallurkoickal temple to pokkattumill road                                                      |
+| Madhya Pradesh  | Alirajpur          | 247679           | MRL05-Alirajpur mathwad road to kiloda                                                                  |
+| Maharashtra     | Akola              | 240341           | MRL03-NH-06 (Kurum) to ODR-75 to Madhapuri - jethapure - Hyatpure to join NH-06 ROAD                    |
+| Odisha          | Balangir           | 247148           | MRL04-Chandanbhati to Bolangir Kagon Mirdhapali ,tulandi, Chhatamakhana                                 |
+| Punjab          | Amritsar           | 250538           | T07-APK Road to Amritsar Mehta Road via Fatehgarh Shukarchak Nizampur                                   |
+| Rajasthan       | Churu              | 236254           | MRL01-Bhanin (SH-36) Bain                                                                               |
+| Tamil Nadu      | Dharmapuri         | 237293           | MRL23-Ramagondahalli to Neruppur road-Pudur Nagamari (via)Malaiyur                                      |
+| Telangana       | Adilabad           | 245414           | T01-Road from Adilabad to Indervelly via Ankoli,Wanwat,Pippaldhari, Khandala,Chichdhari and Bursanpatar |
+| Uttar Pradesh   | Agra               | 255877           | T04-Saiyan to Kheriya Road via Ladukhera                                                                |
 
 The final queue prefers lower-friction districts: **15/16** have existing exact-name LGD district proposals. The Kerala candidate uses the separately documented **Keralam/Kerala correspondence proposal** for Alappuzha (`district:554`), pending owner review. Its provenance is in `district-recovery.json`. All 16 Work-shaped candidates have proposed area IDs; none is silently relabelled or approved. The earlier aliases Bagalkot, Agar, Ahmednagar and Angul were avoided by choosing alternatives within the same source states.
 
@@ -73,7 +73,6 @@ For evidence-limited publication the remaining concrete steps are: owner review 
 
 No existing checkpoint, application file, approval state or database was changed. No correspondence was sent. No complete payment-backed card was created or claimed. New packets retain all approval flags as false.
 
-
 ## Claim-by-claim original review — follow-through
 
 All 16 selected roads now have a separate investigation at `data/acquisition/first-dots/roads-reviewed-claims.json`:
@@ -88,13 +87,13 @@ All 16 selected roads now have a separate investigation at `data/acquisition/fir
 
 The public dashboard script's `loadRoadTenderDetails(stateId, districtId)` explicitly sends `StateID`, `DistrictID` and `SchemeID` to its public report endpoint. Five fresh district-filtered responses were retrieved using the exact selected source district codes. These are newly returned originals, not locally split copies:
 
-| State / district | Fresh original bytes | Exact selected road row |
-|---|---:|---:|
-| Bihar / Aurangabad | 628,865 | 42 |
-| Madhya Pradesh / Alirajpur | 283,640 | 89 |
-| Odisha / Balangir | 709,619 | 21 |
-| Rajasthan / Churu | 203,252 | 23 |
-| Uttar Pradesh / Agra | 246,493 | 17 |
+| State / district           | Fresh original bytes | Exact selected road row |
+| -------------------------- | -------------------: | ----------------------: |
+| Bihar / Aurangabad         |              628,865 |                      42 |
+| Madhya Pradesh / Alirajpur |              283,640 |                      89 |
+| Odisha / Balangir          |              709,619 |                      21 |
+| Rajasthan / Churu          |              203,252 |                      23 |
+| Uttar Pradesh / Agra       |              246,493 |                      17 |
 
 Every returned row has the requested source state/district identity. The selected road occurs exactly once and matches **all fields** of the prior state original in all five responses. Each response is below the existing 10 MiB intake cap. No cap change is needed. New hashes, exact rows, request parameters, retrieval times and file paths are in `roads-district-original-recovery.json`; each reviewed claim also points to its smaller fresh original for intake construction.
 

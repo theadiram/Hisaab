@@ -1,5 +1,8 @@
 name: Hisaab validation
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
 permissions:
   contents: read
 jobs:
@@ -8,11 +11,23 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
+      - name: Scan Git history for secrets
+        run: |
+          scanner_dir=$(mktemp -d)
+          curl --fail --silent --show-error --location https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz --output "$scanner_dir/gitleaks_8.30.1_linux_x64.tar.gz"
+          curl --fail --silent --show-error --location https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt --output "$scanner_dir/checksums.txt"
+          (cd "$scanner_dir" && grep ' gitleaks_8.30.1_linux_x64.tar.gz$' checksums.txt | sha256sum --check -)
+          tar -xzf "$scanner_dir/gitleaks_8.30.1_linux_x64.tar.gz" -C "$scanner_dir" gitleaks
+          "$scanner_dir/gitleaks" git --redact --no-banner
+      - run: npm run check:publication
       - run: npm ci
+      - run: npm run format:check
       - name: Start disposable local database
         run: npx supabase start -x studio,realtime,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit > /tmp/hisaab-local-start.log 2>&1
       - run: node scripts/configure-local.mjs
@@ -29,7 +44,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python3 -m pip install -r workers/requirements.txt
+      - run: python3 -m pip install -r workers/requirements-dev.txt
+      - run: ruff format --check workers scripts
+      - run: python3 -m compileall -q workers scripts
       - run: python3 -m unittest discover -s workers -p '*test*.py'
       - run: npm run build
       - run: npx playwright install --with-deps chromium

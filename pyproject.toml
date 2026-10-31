@@ -1,0 +1,7 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+include = ["workers/**/*.py", "scripts/*.py"]
+
+[tool.ruff.format]
+quote-style = "double"

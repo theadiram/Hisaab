@@ -21,15 +21,85 @@
   background: #13201b;
   box-shadow: 0 28px 100px rgb(0 0 0 / 36%);
 }
-.label { color: #a5c4b4; font-size: 11px; font-weight: 700; letter-spacing: .16em; }
-.card h2 { margin: 18px 0; font-size: clamp(22px, 4.2vw, 32px); font-weight: 500; line-height: 1.12; letter-spacing: -.035em; }
-.card p { font-size: 14px; line-height: 1.6; color: #c5d2cb; }
-.projectCount { display: grid; gap: 5px; padding: 14px; margin-top: 18px; border: 1px solid #3b5148; border-radius: 14px; background: #182821; }
-.projectCount h2 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .02em; }
-.projectCount strong { color: #d9edaa; font-size: clamp(32px, 7vw, 44px); font-weight: 750; line-height: 1; letter-spacing: -.045em; font-variant-numeric: tabular-nums; }
-.projectCount span { color: #eaf1ed; font-size: 13px; font-weight: 650; }
-.projectCount small { margin-top: 3px; color: #aebfb5; font-size: 10px; line-height: 1.45; }
-.enter { display: flex; width: 100%; justify-content: space-between; gap: 12px; padding: 15px 18px; margin-top: 20px; border: 0; border-radius: 11px; background: #d9edaa; color: #162414; cursor: pointer; font-size: 14px; font-weight: 700; }
-.enter:hover { background: #e6f7c1; }
-.enter:focus-visible { outline: 3px solid #c7e9ee; outline-offset: 5px; }
-@media (max-width: 480px) { .backdrop { padding: 12px; } .card { border-radius: 18px; } }
+.label {
+  color: #a5c4b4;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+.card h2 {
+  margin: 18px 0;
+  font-size: clamp(22px, 4.2vw, 32px);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+.card p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #c5d2cb;
+}
+.projectCount {
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+  margin-top: 18px;
+  border: 1px solid #3b5148;
+  border-radius: 14px;
+  background: #182821;
+}
+.projectCount h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.projectCount strong {
+  color: #d9edaa;
+  font-size: clamp(32px, 7vw, 44px);
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+}
+.projectCount span {
+  color: #eaf1ed;
+  font-size: 13px;
+  font-weight: 650;
+}
+.projectCount small {
+  margin-top: 3px;
+  color: #aebfb5;
+  font-size: 10px;
+  line-height: 1.45;
+}
+.enter {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 18px;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 11px;
+  background: #d9edaa;
+  color: #162414;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+}
+.enter:hover {
+  background: #e6f7c1;
+}
+.enter:focus-visible {
+  outline: 3px solid #c7e9ee;
+  outline-offset: 5px;
+}
+@media (max-width: 480px) {
+  .backdrop {
+    padding: 12px;
+  }
+  .card {
+    border-radius: 18px;
+  }
+}

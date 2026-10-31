@@ -1,17 +1,170 @@
-import {describe,it,expect} from 'vitest';
-import {fundingSelection,fundingOverview,selectedFunding,normaliseFundingAmount,fundingRecordSchema,type FundingRecord} from '../src/lib/funding';
-import {formatExactMoney} from '../src/lib/money';
-const selection=fundingSelection(new URLSearchParams());
-const record=(change:Partial<FundingRecord>={}):FundingRecord=>({id:'fact',identity:'SDRF:Bihar:2026',edition:'Official edition',financialYear:'2026-2027',programmeId:'SDRF',programme:'SDRF',budgetHead:'SDRF',ministry:'Home Affairs',jurisdiction:'10',jurisdictionLabel:'Bihar',purpose:'disaster_response',channel:'disaster_grant',instrument:'grant',measure:'allocated',estimate:'original',accountingBasis:'union_budget',share:'union',amountRupees:'100.10',periodStart:'2026-04-01',periodEnd:'2027-03-31',cutoff:'2027-03-31',publicationDate:'2026-02-01',coverageKey:'SDRF:Bihar:2026',aggregation:'leaf',parentKey:null,classification:'included',conflict:false,source:{hash:'a'.repeat(64),url:'https://example.invalid/source.pdf',locator:'Page 1, Bihar Union share',retrievedAt:'2026-10-09T10:00:00Z',page:1},notes:'All calamities; not flood-specific.',...change});
-describe('Union funding accounting',()=>{
- it('converts all units exactly, retains negative adjustments and rejects sub-paise',()=>{expect(normaliseFundingAmount('0.00000001','crore')).toBe('0.10');expect(normaliseFundingAmount('-1.234567','lakh')).toBe('-123456.70');expect(()=>normaliseFundingAmount('0.001','rupee')).toThrow();expect(formatExactMoney('123456789012345678.90')).toBe('₹1,23,45,67,89,01,23,45,678.90');expect(formatExactMoney('-0.10')).toBe('₹-0.10');});
- it('defaults to the agreed eleven-year scope and rejects invalid/repeated filters',()=>{expect(selection).toMatchObject({year:'2026-2027',measure:'allocated',estimate:'original'});for(const q of ['year=2015-2016','year=2026-27','measure=paid','purpose=flood','year=2026-2027&year=2025-2026','basis=recipient','measure=released&estimate=revised','offset=-1','unknown=1'])expect(()=>fundingSelection(new URLSearchParams(q))).toThrow();});
- it('never converts unavailable into zero; an evidenced zero remains zero',()=>{expect(fundingOverview([],selection).national.amountRupees).toBeNull();expect(fundingOverview([],selection).states).toHaveLength(36);expect(fundingOverview([record({amountRupees:'0.00'})],selection).national.amountRupees).toBe('0.00');});
- it('keeps original and revised estimates alternatives, not additive',()=>{const r=[record(),record({id:'revision',estimate:'revised',amountRupees:'500.00'})];expect(fundingOverview(r,selection).national.amountRupees).toBe('100.10');expect(fundingOverview(r,{...selection,estimate:'revised'}).national.amountRupees).toBe('500.00');});
- it('excludes combined shares, mixed maintenance, context parents, conflicts and review-pending facts',()=>{const bad=[record({share:'combined'}),record({classification:'mixed_unresolved'}),record({aggregation:'context'}),record({conflict:true}),record({classification:'awaiting_review'}),record({instrument:'unresolved'})];expect(fundingOverview(bad,selection).national.amountRupees).toBeNull();});
- it('withholds overlapping cumulative scopes and source mirrors',()=>{const a=record(),b=record({id:'second',edition:'Later cutoff'});expect(selectedFunding([a,b],selection).records).toHaveLength(0);expect(selectedFunding([a,b],selection).conflicts).toHaveLength(1);expect(selectedFunding([a,a],selection).records).toHaveLength(1);});
- it('counts national parent/state children once and never assigns national funding to states',()=>{const parent=record({id:'national',jurisdiction:'national',coverageKey:'SDRF:India',amountRupees:'1000.00'}),child=record({parentKey:'SDRF:India'});const r=fundingOverview([parent,child],selection);expect(r.national.amountRupees).toBe('100.10');expect(fundingOverview([parent],selection).unassigned.amountRupees).toBe('1000.00');expect(fundingOverview([parent],selection).states.every(s=>s.amountRupees===null)).toBe(true);});
- it('keeps grants, loans and historical combined jurisdictions distinct',()=>{const r=fundingOverview([record(),record({id:'loan',instrument:'loan',coverageKey:'loan',jurisdiction:'historical:jammu_kashmir_combined',jurisdictionLabel:'Historical combined Jammu & Kashmir',amountRupees:'200.00'})],selection);expect(r.national.grantsRupees).toBe('100.10');expect(r.national.loansRupees).toBe('200.00');expect(r.historical).toHaveLength(1);expect(r.states.find(s=>s.code==='37')?.amountRupees).toBeNull();});
- it('separates Union booked transfers from recipient utilisation',()=>{const rows=[record({measure:'reported_spent',estimate:'not_applicable',accountingBasis:'union_booked_expenditure'}),record({id:'utilisation',measure:'reported_spent',estimate:'not_applicable',accountingBasis:'recipient_utilisation',amountRupees:'70.00'})];expect(fundingOverview(rows,{...selection,measure:'reported_spent'}).national.amountRupees).toBe('100.10');expect(fundingOverview(rows,{...selection,measure:'reported_spent',basis:'recipient'}).national.amountRupees).toBe('70.00');});
- it('rejects additional sensitive fields rather than forwarding them publicly',()=>{expect(()=>fundingRecordSchema.parse({...record(),bankAccount:'secret'})).toThrow();});
+import { describe, it, expect } from 'vitest';
+import {
+  fundingSelection,
+  fundingOverview,
+  selectedFunding,
+  normaliseFundingAmount,
+  fundingRecordSchema,
+  type FundingRecord,
+} from '../src/lib/funding';
+import { formatExactMoney } from '../src/lib/money';
+const selection = fundingSelection(new URLSearchParams());
+const record = (change: Partial<FundingRecord> = {}): FundingRecord => ({
+  id: 'fact',
+  identity: 'SDRF:Bihar:2026',
+  edition: 'Official edition',
+  financialYear: '2026-2027',
+  programmeId: 'SDRF',
+  programme: 'SDRF',
+  budgetHead: 'SDRF',
+  ministry: 'Home Affairs',
+  jurisdiction: '10',
+  jurisdictionLabel: 'Bihar',
+  purpose: 'disaster_response',
+  channel: 'disaster_grant',
+  instrument: 'grant',
+  measure: 'allocated',
+  estimate: 'original',
+  accountingBasis: 'union_budget',
+  share: 'union',
+  amountRupees: '100.10',
+  periodStart: '2026-04-01',
+  periodEnd: '2027-03-31',
+  cutoff: '2027-03-31',
+  publicationDate: '2026-02-01',
+  coverageKey: 'SDRF:Bihar:2026',
+  aggregation: 'leaf',
+  parentKey: null,
+  classification: 'included',
+  conflict: false,
+  source: {
+    hash: 'a'.repeat(64),
+    url: 'https://example.invalid/source.pdf',
+    locator: 'Page 1, Bihar Union share',
+    retrievedAt: '2026-10-09T10:00:00Z',
+    page: 1,
+  },
+  notes: 'All calamities; not flood-specific.',
+  ...change,
+});
+describe('Union funding accounting', () => {
+  it('converts all units exactly, retains negative adjustments and rejects sub-paise', () => {
+    expect(normaliseFundingAmount('0.00000001', 'crore')).toBe('0.10');
+    expect(normaliseFundingAmount('-1.234567', 'lakh')).toBe('-123456.70');
+    expect(() => normaliseFundingAmount('0.001', 'rupee')).toThrow();
+    expect(formatExactMoney('123456789012345678.90')).toBe('₹1,23,45,67,89,01,23,45,678.90');
+    expect(formatExactMoney('-0.10')).toBe('₹-0.10');
+  });
+  it('defaults to the agreed eleven-year scope and rejects invalid/repeated filters', () => {
+    expect(selection).toMatchObject({
+      year: '2026-2027',
+      measure: 'allocated',
+      estimate: 'original',
+    });
+    for (const q of [
+      'year=2015-2016',
+      'year=2026-27',
+      'measure=paid',
+      'purpose=flood',
+      'year=2026-2027&year=2025-2026',
+      'basis=recipient',
+      'measure=released&estimate=revised',
+      'offset=-1',
+      'unknown=1',
+    ])
+      expect(() => fundingSelection(new URLSearchParams(q))).toThrow();
+  });
+  it('never converts unavailable into zero; an evidenced zero remains zero', () => {
+    expect(fundingOverview([], selection).national.amountRupees).toBeNull();
+    expect(fundingOverview([], selection).states).toHaveLength(36);
+    expect(
+      fundingOverview([record({ amountRupees: '0.00' })], selection).national.amountRupees,
+    ).toBe('0.00');
+  });
+  it('keeps original and revised estimates alternatives, not additive', () => {
+    const r = [record(), record({ id: 'revision', estimate: 'revised', amountRupees: '500.00' })];
+    expect(fundingOverview(r, selection).national.amountRupees).toBe('100.10');
+    expect(fundingOverview(r, { ...selection, estimate: 'revised' }).national.amountRupees).toBe(
+      '500.00',
+    );
+  });
+  it('excludes combined shares, mixed maintenance, context parents, conflicts and review-pending facts', () => {
+    const bad = [
+      record({ share: 'combined' }),
+      record({ classification: 'mixed_unresolved' }),
+      record({ aggregation: 'context' }),
+      record({ conflict: true }),
+      record({ classification: 'awaiting_review' }),
+      record({ instrument: 'unresolved' }),
+    ];
+    expect(fundingOverview(bad, selection).national.amountRupees).toBeNull();
+  });
+  it('withholds overlapping cumulative scopes and source mirrors', () => {
+    const a = record(),
+      b = record({ id: 'second', edition: 'Later cutoff' });
+    expect(selectedFunding([a, b], selection).records).toHaveLength(0);
+    expect(selectedFunding([a, b], selection).conflicts).toHaveLength(1);
+    expect(selectedFunding([a, a], selection).records).toHaveLength(1);
+  });
+  it('counts national parent/state children once and never assigns national funding to states', () => {
+    const parent = record({
+        id: 'national',
+        jurisdiction: 'national',
+        coverageKey: 'SDRF:India',
+        amountRupees: '1000.00',
+      }),
+      child = record({ parentKey: 'SDRF:India' });
+    const r = fundingOverview([parent, child], selection);
+    expect(r.national.amountRupees).toBe('100.10');
+    expect(fundingOverview([parent], selection).unassigned.amountRupees).toBe('1000.00');
+    expect(fundingOverview([parent], selection).states.every((s) => s.amountRupees === null)).toBe(
+      true,
+    );
+  });
+  it('keeps grants, loans and historical combined jurisdictions distinct', () => {
+    const r = fundingOverview(
+      [
+        record(),
+        record({
+          id: 'loan',
+          instrument: 'loan',
+          coverageKey: 'loan',
+          jurisdiction: 'historical:jammu_kashmir_combined',
+          jurisdictionLabel: 'Historical combined Jammu & Kashmir',
+          amountRupees: '200.00',
+        }),
+      ],
+      selection,
+    );
+    expect(r.national.grantsRupees).toBe('100.10');
+    expect(r.national.loansRupees).toBe('200.00');
+    expect(r.historical).toHaveLength(1);
+    expect(r.states.find((s) => s.code === '37')?.amountRupees).toBeNull();
+  });
+  it('separates Union booked transfers from recipient utilisation', () => {
+    const rows = [
+      record({
+        measure: 'reported_spent',
+        estimate: 'not_applicable',
+        accountingBasis: 'union_booked_expenditure',
+      }),
+      record({
+        id: 'utilisation',
+        measure: 'reported_spent',
+        estimate: 'not_applicable',
+        accountingBasis: 'recipient_utilisation',
+        amountRupees: '70.00',
+      }),
+    ];
+    expect(
+      fundingOverview(rows, { ...selection, measure: 'reported_spent' }).national.amountRupees,
+    ).toBe('100.10');
+    expect(
+      fundingOverview(rows, { ...selection, measure: 'reported_spent', basis: 'recipient' })
+        .national.amountRupees,
+    ).toBe('70.00');
+  });
+  it('rejects additional sensitive fields rather than forwarding them publicly', () => {
+    expect(() => fundingRecordSchema.parse({ ...record(), bankAccount: 'secret' })).toThrow();
+  });
 });

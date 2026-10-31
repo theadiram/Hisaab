@@ -1,118 +1,1449 @@
 'use client';
-import {PrivateVideos} from './private-videos';
-import {ComplaintHandoff} from './complaint-handoff';
-export {CitizenForm, Tracking, useModalFocus};
-import {useEffect,useMemo,useRef,useState} from 'react';
+import { PrivateVideos } from './private-videos';
+import { ComplaintHandoff } from './complaint-handoff';
+export { CitizenForm, Tracking, useModalFocus };
+import { useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import {AnimatePresence,motion,useReducedMotion,useDragControls} from 'motion/react';
-import {ArrowDownToLine,ArrowLeft,ArrowRight,BookOpen,Building2,Check,CheckCircle2,ChevronDown,ChevronRight,Clock3,Copy,ExternalLink,FileText,Info,Layers3,GraduationCap,HeartPulse,MapPin,MessageSquare,Route,Search,ShieldCheck,Target,Upload,Waves,X} from 'lucide-react';
-import type {Catalogue,Measure,SourceReceipt,Stage,Work} from '@/lib/model';
-import {aggregateMoney,formatMoney} from '@/lib/money';
-import {demoWorks} from '@/lib/demo';
-import {NationalIngestion} from './national-ingestion';
-import {FundingAtlas} from './funding-atlas';
-import type {FundingOverview} from '@/lib/funding';
-import {SpendingExplorer} from './spending-explorer';
-import {CaseUpdates} from './case-updates';
-import {CorrectionForm} from './correction-form';
-const EvidenceMap=dynamic(()=>import('./map').then(m=>m.EvidenceMap),{ssr:false,loading:()=> <div className="map-loading">Preparing your map…</div>});
-type Panel='spending'|'sources'|'observation'|'complaint'|'rti'|'track'|'receipt'|'correction'|null;
-const date=(v:string|null)=>v?new Date(v+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Date unavailable';
-export function HisaabApp({catalogue}:{catalogue:Catalogue}){
- const [fundingState,setFundingState]=useState<string|null>(null),[fundingData,setFundingData]=useState<FundingOverview|null>(null);
- const [demo,setDemo]=useState(false);const [tab,setTab]=useState('Explore');const [query,setQuery]=useState('');const [purpose,setPurpose]=useState('All');const [measure,setMeasure]=useState<Measure>('payment');const [year,setYear]=useState('All years');const [selected,setSelected]=useState<Work|null>(null);const [panel,setPanel]=useState<Panel>(null);const [receipt,setReceipt]=useState<{stage?:Stage;source?:SourceReceipt}|null>(null);const reduced=useReducedMotion();
- const fundingActive=tab==='Spending';
- const [exploreOpen,setExploreOpen]=useState(false);const exploreToggle=useRef<HTMLButtonElement>(null);
- function hideExplore(){setExploreOpen(false);requestAnimationFrame(()=>exploreToggle.current?.focus());}
- const sheetDrag=useDragControls();
- useModalFocus(panel);
- function selectWork(work:Work|null){setSelected(work);const url=new URL(location.href);if(work){url.searchParams.set('work',work.id);url.searchParams.set('preview',work.demo?'design':'evidence');}else{url.searchParams.delete('work');url.searchParams.delete('preview');}history.pushState(null,'',url);}
- useEffect(()=>{const restore=()=>{const params=new URL(location.href).searchParams;if(params.get('view')==='funding')setTab('Spending');const design=params.get('preview')==='design';const id=params.get('work');setDemo(design);if(id){const found=(design?demoWorks:catalogue.works).find(w=>w.id===id);setSelected(found??null);if(!found&&!design)void fetch('/api/v1/works/'+encodeURIComponent(id)).then(async r=>{if(r.ok&&new URL(location.href).searchParams.get('work')===id)setSelected((await r.json()).work);});}else setSelected(null);};restore();window.addEventListener('popstate',restore);return()=>window.removeEventListener('popstate',restore);},[catalogue.works]);
- const [realWorks,setRealWorks]=useState(catalogue.works),[realTotal,setRealTotal]=useState(catalogue.totalWorks),[loading,setLoading]=useState(false),[loadMessage,setLoadMessage]=useState('');
- const works=demo?demoWorks:realWorks;
- useEffect(()=>{if(demo)return;const controller=new AbortController();const timer=setTimeout(()=>{setLoading(true);const params=new URLSearchParams({q:query,limit:'100'});if(purpose!=='All')params.set('purpose',purpose);if(year!=='All years')params.set('year',year);void fetch('/api/v1/works?'+params,{signal:controller.signal}).then(async r=>{if(!r.ok)throw new Error('Published works could not be loaded.');const result=await r.json();setRealWorks(result.works);setRealTotal(result.total);setLoadMessage('');}).catch(e=>{if(e.name!=='AbortError')setLoadMessage(e.message);}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});},250);return()=>{clearTimeout(timer);controller.abort();};},[demo,query,purpose,year]);
- async function loadMore(){setLoading(true);try{const params=new URLSearchParams({q:query,limit:'100',offset:String(realWorks.length)});if(purpose!=='All')params.set('purpose',purpose);if(year!=='All years')params.set('year',year);const response=await fetch('/api/v1/works?'+params);if(!response.ok)throw new Error('More works could not be loaded.');const result=await response.json();setRealWorks(current=>[...current,...result.works]);setRealTotal(result.total);}catch(e){setLoadMessage((e as Error).message);}finally{setLoading(false);}}
- const filtered=useMemo(()=>works.filter(w=>(purpose==='All'||w.purpose===purpose)&&(year==='All years'||w.financialYear===year)&&[w.title,w.state,w.district,...w.officialIds].join(' ').toLowerCase().includes(query.toLowerCase())),[works,purpose,year,query]);
- const total=aggregateMoney(filtered.flatMap(w=>w.money),measure);
- const years=Array.from(new Set(works.map(w=>w.financialYear))).sort().reverse();
- useEffect(()=>{const openTracking=()=>{if(location.hash.startsWith('#track=')){setPanel('track');setTab('Track');}};openTracking();window.addEventListener('hashchange',openTracking);return()=>window.removeEventListener('hashchange',openTracking);},[]);
- useEffect(()=>{const esc=(e:KeyboardEvent)=>{if(e.key==='Escape'){setPanel(null);setReceipt(null);}};window.addEventListener('keydown',esc);return()=>window.removeEventListener('keydown',esc);},[]);
- function navigate(t:string){const url=new URL(location.href);if(t==='Spending')url.searchParams.set('view','funding');else url.searchParams.delete('view');history.replaceState(null,'',url);setTab(t);if(t==='Works')setExploreOpen(true);else if(t==='Explore')setExploreOpen(false);if(t==='Spending')setPanel(null);else if(t==='Report')setPanel('observation');else if(t==='Track')setPanel('track');else{setPanel(null);if(t==='Explore')setSelected(null);}}
- function openReceipt(stage:Stage){setReceipt({stage});setPanel('receipt');}
- return <main className="app"><a className="skip-link" href={fundingActive?'#funding-states':'#work-list'} onClick={()=>{if(!fundingActive)setExploreOpen(true);}}>Skip to evidence list</a>
-  <div className="preview-bar"><span><ShieldCheck size={14}/> PRIVATE BUILD <span className="preview-separator">/</span> {fundingActive?'Funding Atlas · reviewed records only':demo?'Illustrative design preview — all values fictional':'Verified catalogue preview'}</span>{!fundingActive&&<button onClick={()=>{const next=!demo;setDemo(next);selectWork(null);const url=new URL(location.href);if(next)url.searchParams.set('preview','design');else url.searchParams.delete('preview');history.replaceState(null,'',url);setQuery('');}}>{demo?'View actual coverage':'Explore design preview'} <ArrowRight size={13}/></button>}</div>
-  <header className="topbar"><button className="brand" onClick={()=>navigate('Explore')} aria-label="Hisaab explore"><Target size={32} strokeWidth={2.6}/><span>hisaab<span className="brand-dot">.</span></span></button><nav aria-label="Main navigation">{['Explore','Spending','Works','Report','Track'].map(t=><button key={t} className={tab===t?'nav-active':''} onClick={()=>navigate(t)}>{t}</button>)}</nav><div className="topbar-end"><span className="language">English</span><button onClick={()=>setPanel('sources')}>About the data <Info size={15}/></button></div></header>
-  <div className={`workspace ${fundingActive?'funding-workspace':''}`}><EvidenceMap funding={fundingActive?{states:fundingData?.states??[],selected:fundingState,onSelect:setFundingState,onAssetOpen:()=>setFundingState(null)}:undefined} works={filtered} selected={fundingActive?null:selected} onSelect={selectWork} demo={demo} query={query} purpose={purpose} year={year}/>
-   <FundingAtlas active={fundingActive} selected={fundingState} onSelect={setFundingState} onOverview={setFundingData} onEvidence={()=>setPanel('spending')}/>
-   {!fundingActive&&<><div className="map-toolbar"><label className="search"><Search size={19}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search a village, ward, district or work" aria-label="Search works and areas"/>{query&&<button onClick={()=>setQuery('')} aria-label="Clear search"><X size={16}/></button>}</label><div className="filters"><div className="segmented" aria-label="Financial measure">{(['sanction','contract','payment'] as Measure[]).map(m=><button key={m} aria-pressed={measure===m} className={measure===m?'selected':''} onClick={()=>setMeasure(m)}>{m==='payment'?'Paid':m==='contract'?'Contracted':'Sanctioned'}</button>)}</div><label className="year-select"><select aria-label="Financial year" value={year} onChange={e=>setYear(e.target.value)}><option>All years</option>{years.map(y=><option key={y}>{y}</option>)}</select><ChevronDown size={14}/></label></div></div>
-   <button ref={exploreToggle} className="explore-toggle" hidden={exploreOpen} aria-expanded={exploreOpen} aria-controls="work-list" onClick={()=>setExploreOpen(true)}><Layers3 size={17}/> Works &amp; spending <ChevronDown size={16}/></button>
-   <aside hidden={!exploreOpen} className={`explore-card ${tab==='Works'?'list-expanded':''}`} id="work-list" aria-label="Area and works"><div className="explore-card-heading"><div className="eyebrow">INDIA <span>/</span> {query||'PUBLIC DEVELOPMENT'}</div><button className="icon-button" onClick={hideExplore} aria-label="Hide works and spending panel" aria-controls="work-list" aria-expanded={exploreOpen}><X size={18}/></button></div><h1>Follow the money.</h1><p className="intro">Public works. Original records. Clear questions.</p>
-    <div className="landscape"><div className="landscape-hills"/><div className="landscape-road"/><div className="landscape-caption"><MapPin size={13}/>{demo?'Illustrative area · Karnataka':'India · ten-year evidence programme'}</div></div>
-    <div className="headline-money">{total.eventCount?formatMoney(total.amount):'Not available'}</div><p className="money-caption">{demo?'Illustrative ':''}{measure==='payment'?'Net payments':measure==='contract'?'Contract value':'Sanction value'} in {demo?'design fixtures':'shown imported works'}</p>
-    <button className="coverage-row" onClick={()=>setPanel('sources')}><div className="coverage-ring"/><div><strong>{demo?'Design preview':'Coverage: not yet published'}</strong><small>{demo?'Excluded from government totals':`${catalogue.districtsCovered}${catalogue.districtsExpected===null?'':' of '+catalogue.districtsExpected} districts with published works`}</small></div><ChevronRight size={17}/></button>
-    <div className="section-title">Explore by purpose</div><div className="purpose-chips">{[['All',Layers3],['Roads',Route],['Water',Waves],['Buildings',Building2],['Schools & education',GraduationCap],['Hospitals & health',HeartPulse],...(!['All','Roads','Water','Buildings','Schools & education','Hospitals & health'].includes(purpose)?[[purpose,Building2]]:[])].map(([p,I])=>{const Icon=I as typeof Route;return <button key={p as string} className={purpose===p?'active':''} onClick={()=>setPurpose(p as string)}><Icon size={15}/>{p as string}</button>;})}</div>
-    <div className="list-heading"><h2>Works in this area</h2><span>{filtered.length}{!demo&&realTotal>filtered.length?` of ${realTotal}`:''} {filtered.length===1?'work':'works'}</span></div>
-    <div className="work-list">{filtered.map(w=><button key={w.id} className={`work-card ${selected?.id===w.id?'work-selected':''}`} onClick={()=>selectWork(w)}><div className={`work-icon ${w.purpose==='Water'?'water':''}`}>{w.purpose==='Water'?<Waves size={24}/>:<Route size={24}/>}</div><div className="work-card-text"><strong>{w.title}</strong><small><MapPin size={11}/>{w.district}, {w.state}</small><b>{formatMoney(aggregateMoney(w.money,measure).eventCount?aggregateMoney(w.money,measure).amount:null)}</b><div className="stage-bars">{w.stages.map(s=><i key={s.id} className={s.state==='found'?'filled':''}/>)}</div></div><ChevronRight size={17}/></button>)}{!filtered.length&&<div className="empty-state"><BookOpen size={28}/><strong>{query?'No matching imported works':'The evidence catalogue is being built'}</strong><p>{query?'Try another place or original work ID.':'No government spending total is published yet. Source access and district coverage are being verified.'}</p><button onClick={()=>setPanel('sources')}>See source coverage <ArrowRight size={14}/></button></div>}</div>
-    {loadMessage&&<p role="status">{loadMessage}</p>}{!demo&&realWorks.length<realTotal&&<button className="secondary full" disabled={loading} onClick={()=>void loadMore()}>{loading?'Loading…':'Load more works'}</button>}
-    <button className="primary full" onClick={()=>{setTab(tab==='Works'?'Explore':'Works');setSelected(null);}}> {tab==='Works'?'Return to map':'Explore all works'} <ArrowRight size={17}/></button>
-   </aside>
-   <AnimatePresence>{selected&&<motion.aside className="work-detail" drag="y" dragListener={false} dragControls={sheetDrag} dragConstraints={{top:0,bottom:0}} dragElastic={{top:0,bottom:1}} dragMomentum={false} onDragEnd={(_event,info)=>{if(info.offset.y>100||info.velocity.y>600)selectWork(null);}} initial={{opacity:0,x:reduced?0:30}} animate={{opacity:1,x:0}} exit={{opacity:0,x:reduced?0:30}} transition={{type:'spring',bounce:0,duration:.35}} aria-label="Work receipt"><div className="detail-drag" onPointerDown={e=>{if(matchMedia('(max-width: 760px)').matches)sheetDrag.start(e);}} style={{touchAction:'none',cursor:'grab'}}/><div className="detail-heading"><button className="icon-button" onClick={()=>selectWork(null)} aria-label="Close work receipt"><ArrowLeft size={18}/></button><span className="eyebrow">WORK RECEIPT</span><button className="icon-button" onClick={()=>setPanel('sources')} aria-label="About sources"><Info size={18}/></button></div><h2>{selected.title}</h2><p className="detail-location"><MapPin size={13}/>{selected.district}, {selected.state}</p>{selected.demo&&<div className="demo-label">Illustrative work · fictional amounts and records</div>}
-    <div className="detail-badges"><button onClick={()=>{setReceipt({source:selected.stages.flatMap(s=>s.receipts)[0]});setPanel('receipt');}}><FileText size={13}/>Sources</button><span><Clock3 size={13}/>{selected.stages.some(s=>s.state!=='found')?'Evidence gaps':'Completion recorded'}</span></div>
-    <div className="money-grid">{(['sanction','contract','payment'] as Measure[]).map(m=>{const r=aggregateMoney(selected.money,m);return <button key={m} onClick={()=>openReceipt(selected.stages.find(s=>s.id===(m==='contract'?'award':m))!)}><small>{m==='payment'?'Paid':m==='contract'?'Contract':'Sanction'}</small><strong>{formatMoney(r.eventCount?r.amount:null)}</strong></button>;})}</div>
-    <h3>Evidence timeline</h3><div className="timeline">{selected.stages.map(s=><button key={s.id} onClick={()=>openReceipt(s)} className="timeline-event"><span className={`timeline-dot ${s.state==='found'?'found':''}`}>{s.state==='found'?<Check size={13}/>:null}</span><div><strong>{s.label}</strong><small>{s.date?date(s.date):'No dated record'}</small></div><span className="timeline-state">{s.state==='found'?'Record found':s.state==='missing'?'Not found in checked sources':s.state.replaceAll('_',' ')}<ChevronRight size={12}/></span></button>)}</div>
-    <div className="verification-note"><ShieldCheck size={15}/><span>{selected.physicalVerification}. Official status and field evidence remain separate.</span></div>
-    <div className="authority"><small>Executing authority</small><div><Building2 size={19}/><strong>{selected.authority||'Not yet established'}</strong></div>{selected.authorityReceipt&&<button onClick={()=>{setReceipt({source:selected.authorityReceipt!});setPanel('receipt');}}>See supporting record <ExternalLink size={12}/></button>}</div>
-    <div className="detail-actions"><button onClick={()=>{const url=new URL(location.href);url.hash='';void navigator.clipboard.writeText(url.toString());}}>Copy work link</button><button onClick={()=>setPanel('correction')}>Suggest a correction</button></div><button className="primary full" onClick={()=>setPanel('observation')}><MessageSquare size={17}/>Add an observation</button><div className="detail-actions"><button onClick={()=>setPanel('complaint')}>Prepare complaint</button><button onClick={()=>setPanel('rti')}>Request records</button></div>
-   </motion.aside>}</AnimatePresence>
-   <div className="map-legend"><span><i className="legend-blue"/>Source-backed work</span><span><i className="legend-asset"/>Historical assets · no spending link</span><span><i className="legend-coral"/>Education & health</span><span><i className="legend-hatch"/>Unpublished coverage</span><button onClick={()=>setPanel('sources')}>Sources & years <ChevronRight size={13}/></button></div>
-  </>} </div>
-  <nav className="mobile-nav" aria-label="Mobile navigation">{[['Explore',MapPin],['Spending',Building2],['Works',Route],['Report',FileText],['Track',Clock3]].map(([t,I])=>{const Icon=I as typeof MapPin;return <button key={t as string} className={tab===t?'active':''} onClick={()=>navigate(t as string)}><Icon size={20}/><span>{t==='Explore'?'Map':t as string}</span></button>;})}</nav>
-  <AnimatePresence>{panel&&<motion.div className="modal-backdrop" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setPanel(null)}><motion.section role="dialog" aria-modal="true" aria-labelledby="dialog-title" className={`modal ${panel==='sources'||panel==='spending'?'wide':''}`} initial={{opacity:0,y:reduced?0:20}} animate={{opacity:1,y:0}} exit={{opacity:0,y:reduced?0:20}} onClick={e=>e.stopPropagation()}><button className="modal-close icon-button" autoFocus onClick={()=>setPanel(null)} aria-label="Close dialog"><X size={20}/></button>
-   {panel==='spending'&&<SpendingExplorer catalogue={catalogue} onSources={()=>setPanel('sources')} onWorks={p=>{setDemo(false);setPurpose(p);setQuery('');selectWork(null);setTab('Works');setExploreOpen(true);setPanel(null);}}/>}
-   {panel==='correction'&&selected&&<CorrectionForm work={selected}/>}
-   {panel==='sources'&&<><div className="eyebrow">THE EVIDENCE BEHIND HISAAB</div><h2 id="dialog-title">Records first. Claims second.</h2><p className="modal-intro">Ten years. Every district. A traceable receipt for every published fact. Collection is in progress; this build is private.</p><div className="coverage-stats"><div><strong>{catalogue.totalWorks}</strong><span>Published works</span></div><div><strong>{catalogue.districtsCovered}</strong><span>Districts with published works</span></div><div><strong>{catalogue.sources.length}</strong><span>Source routes tracked</span></div></div><button className="spending-entry" onClick={()=>{setTab('Spending');setPanel(null);}}>Explore spending across every development sector →</button><NationalIngestion/><div className="source-list">{catalogue.sources.map(s=><article key={s.id}><div><strong>{s.name}</strong><span className="status-label">{s.status.replaceAll('_',' ')}</span></div><p>{s.coverage}</p><small>{s.restriction}</small><a href={s.url} target="_blank" rel="noopener noreferrer">Official route <ExternalLink size={12}/></a></article>)}</div><div className="info-note">An unavailable record does not mean no spending. Sanction, contracts, transfers, bills and net payments are different measures. Dataset cutoff: {catalogue.cutoff}.</div></>}
-   {panel==='receipt'&&<><div className="eyebrow">SOURCE RECEIPT</div><h2 id="dialog-title">{receipt?.stage?.label||'Supporting record'}</h2>{receipt?.stage&&<><span className="status-label">{receipt.stage.state.replaceAll('_',' ')}</span><p className="modal-intro">{receipt.stage.description}</p>{receipt.stage.amount&&<div className="receipt-amount">{formatMoney(receipt.stage.amount)}</div>}</>}{(receipt?.source?[receipt.source]:receipt?.stage?.receipts??[]).map((s,i)=><article className="receipt-document" key={`${s.id}-${i}`}><h3>{s.title}</h3><blockquote>{s.rawText}</blockquote><dl><dt>Source location</dt><dd>{s.locator}</dd><dt>Retrieved</dt><dd>{s.retrievedAt}</dd><dt>Document hash</dt><dd>{s.documentHash||'Not applicable to a fictional fixture'}</dd><dt>Reuse</dt><dd>{s.permission}</dd></dl>{s.url&&<a className="secondary" href={s.url} target="_blank" rel="noopener noreferrer">Open original <ExternalLink size={15}/></a>}</article>)}{!receipt?.source&&!receipt?.stage?.receipts.length&&<div className="info-note">No supporting document is attached to this stage. Ask the verified record holder for the specific record. This is not a corruption finding.</div>}<button className="secondary" onClick={()=>setPanel('rti')}>Prepare a record request <ArrowRight size={15}/></button></>}
-   {(panel==='observation'||panel==='complaint'||panel==='rti')&&<CitizenForm kind={panel} work={selected} onTrack={()=>{setPanel('track');setTab('Track');}}/>}
-   {panel==='track'&&<Tracking/>}
-  </motion.section></motion.div>}</AnimatePresence>
- </main>;
+import { AnimatePresence, motion, useReducedMotion, useDragControls } from 'motion/react';
+import {
+  ArrowDownToLine,
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  Building2,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Clock3,
+  Copy,
+  ExternalLink,
+  FileText,
+  Info,
+  Layers3,
+  GraduationCap,
+  HeartPulse,
+  MapPin,
+  MessageSquare,
+  Route,
+  Search,
+  ShieldCheck,
+  Target,
+  Upload,
+  Waves,
+  X,
+} from 'lucide-react';
+import type { Catalogue, Measure, SourceReceipt, Stage, Work } from '@/lib/model';
+import { aggregateMoney, formatMoney } from '@/lib/money';
+import { demoWorks } from '@/lib/demo';
+import { NationalIngestion } from './national-ingestion';
+import { FundingAtlas } from './funding-atlas';
+import type { FundingOverview } from '@/lib/funding';
+import { SpendingExplorer } from './spending-explorer';
+import { CaseUpdates } from './case-updates';
+import { CorrectionForm } from './correction-form';
+const EvidenceMap = dynamic(() => import('./map').then((m) => m.EvidenceMap), {
+  ssr: false,
+  loading: () => <div className="map-loading">Preparing your map…</div>,
+});
+type Panel =
+  | 'spending'
+  | 'sources'
+  | 'observation'
+  | 'complaint'
+  | 'rti'
+  | 'track'
+  | 'receipt'
+  | 'correction'
+  | null;
+const date = (v: string | null) =>
+  v
+    ? new Date(v + 'T00:00:00').toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : 'Date unavailable';
+export function HisaabApp({ catalogue }: { catalogue: Catalogue }) {
+  const [fundingState, setFundingState] = useState<string | null>(null),
+    [fundingData, setFundingData] = useState<FundingOverview | null>(null);
+  const [demo, setDemo] = useState(false);
+  const [tab, setTab] = useState('Explore');
+  const [query, setQuery] = useState('');
+  const [purpose, setPurpose] = useState('All');
+  const [measure, setMeasure] = useState<Measure>('payment');
+  const [year, setYear] = useState('All years');
+  const [selected, setSelected] = useState<Work | null>(null);
+  const [panel, setPanel] = useState<Panel>(null);
+  const [receipt, setReceipt] = useState<{ stage?: Stage; source?: SourceReceipt } | null>(null);
+  const reduced = useReducedMotion();
+  const fundingActive = tab === 'Spending';
+  const [exploreOpen, setExploreOpen] = useState(false);
+  const exploreToggle = useRef<HTMLButtonElement>(null);
+  function hideExplore() {
+    setExploreOpen(false);
+    requestAnimationFrame(() => exploreToggle.current?.focus());
+  }
+  const sheetDrag = useDragControls();
+  useModalFocus(panel);
+  function selectWork(work: Work | null) {
+    setSelected(work);
+    const url = new URL(location.href);
+    if (work) {
+      url.searchParams.set('work', work.id);
+      url.searchParams.set('preview', work.demo ? 'design' : 'evidence');
+    } else {
+      url.searchParams.delete('work');
+      url.searchParams.delete('preview');
+    }
+    history.pushState(null, '', url);
+  }
+  useEffect(() => {
+    const restore = () => {
+      const params = new URL(location.href).searchParams;
+      if (params.get('view') === 'funding') setTab('Spending');
+      const design = params.get('preview') === 'design';
+      const id = params.get('work');
+      setDemo(design);
+      if (id) {
+        const found = (design ? demoWorks : catalogue.works).find((w) => w.id === id);
+        setSelected(found ?? null);
+        if (!found && !design)
+          void fetch('/api/v1/works/' + encodeURIComponent(id)).then(async (r) => {
+            if (r.ok && new URL(location.href).searchParams.get('work') === id)
+              setSelected((await r.json()).work);
+          });
+      } else setSelected(null);
+    };
+    restore();
+    window.addEventListener('popstate', restore);
+    return () => window.removeEventListener('popstate', restore);
+  }, [catalogue.works]);
+  const [realWorks, setRealWorks] = useState(catalogue.works),
+    [realTotal, setRealTotal] = useState(catalogue.totalWorks),
+    [loading, setLoading] = useState(false),
+    [loadMessage, setLoadMessage] = useState('');
+  const works = demo ? demoWorks : realWorks;
+  useEffect(() => {
+    if (demo) return;
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      setLoading(true);
+      const params = new URLSearchParams({ q: query, limit: '100' });
+      if (purpose !== 'All') params.set('purpose', purpose);
+      if (year !== 'All years') params.set('year', year);
+      void fetch('/api/v1/works?' + params, { signal: controller.signal })
+        .then(async (r) => {
+          if (!r.ok) throw new Error('Published works could not be loaded.');
+          const result = await r.json();
+          setRealWorks(result.works);
+          setRealTotal(result.total);
+          setLoadMessage('');
+        })
+        .catch((e) => {
+          if (e.name !== 'AbortError') setLoadMessage(e.message);
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setLoading(false);
+        });
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [demo, query, purpose, year]);
+  async function loadMore() {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        q: query,
+        limit: '100',
+        offset: String(realWorks.length),
+      });
+      if (purpose !== 'All') params.set('purpose', purpose);
+      if (year !== 'All years') params.set('year', year);
+      const response = await fetch('/api/v1/works?' + params);
+      if (!response.ok) throw new Error('More works could not be loaded.');
+      const result = await response.json();
+      setRealWorks((current) => [...current, ...result.works]);
+      setRealTotal(result.total);
+    } catch (e) {
+      setLoadMessage((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+  const filtered = useMemo(
+    () =>
+      works.filter(
+        (w) =>
+          (purpose === 'All' || w.purpose === purpose) &&
+          (year === 'All years' || w.financialYear === year) &&
+          [w.title, w.state, w.district, ...w.officialIds]
+            .join(' ')
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      ),
+    [works, purpose, year, query],
+  );
+  const total = aggregateMoney(
+    filtered.flatMap((w) => w.money),
+    measure,
+  );
+  const years = Array.from(new Set(works.map((w) => w.financialYear)))
+    .sort()
+    .reverse();
+  useEffect(() => {
+    const openTracking = () => {
+      if (location.hash.startsWith('#track=')) {
+        setPanel('track');
+        setTab('Track');
+      }
+    };
+    openTracking();
+    window.addEventListener('hashchange', openTracking);
+    return () => window.removeEventListener('hashchange', openTracking);
+  }, []);
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setPanel(null);
+        setReceipt(null);
+      }
+    };
+    window.addEventListener('keydown', esc);
+    return () => window.removeEventListener('keydown', esc);
+  }, []);
+  function navigate(t: string) {
+    const url = new URL(location.href);
+    if (t === 'Spending') url.searchParams.set('view', 'funding');
+    else url.searchParams.delete('view');
+    history.replaceState(null, '', url);
+    setTab(t);
+    if (t === 'Works') setExploreOpen(true);
+    else if (t === 'Explore') setExploreOpen(false);
+    if (t === 'Spending') setPanel(null);
+    else if (t === 'Report') setPanel('observation');
+    else if (t === 'Track') setPanel('track');
+    else {
+      setPanel(null);
+      if (t === 'Explore') setSelected(null);
+    }
+  }
+  function openReceipt(stage: Stage) {
+    setReceipt({ stage });
+    setPanel('receipt');
+  }
+  return (
+    <main className="app">
+      <a
+        className="skip-link"
+        href={fundingActive ? '#funding-states' : '#work-list'}
+        onClick={() => {
+          if (!fundingActive) setExploreOpen(true);
+        }}
+      >
+        Skip to evidence list
+      </a>
+      <div className="preview-bar">
+        <span>
+          <ShieldCheck size={14} /> PRIVATE BUILD <span className="preview-separator">/</span>{' '}
+          {fundingActive
+            ? 'Funding Atlas · reviewed records only'
+            : demo
+              ? 'Illustrative design preview — all values fictional'
+              : 'Verified catalogue preview'}
+        </span>
+        {!fundingActive && (
+          <button
+            onClick={() => {
+              const next = !demo;
+              setDemo(next);
+              selectWork(null);
+              const url = new URL(location.href);
+              if (next) url.searchParams.set('preview', 'design');
+              else url.searchParams.delete('preview');
+              history.replaceState(null, '', url);
+              setQuery('');
+            }}
+          >
+            {demo ? 'View actual coverage' : 'Explore design preview'} <ArrowRight size={13} />
+          </button>
+        )}
+      </div>
+      <header className="topbar">
+        <button className="brand" onClick={() => navigate('Explore')} aria-label="Hisaab explore">
+          <Target size={32} strokeWidth={2.6} />
+          <span>
+            hisaab<span className="brand-dot">.</span>
+          </span>
+        </button>
+        <nav aria-label="Main navigation">
+          {['Explore', 'Spending', 'Works', 'Report', 'Track'].map((t) => (
+            <button key={t} className={tab === t ? 'nav-active' : ''} onClick={() => navigate(t)}>
+              {t}
+            </button>
+          ))}
+        </nav>
+        <div className="topbar-end">
+          <span className="language">English</span>
+          <button onClick={() => setPanel('sources')}>
+            About the data <Info size={15} />
+          </button>
+        </div>
+      </header>
+      <div className={`workspace ${fundingActive ? 'funding-workspace' : ''}`}>
+        <EvidenceMap
+          funding={
+            fundingActive
+              ? {
+                  states: fundingData?.states ?? [],
+                  selected: fundingState,
+                  onSelect: setFundingState,
+                  onAssetOpen: () => setFundingState(null),
+                }
+              : undefined
+          }
+          works={filtered}
+          selected={fundingActive ? null : selected}
+          onSelect={selectWork}
+          demo={demo}
+          query={query}
+          purpose={purpose}
+          year={year}
+        />
+        <FundingAtlas
+          active={fundingActive}
+          selected={fundingState}
+          onSelect={setFundingState}
+          onOverview={setFundingData}
+          onEvidence={() => setPanel('spending')}
+        />
+        {!fundingActive && (
+          <>
+            <div className="map-toolbar">
+              <label className="search">
+                <Search size={19} />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search a village, ward, district or work"
+                  aria-label="Search works and areas"
+                />
+                {query && (
+                  <button onClick={() => setQuery('')} aria-label="Clear search">
+                    <X size={16} />
+                  </button>
+                )}
+              </label>
+              <div className="filters">
+                <div className="segmented" aria-label="Financial measure">
+                  {(['sanction', 'contract', 'payment'] as Measure[]).map((m) => (
+                    <button
+                      key={m}
+                      aria-pressed={measure === m}
+                      className={measure === m ? 'selected' : ''}
+                      onClick={() => setMeasure(m)}
+                    >
+                      {m === 'payment' ? 'Paid' : m === 'contract' ? 'Contracted' : 'Sanctioned'}
+                    </button>
+                  ))}
+                </div>
+                <label className="year-select">
+                  <select
+                    aria-label="Financial year"
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                  >
+                    <option>All years</option>
+                    {years.map((y) => (
+                      <option key={y}>{y}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={14} />
+                </label>
+              </div>
+            </div>
+            <button
+              ref={exploreToggle}
+              className="explore-toggle"
+              hidden={exploreOpen}
+              aria-expanded={exploreOpen}
+              aria-controls="work-list"
+              onClick={() => setExploreOpen(true)}
+            >
+              <Layers3 size={17} /> Works &amp; spending <ChevronDown size={16} />
+            </button>
+            <aside
+              hidden={!exploreOpen}
+              className={`explore-card ${tab === 'Works' ? 'list-expanded' : ''}`}
+              id="work-list"
+              aria-label="Area and works"
+            >
+              <div className="explore-card-heading">
+                <div className="eyebrow">
+                  INDIA <span>/</span> {query || 'PUBLIC DEVELOPMENT'}
+                </div>
+                <button
+                  className="icon-button"
+                  onClick={hideExplore}
+                  aria-label="Hide works and spending panel"
+                  aria-controls="work-list"
+                  aria-expanded={exploreOpen}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <h1>Follow the money.</h1>
+              <p className="intro">Public works. Original records. Clear questions.</p>
+              <div className="landscape">
+                <div className="landscape-hills" />
+                <div className="landscape-road" />
+                <div className="landscape-caption">
+                  <MapPin size={13} />
+                  {demo ? 'Illustrative area · Karnataka' : 'India · ten-year evidence programme'}
+                </div>
+              </div>
+              <div className="headline-money">
+                {total.eventCount ? formatMoney(total.amount) : 'Not available'}
+              </div>
+              <p className="money-caption">
+                {demo ? 'Illustrative ' : ''}
+                {measure === 'payment'
+                  ? 'Net payments'
+                  : measure === 'contract'
+                    ? 'Contract value'
+                    : 'Sanction value'}{' '}
+                in {demo ? 'design fixtures' : 'shown imported works'}
+              </p>
+              <button className="coverage-row" onClick={() => setPanel('sources')}>
+                <div className="coverage-ring" />
+                <div>
+                  <strong>{demo ? 'Design preview' : 'Coverage: not yet published'}</strong>
+                  <small>
+                    {demo
+                      ? 'Excluded from government totals'
+                      : `${catalogue.districtsCovered}${catalogue.districtsExpected === null ? '' : ' of ' + catalogue.districtsExpected} districts with published works`}
+                  </small>
+                </div>
+                <ChevronRight size={17} />
+              </button>
+              <div className="section-title">Explore by purpose</div>
+              <div className="purpose-chips">
+                {[
+                  ['All', Layers3],
+                  ['Roads', Route],
+                  ['Water', Waves],
+                  ['Buildings', Building2],
+                  ['Schools & education', GraduationCap],
+                  ['Hospitals & health', HeartPulse],
+                  ...(![
+                    'All',
+                    'Roads',
+                    'Water',
+                    'Buildings',
+                    'Schools & education',
+                    'Hospitals & health',
+                  ].includes(purpose)
+                    ? [[purpose, Building2]]
+                    : []),
+                ].map(([p, I]) => {
+                  const Icon = I as typeof Route;
+                  return (
+                    <button
+                      key={p as string}
+                      className={purpose === p ? 'active' : ''}
+                      onClick={() => setPurpose(p as string)}
+                    >
+                      <Icon size={15} />
+                      {p as string}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="list-heading">
+                <h2>Works in this area</h2>
+                <span>
+                  {filtered.length}
+                  {!demo && realTotal > filtered.length ? ` of ${realTotal}` : ''}{' '}
+                  {filtered.length === 1 ? 'work' : 'works'}
+                </span>
+              </div>
+              <div className="work-list">
+                {filtered.map((w) => (
+                  <button
+                    key={w.id}
+                    className={`work-card ${selected?.id === w.id ? 'work-selected' : ''}`}
+                    onClick={() => selectWork(w)}
+                  >
+                    <div className={`work-icon ${w.purpose === 'Water' ? 'water' : ''}`}>
+                      {w.purpose === 'Water' ? <Waves size={24} /> : <Route size={24} />}
+                    </div>
+                    <div className="work-card-text">
+                      <strong>{w.title}</strong>
+                      <small>
+                        <MapPin size={11} />
+                        {w.district}, {w.state}
+                      </small>
+                      <b>
+                        {formatMoney(
+                          aggregateMoney(w.money, measure).eventCount
+                            ? aggregateMoney(w.money, measure).amount
+                            : null,
+                        )}
+                      </b>
+                      <div className="stage-bars">
+                        {w.stages.map((s) => (
+                          <i key={s.id} className={s.state === 'found' ? 'filled' : ''} />
+                        ))}
+                      </div>
+                    </div>
+                    <ChevronRight size={17} />
+                  </button>
+                ))}
+                {!filtered.length && (
+                  <div className="empty-state">
+                    <BookOpen size={28} />
+                    <strong>
+                      {query
+                        ? 'No matching imported works'
+                        : 'The evidence catalogue is being built'}
+                    </strong>
+                    <p>
+                      {query
+                        ? 'Try another place or original work ID.'
+                        : 'No government spending total is published yet. Source access and district coverage are being verified.'}
+                    </p>
+                    <button onClick={() => setPanel('sources')}>
+                      See source coverage <ArrowRight size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+              {loadMessage && <p role="status">{loadMessage}</p>}
+              {!demo && realWorks.length < realTotal && (
+                <button
+                  className="secondary full"
+                  disabled={loading}
+                  onClick={() => void loadMore()}
+                >
+                  {loading ? 'Loading…' : 'Load more works'}
+                </button>
+              )}
+              <button
+                className="primary full"
+                onClick={() => {
+                  setTab(tab === 'Works' ? 'Explore' : 'Works');
+                  setSelected(null);
+                }}
+              >
+                {' '}
+                {tab === 'Works' ? 'Return to map' : 'Explore all works'} <ArrowRight size={17} />
+              </button>
+            </aside>
+            <AnimatePresence>
+              {selected && (
+                <motion.aside
+                  className="work-detail"
+                  drag="y"
+                  dragListener={false}
+                  dragControls={sheetDrag}
+                  dragConstraints={{ top: 0, bottom: 0 }}
+                  dragElastic={{ top: 0, bottom: 1 }}
+                  dragMomentum={false}
+                  onDragEnd={(_event, info) => {
+                    if (info.offset.y > 100 || info.velocity.y > 600) selectWork(null);
+                  }}
+                  initial={{ opacity: 0, x: reduced ? 0 : 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: reduced ? 0 : 30 }}
+                  transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                  aria-label="Work receipt"
+                >
+                  <div
+                    className="detail-drag"
+                    onPointerDown={(e) => {
+                      if (matchMedia('(max-width: 760px)').matches) sheetDrag.start(e);
+                    }}
+                    style={{ touchAction: 'none', cursor: 'grab' }}
+                  />
+                  <div className="detail-heading">
+                    <button
+                      className="icon-button"
+                      onClick={() => selectWork(null)}
+                      aria-label="Close work receipt"
+                    >
+                      <ArrowLeft size={18} />
+                    </button>
+                    <span className="eyebrow">WORK RECEIPT</span>
+                    <button
+                      className="icon-button"
+                      onClick={() => setPanel('sources')}
+                      aria-label="About sources"
+                    >
+                      <Info size={18} />
+                    </button>
+                  </div>
+                  <h2>{selected.title}</h2>
+                  <p className="detail-location">
+                    <MapPin size={13} />
+                    {selected.district}, {selected.state}
+                  </p>
+                  {selected.demo && (
+                    <div className="demo-label">
+                      Illustrative work · fictional amounts and records
+                    </div>
+                  )}
+                  <div className="detail-badges">
+                    <button
+                      onClick={() => {
+                        setReceipt({ source: selected.stages.flatMap((s) => s.receipts)[0] });
+                        setPanel('receipt');
+                      }}
+                    >
+                      <FileText size={13} />
+                      Sources
+                    </button>
+                    <span>
+                      <Clock3 size={13} />
+                      {selected.stages.some((s) => s.state !== 'found')
+                        ? 'Evidence gaps'
+                        : 'Completion recorded'}
+                    </span>
+                  </div>
+                  <div className="money-grid">
+                    {(['sanction', 'contract', 'payment'] as Measure[]).map((m) => {
+                      const r = aggregateMoney(selected.money, m);
+                      return (
+                        <button
+                          key={m}
+                          onClick={() =>
+                            openReceipt(
+                              selected.stages.find(
+                                (s) => s.id === (m === 'contract' ? 'award' : m),
+                              )!,
+                            )
+                          }
+                        >
+                          <small>
+                            {m === 'payment' ? 'Paid' : m === 'contract' ? 'Contract' : 'Sanction'}
+                          </small>
+                          <strong>{formatMoney(r.eventCount ? r.amount : null)}</strong>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <h3>Evidence timeline</h3>
+                  <div className="timeline">
+                    {selected.stages.map((s) => (
+                      <button key={s.id} onClick={() => openReceipt(s)} className="timeline-event">
+                        <span className={`timeline-dot ${s.state === 'found' ? 'found' : ''}`}>
+                          {s.state === 'found' ? <Check size={13} /> : null}
+                        </span>
+                        <div>
+                          <strong>{s.label}</strong>
+                          <small>{s.date ? date(s.date) : 'No dated record'}</small>
+                        </div>
+                        <span className="timeline-state">
+                          {s.state === 'found'
+                            ? 'Record found'
+                            : s.state === 'missing'
+                              ? 'Not found in checked sources'
+                              : s.state.replaceAll('_', ' ')}
+                          <ChevronRight size={12} />
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="verification-note">
+                    <ShieldCheck size={15} />
+                    <span>
+                      {selected.physicalVerification}. Official status and field evidence remain
+                      separate.
+                    </span>
+                  </div>
+                  <div className="authority">
+                    <small>Executing authority</small>
+                    <div>
+                      <Building2 size={19} />
+                      <strong>{selected.authority || 'Not yet established'}</strong>
+                    </div>
+                    {selected.authorityReceipt && (
+                      <button
+                        onClick={() => {
+                          setReceipt({ source: selected.authorityReceipt! });
+                          setPanel('receipt');
+                        }}
+                      >
+                        See supporting record <ExternalLink size={12} />
+                      </button>
+                    )}
+                  </div>
+                  <div className="detail-actions">
+                    <button
+                      onClick={() => {
+                        const url = new URL(location.href);
+                        url.hash = '';
+                        void navigator.clipboard.writeText(url.toString());
+                      }}
+                    >
+                      Copy work link
+                    </button>
+                    <button onClick={() => setPanel('correction')}>Suggest a correction</button>
+                  </div>
+                  <button className="primary full" onClick={() => setPanel('observation')}>
+                    <MessageSquare size={17} />
+                    Add an observation
+                  </button>
+                  <div className="detail-actions">
+                    <button onClick={() => setPanel('complaint')}>Prepare complaint</button>
+                    <button onClick={() => setPanel('rti')}>Request records</button>
+                  </div>
+                </motion.aside>
+              )}
+            </AnimatePresence>
+            <div className="map-legend">
+              <span>
+                <i className="legend-blue" />
+                Source-backed work
+              </span>
+              <span>
+                <i className="legend-asset" />
+                Historical assets · no spending link
+              </span>
+              <span>
+                <i className="legend-coral" />
+                Education & health
+              </span>
+              <span>
+                <i className="legend-hatch" />
+                Unpublished coverage
+              </span>
+              <button onClick={() => setPanel('sources')}>
+                Sources & years <ChevronRight size={13} />
+              </button>
+            </div>
+          </>
+        )}{' '}
+      </div>
+      <nav className="mobile-nav" aria-label="Mobile navigation">
+        {[
+          ['Explore', MapPin],
+          ['Spending', Building2],
+          ['Works', Route],
+          ['Report', FileText],
+          ['Track', Clock3],
+        ].map(([t, I]) => {
+          const Icon = I as typeof MapPin;
+          return (
+            <button
+              key={t as string}
+              className={tab === t ? 'active' : ''}
+              onClick={() => navigate(t as string)}
+            >
+              <Icon size={20} />
+              <span>{t === 'Explore' ? 'Map' : (t as string)}</span>
+            </button>
+          );
+        })}
+      </nav>
+      <AnimatePresence>
+        {panel && (
+          <motion.div
+            className="modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setPanel(null)}
+          >
+            <motion.section
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="dialog-title"
+              className={`modal ${panel === 'sources' || panel === 'spending' ? 'wide' : ''}`}
+              initial={{ opacity: 0, y: reduced ? 0 : 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: reduced ? 0 : 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="modal-close icon-button"
+                autoFocus
+                onClick={() => setPanel(null)}
+                aria-label="Close dialog"
+              >
+                <X size={20} />
+              </button>
+              {panel === 'spending' && (
+                <SpendingExplorer
+                  catalogue={catalogue}
+                  onSources={() => setPanel('sources')}
+                  onWorks={(p) => {
+                    setDemo(false);
+                    setPurpose(p);
+                    setQuery('');
+                    selectWork(null);
+                    setTab('Works');
+                    setExploreOpen(true);
+                    setPanel(null);
+                  }}
+                />
+              )}
+              {panel === 'correction' && selected && <CorrectionForm work={selected} />}
+              {panel === 'sources' && (
+                <>
+                  <div className="eyebrow">THE EVIDENCE BEHIND HISAAB</div>
+                  <h2 id="dialog-title">Records first. Claims second.</h2>
+                  <p className="modal-intro">
+                    Ten years. Every district. A traceable receipt for every published fact.
+                    Collection is in progress; this build is private.
+                  </p>
+                  <div className="coverage-stats">
+                    <div>
+                      <strong>{catalogue.totalWorks}</strong>
+                      <span>Published works</span>
+                    </div>
+                    <div>
+                      <strong>{catalogue.districtsCovered}</strong>
+                      <span>Districts with published works</span>
+                    </div>
+                    <div>
+                      <strong>{catalogue.sources.length}</strong>
+                      <span>Source routes tracked</span>
+                    </div>
+                  </div>
+                  <button
+                    className="spending-entry"
+                    onClick={() => {
+                      setTab('Spending');
+                      setPanel(null);
+                    }}
+                  >
+                    Explore spending across every development sector →
+                  </button>
+                  <NationalIngestion />
+                  <div className="source-list">
+                    {catalogue.sources.map((s) => (
+                      <article key={s.id}>
+                        <div>
+                          <strong>{s.name}</strong>
+                          <span className="status-label">{s.status.replaceAll('_', ' ')}</span>
+                        </div>
+                        <p>{s.coverage}</p>
+                        <small>{s.restriction}</small>
+                        <a href={s.url} target="_blank" rel="noopener noreferrer">
+                          Official route <ExternalLink size={12} />
+                        </a>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="info-note">
+                    An unavailable record does not mean no spending. Sanction, contracts, transfers,
+                    bills and net payments are different measures. Dataset cutoff:{' '}
+                    {catalogue.cutoff}.
+                  </div>
+                </>
+              )}
+              {panel === 'receipt' && (
+                <>
+                  <div className="eyebrow">SOURCE RECEIPT</div>
+                  <h2 id="dialog-title">{receipt?.stage?.label || 'Supporting record'}</h2>
+                  {receipt?.stage && (
+                    <>
+                      <span className="status-label">
+                        {receipt.stage.state.replaceAll('_', ' ')}
+                      </span>
+                      <p className="modal-intro">{receipt.stage.description}</p>
+                      {receipt.stage.amount && (
+                        <div className="receipt-amount">{formatMoney(receipt.stage.amount)}</div>
+                      )}
+                    </>
+                  )}
+                  {(receipt?.source ? [receipt.source] : (receipt?.stage?.receipts ?? [])).map(
+                    (s, i) => (
+                      <article className="receipt-document" key={`${s.id}-${i}`}>
+                        <h3>{s.title}</h3>
+                        <blockquote>{s.rawText}</blockquote>
+                        <dl>
+                          <dt>Source location</dt>
+                          <dd>{s.locator}</dd>
+                          <dt>Retrieved</dt>
+                          <dd>{s.retrievedAt}</dd>
+                          <dt>Document hash</dt>
+                          <dd>{s.documentHash || 'Not applicable to a fictional fixture'}</dd>
+                          <dt>Reuse</dt>
+                          <dd>{s.permission}</dd>
+                        </dl>
+                        {s.url && (
+                          <a
+                            className="secondary"
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Open original <ExternalLink size={15} />
+                          </a>
+                        )}
+                      </article>
+                    ),
+                  )}
+                  {!receipt?.source && !receipt?.stage?.receipts.length && (
+                    <div className="info-note">
+                      No supporting document is attached to this stage. Ask the verified record
+                      holder for the specific record. This is not a corruption finding.
+                    </div>
+                  )}
+                  <button className="secondary" onClick={() => setPanel('rti')}>
+                    Prepare a record request <ArrowRight size={15} />
+                  </button>
+                </>
+              )}
+              {(panel === 'observation' || panel === 'complaint' || panel === 'rti') && (
+                <CitizenForm
+                  kind={panel}
+                  work={selected}
+                  onTrack={() => {
+                    setPanel('track');
+                    setTab('Track');
+                  }}
+                />
+              )}
+              {panel === 'track' && <Tracking />}
+            </motion.section>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </main>
+  );
 }
-function PendingPhotoPreviews({files}:{files:File[]}){
- const [previews,setPreviews]=useState<{url:string;name:string}[]>([]);
- useEffect(()=>{const next=files.map(file=>({url:URL.createObjectURL(file),name:file.name}));setPreviews(next);return()=>next.forEach(p=>URL.revokeObjectURL(p.url));},[files]);
- if(!previews.length)return null;
- return <section aria-label="Selected photographs" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8,margin:'12px 0'}}>{previews.map(p=><figure key={p.url} style={{margin:0}}><img src={p.url} alt={p.name} style={{width:'100%',height:100,objectFit:'cover',borderRadius:10}}/><figcaption style={{fontSize:10,overflowWrap:'anywhere'}}>{p.name}</figcaption></figure>)}</section>;
+function PendingPhotoPreviews({ files }: { files: File[] }) {
+  const [previews, setPreviews] = useState<{ url: string; name: string }[]>([]);
+  useEffect(() => {
+    const next = files.map((file) => ({ url: URL.createObjectURL(file), name: file.name }));
+    setPreviews(next);
+    return () => next.forEach((p) => URL.revokeObjectURL(p.url));
+  }, [files]);
+  if (!previews.length) return null;
+  return (
+    <section
+      aria-label="Selected photographs"
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
+        gap: 8,
+        margin: '12px 0',
+      }}
+    >
+      {previews.map((p) => (
+        <figure key={p.url} style={{ margin: 0 }}>
+          <img
+            src={p.url}
+            alt={p.name}
+            style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 10 }}
+          />
+          <figcaption style={{ fontSize: 10, overflowWrap: 'anywhere' }}>{p.name}</figcaption>
+        </figure>
+      ))}
+    </section>
+  );
 }
-function CitizenForm({kind,work,onTrack}:{kind:'observation'|'complaint'|'rti';work:Work|null;onTrack:()=>void}){
- const [files,setFiles]=useState<File[]>([]);const [description,setDescription]=useState('');const [observed,setObserved]=useState('');const [consent,setConsent]=useState(false);const [result,setResult]=useState<{reference:string;trackingUrl:string}|null>(null);const [message,setMessage]=useState('');const [busy,setBusy]=useState(false);
- const packet=kind==='rti'?`Subject: Request for existing records concerning ${work?.title||'[work title]'}\n\nTo the verified record-holding public authority:\n\nPlease provide the administrative sanction, tender and award, agreement/work order, measurement records, gross bills and deductions, payment vouchers, completion certificate and inspections for ${work?.officialIds.join(', ')||'[original identifiers]'}.\n\nPlease provide existing electronic records where available. Redact personal bank details, Aadhaar and private contact information while supplying the remaining work and expenditure records.\n\nLocation: ${work?`${work.district}, ${work.state}`:'[location]'}\nApplicant details and applicable fee: to be completed by the citizen.\n\nRoute: verify the relevant central or state authority before filing.`:`Subject: Request to inspect and explain ${work?.title||'[work title]'}\n\nWork identifiers: ${work?.officialIds.join(', ')||'[identifiers]'}\nPlace: ${work?`${work.district}, ${work.state}`:'[place]'}\n\nCitizen observation (${observed||'[date]'}):\n${description||'[describe the observable condition]'}\n\nPlease inspect the work, provide its current status and supporting measurement/completion records, and take appropriate remedial action.\n\n${work?.demo?'DESIGN DEMONSTRATION ONLY — all work facts are fictional. Do not file this packet.':'Attach the source receipts and citizen evidence after reviewing them.'}\n\nThis packet has not been submitted to an authority.`;
- async function save(e:React.SubmitEvent<HTMLFormElement>){e.preventDefault();setMessage('');setBusy(true);try{const r=await fetch('/api/v1/reports',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({workId:work?.id||null,description,observedDate:observed,consent,demo:!!work?.demo})});const data=await r.json();if(!r.ok)throw new Error(data.error||'Unable to save');for(const file of files){const form=new FormData();form.set('file',file);const upload=await fetch('/api/v1/reports/media',{method:'POST',headers:{'X-Hisaab-Capability':data.trackingUrl.split('#track=')[1]},body:form});if(!upload.ok){const error=await upload.json();setMessage('Report saved, but a photograph was rejected: '+error.error);}}setResult(data);}catch(e){setMessage((e as Error).message);}finally{setBusy(false);}}
- function download(){const blob=new Blob([packet],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`hisaab-${kind}-draft.txt`;a.click();URL.revokeObjectURL(a.href);}
- return <><div className="eyebrow">{kind==='observation'?'YOUR EVIDENCE':kind==='rti'?'REQUEST THE MISSING LINK':'ASK A PRECISE QUESTION'}</div><h2 id="dialog-title">{kind==='observation'?'Add an observation':kind==='rti'?'Prepare an RTI draft':'Prepare a complaint'}</h2><p className="modal-intro">{work?`${work.title} · ${work.district}`:'Select a work to attach a source-backed receipt, or describe a location below.'}</p>{work?.demo&&<div className="demo-label">Design demonstration only. Do not file fictional work facts.</div>}
- {!result?<form onSubmit={save}><label className="field">What did you observe?<textarea value={description} onChange={e=>setDescription(e.target.value)} minLength={10} maxLength={5000} required={kind!=='rti'} placeholder="Describe the condition you saw, without assuming why it happened." rows={4}/></label><label className="field">Observation date<input type="date" value={observed} max={new Date().toISOString().slice(0,10)} onChange={e=>setObserved(e.target.value)} required={kind==='observation'}/></label>
- {kind==='observation'&&<label className="upload-pending"><Upload size={20}/><div><strong>Add private photographs</strong><small>Up to five JPEG, PNG or WebP files, 10 MB each. Originals stay private; metadata is stripped from previews.</small><input aria-label="Private photographs" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>{const chosen=Array.from(e.target.files||[]);if(chosen.length>5||chosen.some(f=>f.size>10*1024*1024)){setMessage("Choose up to five photographs no larger than 10 MB each.");e.target.value="";setFiles([]);}else{setFiles(chosen);setMessage("");}}}/></div></label>}
- {kind==='observation'&&<PendingPhotoPreviews files={files}/>}
- {kind!=='observation'&&<><label className="field">Review your draft<textarea key={packet} defaultValue={packet} rows={12} id="packet-draft"/></label><div className="info-note">No verified destination is attached to this {work?.demo?'illustrative':'current'} work yet. This is preparation, not official registration.</div><div className="button-row"><button type="button" className="secondary" onClick={()=>{const el=document.getElementById('packet-draft') as HTMLTextAreaElement;const blob=new Blob([el.value],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`hisaab-${kind}-draft.txt`;a.click();URL.revokeObjectURL(a.href);}}><ArrowDownToLine size={15}/>Download reviewed draft</button><button type="button" className="secondary" onClick={()=>navigator.clipboard.writeText((document.getElementById('packet-draft') as HTMLTextAreaElement).value)}><Copy size={15}/>Copy</button><button type="button" className="secondary" onClick={async()=>{setMessage('');try{const draft=(document.getElementById('packet-draft') as HTMLTextAreaElement).value;const response=await fetch('/api/v1/packets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({draft,kind,demo:!!work?.demo})});if(!response.ok)throw new Error((await response.json()).error);const url=URL.createObjectURL(await response.blob());const a=document.createElement('a');a.href=url;a.download=`hisaab-${kind}-draft.pdf`;a.click();URL.revokeObjectURL(url);}catch(e){setMessage((e as Error).message);}}}>Download PDF</button></div></>}
- {kind==='observation'&&<><label className="consent"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} required/><span>Keep this report private. I understand that saving it does not file an official complaint, and I must keep my private tracking link.</span></label><button className="primary full" disabled={busy}>{busy?'Saving privately…':'Save private observation'}<ArrowRight size={16}/></button></>}{message&&<p className="form-error" role="alert">{message}</p>}</form>:<div className="report-success">{message&&<p role="alert" className="form-error">{message}</p>}<CheckCircle2 size={35}/><h3>Saved privately</h3><p>Reference: <strong>{result.reference}</strong></p><p>No complaint has been filed. Keep this link; it grants access to your report.</p><a className="tracking-link" href={result.trackingUrl}>{result.trackingUrl}</a><div className="button-row"><button className="secondary" onClick={()=>navigator.clipboard.writeText(result.trackingUrl)}>Copy private link</button><button className="primary" onClick={()=>{location.hash=result.trackingUrl.split('#')[1];onTrack();}}>Open tracking</button></div></div>}
- </>;
+function CitizenForm({
+  kind,
+  work,
+  onTrack,
+}: {
+  kind: 'observation' | 'complaint' | 'rti';
+  work: Work | null;
+  onTrack: () => void;
+}) {
+  const [files, setFiles] = useState<File[]>([]);
+  const [description, setDescription] = useState('');
+  const [observed, setObserved] = useState('');
+  const [consent, setConsent] = useState(false);
+  const [result, setResult] = useState<{ reference: string; trackingUrl: string } | null>(null);
+  const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+  const packet =
+    kind === 'rti'
+      ? `Subject: Request for existing records concerning ${work?.title || '[work title]'}\n\nTo the verified record-holding public authority:\n\nPlease provide the administrative sanction, tender and award, agreement/work order, measurement records, gross bills and deductions, payment vouchers, completion certificate and inspections for ${work?.officialIds.join(', ') || '[original identifiers]'}.\n\nPlease provide existing electronic records where available. Redact personal bank details, Aadhaar and private contact information while supplying the remaining work and expenditure records.\n\nLocation: ${work ? `${work.district}, ${work.state}` : '[location]'}\nApplicant details and applicable fee: to be completed by the citizen.\n\nRoute: verify the relevant central or state authority before filing.`
+      : `Subject: Request to inspect and explain ${work?.title || '[work title]'}\n\nWork identifiers: ${work?.officialIds.join(', ') || '[identifiers]'}\nPlace: ${work ? `${work.district}, ${work.state}` : '[place]'}\n\nCitizen observation (${observed || '[date]'}):\n${description || '[describe the observable condition]'}\n\nPlease inspect the work, provide its current status and supporting measurement/completion records, and take appropriate remedial action.\n\n${work?.demo ? 'DESIGN DEMONSTRATION ONLY — all work facts are fictional. Do not file this packet.' : 'Attach the source receipts and citizen evidence after reviewing them.'}\n\nThis packet has not been submitted to an authority.`;
+  async function save(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setMessage('');
+    setBusy(true);
+    try {
+      const r = await fetch('/api/v1/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workId: work?.id || null,
+          description,
+          observedDate: observed,
+          consent,
+          demo: !!work?.demo,
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Unable to save');
+      for (const file of files) {
+        const form = new FormData();
+        form.set('file', file);
+        const upload = await fetch('/api/v1/reports/media', {
+          method: 'POST',
+          headers: { 'X-Hisaab-Capability': data.trackingUrl.split('#track=')[1] },
+          body: form,
+        });
+        if (!upload.ok) {
+          const error = await upload.json();
+          setMessage('Report saved, but a photograph was rejected: ' + error.error);
+        }
+      }
+      setResult(data);
+    } catch (e) {
+      setMessage((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  function download() {
+    const blob = new Blob([packet], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `hisaab-${kind}-draft.txt`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  return (
+    <>
+      <div className="eyebrow">
+        {kind === 'observation'
+          ? 'YOUR EVIDENCE'
+          : kind === 'rti'
+            ? 'REQUEST THE MISSING LINK'
+            : 'ASK A PRECISE QUESTION'}
+      </div>
+      <h2 id="dialog-title">
+        {kind === 'observation'
+          ? 'Add an observation'
+          : kind === 'rti'
+            ? 'Prepare an RTI draft'
+            : 'Prepare a complaint'}
+      </h2>
+      <p className="modal-intro">
+        {work
+          ? `${work.title} · ${work.district}`
+          : 'Select a work to attach a source-backed receipt, or describe a location below.'}
+      </p>
+      {work?.demo && (
+        <div className="demo-label">
+          Design demonstration only. Do not file fictional work facts.
+        </div>
+      )}
+      {!result ? (
+        <form onSubmit={save}>
+          <label className="field">
+            What did you observe?
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              minLength={10}
+              maxLength={5000}
+              required={kind !== 'rti'}
+              placeholder="Describe the condition you saw, without assuming why it happened."
+              rows={4}
+            />
+          </label>
+          <label className="field">
+            Observation date
+            <input
+              type="date"
+              value={observed}
+              max={new Date().toISOString().slice(0, 10)}
+              onChange={(e) => setObserved(e.target.value)}
+              required={kind === 'observation'}
+            />
+          </label>
+          {kind === 'observation' && (
+            <label className="upload-pending">
+              <Upload size={20} />
+              <div>
+                <strong>Add private photographs</strong>
+                <small>
+                  Up to five JPEG, PNG or WebP files, 10 MB each. Originals stay private; metadata
+                  is stripped from previews.
+                </small>
+                <input
+                  aria-label="Private photographs"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  onChange={(e) => {
+                    const chosen = Array.from(e.target.files || []);
+                    if (chosen.length > 5 || chosen.some((f) => f.size > 10 * 1024 * 1024)) {
+                      setMessage('Choose up to five photographs no larger than 10 MB each.');
+                      e.target.value = '';
+                      setFiles([]);
+                    } else {
+                      setFiles(chosen);
+                      setMessage('');
+                    }
+                  }}
+                />
+              </div>
+            </label>
+          )}
+          {kind === 'observation' && <PendingPhotoPreviews files={files} />}
+          {kind !== 'observation' && (
+            <>
+              <label className="field">
+                Review your draft
+                <textarea key={packet} defaultValue={packet} rows={12} id="packet-draft" />
+              </label>
+              <div className="info-note">
+                No verified destination is attached to this{' '}
+                {work?.demo ? 'illustrative' : 'current'} work yet. This is preparation, not
+                official registration.
+              </div>
+              <div className="button-row">
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => {
+                    const el = document.getElementById('packet-draft') as HTMLTextAreaElement;
+                    const blob = new Blob([el.value], { type: 'text/plain' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `hisaab-${kind}-draft.txt`;
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                  }}
+                >
+                  <ArrowDownToLine size={15} />
+                  Download reviewed draft
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    navigator.clipboard.writeText(
+                      (document.getElementById('packet-draft') as HTMLTextAreaElement).value,
+                    )
+                  }
+                >
+                  <Copy size={15} />
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={async () => {
+                    setMessage('');
+                    try {
+                      const draft = (document.getElementById('packet-draft') as HTMLTextAreaElement)
+                        .value;
+                      const response = await fetch('/api/v1/packets', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ draft, kind, demo: !!work?.demo }),
+                      });
+                      if (!response.ok) throw new Error((await response.json()).error);
+                      const url = URL.createObjectURL(await response.blob());
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `hisaab-${kind}-draft.pdf`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    } catch (e) {
+                      setMessage((e as Error).message);
+                    }
+                  }}
+                >
+                  Download PDF
+                </button>
+              </div>
+            </>
+          )}
+          {kind === 'observation' && (
+            <>
+              <label className="consent">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  required
+                />
+                <span>
+                  Keep this report private. I understand that saving it does not file an official
+                  complaint, and I must keep my private tracking link.
+                </span>
+              </label>
+              <button className="primary full" disabled={busy}>
+                {busy ? 'Saving privately…' : 'Save private observation'}
+                <ArrowRight size={16} />
+              </button>
+            </>
+          )}
+          {message && (
+            <p className="form-error" role="alert">
+              {message}
+            </p>
+          )}
+        </form>
+      ) : (
+        <div className="report-success">
+          {message && (
+            <p role="alert" className="form-error">
+              {message}
+            </p>
+          )}
+          <CheckCircle2 size={35} />
+          <h3>Saved privately</h3>
+          <p>
+            Reference: <strong>{result.reference}</strong>
+          </p>
+          <p>No complaint has been filed. Keep this link; it grants access to your report.</p>
+          <a className="tracking-link" href={result.trackingUrl}>
+            {result.trackingUrl}
+          </a>
+          <div className="button-row">
+            <button
+              className="secondary"
+              onClick={() => navigator.clipboard.writeText(result.trackingUrl)}
+            >
+              Copy private link
+            </button>
+            <button
+              className="primary"
+              onClick={() => {
+                location.hash = result.trackingUrl.split('#')[1];
+                onTrack();
+              }}
+            >
+              Open tracking
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
-function Tracking(){const [token,setToken]=useState('');const [report,setReport]=useState<{reference:string;description:string;observedDate:string;createdAt:string;demo:boolean}|null>(null);const [message,setMessage]=useState('');async function load(value:string){try{const code=value.includes('#track=')?value.split('#track=')[1]:value;const response=await fetch('/api/v1/reports/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:code})});const data=await response.json();if(!response.ok)throw new Error(data.error);setReport(data.report);history.replaceState(null,'',location.pathname+location.search);}catch(e){setMessage((e as Error).message);}}
- useEffect(()=>{if(location.hash.startsWith('#track=')){void load(location.hash.slice(7));}else{void fetch('/api/v1/reports/session').then(async r=>{if(r.ok)setReport((await r.json()).report);}).catch(()=>setMessage('Private case storage unavailable'));}},[]);
- return <><div className="eyebrow">PRIVATE CASE TIMELINE</div><h2 id="dialog-title">Follow your question.</h2><p className="modal-intro">A report reference identifies a case. Only the private tracking link grants access.</p>{!report?<form onSubmit={e=>{e.preventDefault();void load(token);}}><label className="field">Private tracking link<input value={token} onChange={e=>setToken(e.target.value)} required placeholder="Paste your private link" autoComplete="off"/></label><button className="primary full">Open my report <ArrowRight size={16}/></button>{message&&<p role="alert" className="form-error">{message}</p>}</form>:<><div className="tracking-case"><strong>{report.reference}</strong>{report.demo&&<span className="demo-label">Private demonstration report</span>}<p>{report.description}</p><small>Observed: {report.observedDate}</small></div><PrivatePhotos key={report.reference}/><PrivateVideos key={report.reference+'-videos'}/><ComplaintHandoff key={report.reference+'-handoff'}/><CaseUpdates caseReference={report.reference}/><div className="case-event"><CheckCircle2 size={22}/><div><strong>Observation saved privately</strong><small>{new Date(report.createdAt).toLocaleString('en-IN')}</small></div></div><div className="case-event pending"><Clock3 size={22}/><div><strong>Official submission not recorded</strong><small>A packet or saved observation is not an official acknowledgement.</small></div></div><button className="secondary" onClick={async()=>{const r=await fetch('/api/v1/reports/session',{method:'DELETE'});if(r.ok){setReport(null);setMessage('Private report deleted.');}}}>Delete this private report</button></>}</>;
+function Tracking() {
+  const [token, setToken] = useState('');
+  const [report, setReport] = useState<{
+    reference: string;
+    description: string;
+    observedDate: string;
+    createdAt: string;
+    demo: boolean;
+  } | null>(null);
+  const [message, setMessage] = useState('');
+  async function load(value: string) {
+    try {
+      const code = value.includes('#track=') ? value.split('#track=')[1] : value;
+      const response = await fetch('/api/v1/reports/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: code }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      setReport(data.report);
+      history.replaceState(null, '', location.pathname + location.search);
+    } catch (e) {
+      setMessage((e as Error).message);
+    }
+  }
+  useEffect(() => {
+    if (location.hash.startsWith('#track=')) {
+      void load(location.hash.slice(7));
+    } else {
+      void fetch('/api/v1/reports/session')
+        .then(async (r) => {
+          if (r.ok) setReport((await r.json()).report);
+        })
+        .catch(() => setMessage('Private case storage unavailable'));
+    }
+  }, []);
+  return (
+    <>
+      <div className="eyebrow">PRIVATE CASE TIMELINE</div>
+      <h2 id="dialog-title">Follow your question.</h2>
+      <p className="modal-intro">
+        A report reference identifies a case. Only the private tracking link grants access.
+      </p>
+      {!report ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void load(token);
+          }}
+        >
+          <label className="field">
+            Private tracking link
+            <input
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              required
+              placeholder="Paste your private link"
+              autoComplete="off"
+            />
+          </label>
+          <button className="primary full">
+            Open my report <ArrowRight size={16} />
+          </button>
+          {message && (
+            <p role="alert" className="form-error">
+              {message}
+            </p>
+          )}
+        </form>
+      ) : (
+        <>
+          <div className="tracking-case">
+            <strong>{report.reference}</strong>
+            {report.demo && <span className="demo-label">Private demonstration report</span>}
+            <p>{report.description}</p>
+            <small>Observed: {report.observedDate}</small>
+          </div>
+          <PrivatePhotos key={report.reference} />
+          <PrivateVideos key={report.reference + '-videos'} />
+          <ComplaintHandoff key={report.reference + '-handoff'} />
+          <CaseUpdates caseReference={report.reference} />
+          <div className="case-event">
+            <CheckCircle2 size={22} />
+            <div>
+              <strong>Observation saved privately</strong>
+              <small>{new Date(report.createdAt).toLocaleString('en-IN')}</small>
+            </div>
+          </div>
+          <div className="case-event pending">
+            <Clock3 size={22} />
+            <div>
+              <strong>Official submission not recorded</strong>
+              <small>A packet or saved observation is not an official acknowledgement.</small>
+            </div>
+          </div>
+          <button
+            className="secondary"
+            onClick={async () => {
+              const r = await fetch('/api/v1/reports/session', { method: 'DELETE' });
+              if (r.ok) {
+                setReport(null);
+                setMessage('Private report deleted.');
+              }
+            }}
+          >
+            Delete this private report
+          </button>
+        </>
+      )}
+    </>
+  );
 }
 
-function PrivatePhotos(){const [photos,setPhotos]=useState<{id:string;sha256:string}[]>([]);const [error,setError]=useState('');useEffect(()=>{let active=true;void fetch('/api/v1/reports/media').then(async r=>{const data=await r.json();if(!r.ok)throw new Error(data.error);if(active)setPhotos(data.media);}).catch(()=>{if(active)setError('Private photographs could not be loaded.');});return()=>{active=false;};},[]);return <>{error&&<p role="status">{error}</p>}{photos.length>0&&<section aria-label="Private photographs" className="private-photos"><h3>Your private photographs</h3><p>Previews have location and camera metadata removed. Originals remain encrypted.</p>{photos.map((photo,i)=><figure key={photo.id}><img src={`/api/v1/reports/media/${photo.id}`} alt={`Your observation photograph ${i+1}`} loading="lazy" referrerPolicy="no-referrer"/><figcaption>Original checksum: <code>{photo.sha256}</code></figcaption></figure>)}</section>}</>;}
+function PrivatePhotos() {
+  const [photos, setPhotos] = useState<{ id: string; sha256: string }[]>([]);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    let active = true;
+    void fetch('/api/v1/reports/media')
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error);
+        if (active) setPhotos(data.media);
+      })
+      .catch(() => {
+        if (active) setError('Private photographs could not be loaded.');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+  return (
+    <>
+      {error && <p role="status">{error}</p>}
+      {photos.length > 0 && (
+        <section aria-label="Private photographs" className="private-photos">
+          <h3>Your private photographs</h3>
+          <p>Previews have location and camera metadata removed. Originals remain encrypted.</p>
+          {photos.map((photo, i) => (
+            <figure key={photo.id}>
+              <img
+                src={`/api/v1/reports/media/${photo.id}`}
+                alt={`Your observation photograph ${i + 1}`}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+              <figcaption>
+                Original checksum: <code>{photo.sha256}</code>
+              </figcaption>
+            </figure>
+          ))}
+        </section>
+      )}
+    </>
+  );
+}
 
-function useModalFocus(panel:Panel){
- const previous=useRef<HTMLElement|null>(null);
- useEffect(()=>{const remember=(event:FocusEvent)=>{if(event.target instanceof HTMLElement&&!event.target.closest('[role="dialog"]'))previous.current=event.target;};document.addEventListener('focusin',remember);return()=>document.removeEventListener('focusin',remember);},[]);
- useEffect(()=>{
-  if(!panel)return;const dialog=document.querySelector<HTMLElement>('[role="dialog"]');if(!dialog)return;
-  const siblings=Array.from(document.querySelector('.app')?.children??[]).filter((element):element is HTMLElement=>element instanceof HTMLElement&&!element.classList.contains('modal-backdrop')&&element!==dialog&&!element.contains(dialog));
-  const states=siblings.map(element=>element.inert);siblings.forEach(element=>{element.inert=true;});
-  const controls=()=>Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex="0"]')).filter(element=>element.getClientRects().length>0);
-  const trap=(event:KeyboardEvent)=>{if(event.key!=='Tab')return;const items=controls();const first=items[0];const last=items.at(-1);if(!first)return;if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){event.preventDefault();last?.focus();}else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){event.preventDefault();first.focus();}};
-  controls()[0]?.focus();document.addEventListener('keydown',trap);
-  return()=>{document.removeEventListener('keydown',trap);siblings.forEach((element,i)=>{element.inert=states[i];});if(previous.current?.isConnected)previous.current.focus();};
- },[panel]);
+function useModalFocus(panel: Panel) {
+  const previous = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const remember = (event: FocusEvent) => {
+      if (event.target instanceof HTMLElement && !event.target.closest('[role="dialog"]'))
+        previous.current = event.target;
+    };
+    document.addEventListener('focusin', remember);
+    return () => document.removeEventListener('focusin', remember);
+  }, []);
+  useEffect(() => {
+    if (!panel) return;
+    const dialog = document.querySelector<HTMLElement>('[role="dialog"]');
+    if (!dialog) return;
+    const siblings = Array.from(document.querySelector('.app')?.children ?? []).filter(
+      (element): element is HTMLElement =>
+        element instanceof HTMLElement &&
+        !element.classList.contains('modal-backdrop') &&
+        element !== dialog &&
+        !element.contains(dialog),
+    );
+    const states = siblings.map((element) => element.inert);
+    siblings.forEach((element) => {
+      element.inert = true;
+    });
+    const controls = () =>
+      Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button:not([disabled]),a[href],input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex="0"]',
+        ),
+      ).filter((element) => element.getClientRects().length > 0);
+    const trap = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      const items = controls();
+      const first = items[0];
+      const last = items.at(-1);
+      if (!first) return;
+      if (
+        event.shiftKey &&
+        (document.activeElement === first || !dialog.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        last?.focus();
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last || !dialog.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    controls()[0]?.focus();
+    document.addEventListener('keydown', trap);
+    return () => {
+      document.removeEventListener('keydown', trap);
+      siblings.forEach((element, i) => {
+        element.inert = states[i];
+      });
+      if (previous.current?.isConnected) previous.current.focus();
+    };
+  }, [panel]);
 }

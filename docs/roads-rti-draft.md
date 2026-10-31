@@ -25,22 +25,21 @@ Odisha's official submission guidance: https://rti.odisha.gov.in/Pages/submitApp
 
 The official RTI directory lists the Chief Construction Engineer, Rural Works Circle, Bolangir at Hatisal Pada, Bolangir, PIN 767001; its listed PIO designation is Executive Engineer (Quality Control), with office email serwblgr@gmail.com: https://rtiodisha.gov.in/Pages/printAllManual/office_id%3A19623/lang%3A . This is a circle-level routing lead for the Balangir roads, not proof that this office holds all ten roads' bills. Confirm current officer/custodian and use the relevant division for each road. Other districts require separate routing. No message or RTI was submitted.
 
-
 ## Exact source-edition reconciliation annex
 
 The earlier source unit remains unverified. Numeric differences below are source-field differences, not inferred rupee amendments. Please supply the existing unit definitions, sanction orders and revision/scope records.
 
-| Road / package | Earlier source field | Financial report, explicitly lakh | Agreement |
-|---|---:|---:|---|
-| 247148 / OR05364 | 534.22 | 536.700 | EE / BGR / 10 PMGSY 2021-22 / OR-05-364 / PMGSY-III(B-II) |
-| 247994 / OR04335 | 376.55 | 380.050 | 17/PMGSY OF 2021-22 |
-| 247572 / OR04342 | 345.73 | 345.730 | 14(PMGSY) OF 2021-22 |
-| 247518 / OR11471 | 318.5 | 320.140 | NCT-16-PMGSY/2021-22/471 |
-| 247748 / OR11521 | 164.701 | 168.301 | NCT-14/2021-22 /OR-11-5211 |
-| 247799 / OR11532 | 299.204 | 311.216 | NCT 40/21-22 OR-11-532 |
-| 238765 / OR1470 | 157.19 | 158.370 | PMGSY-III 19 P1 of 2021-22 |
-| 247177 / OR16319 | 486.46 | 486.460 | 21 PMGSY OF 2021-22 |
-| 248555 / OR18215 | 222.53 | 229.890 | 75-PMGSY-III (B-II) OF 2021-22 |
-| 239757 / OR30710 | 682.34 | 684.650 | 09/30 (OR-30-710 PMGSY-III B-I) of 2020-21 |
+| Road / package   | Earlier source field | Financial report, explicitly lakh | Agreement                                                 |
+| ---------------- | -------------------: | --------------------------------: | --------------------------------------------------------- |
+| 247148 / OR05364 |               534.22 |                           536.700 | EE / BGR / 10 PMGSY 2021-22 / OR-05-364 / PMGSY-III(B-II) |
+| 247994 / OR04335 |               376.55 |                           380.050 | 17/PMGSY OF 2021-22                                       |
+| 247572 / OR04342 |               345.73 |                           345.730 | 14(PMGSY) OF 2021-22                                      |
+| 247518 / OR11471 |                318.5 |                           320.140 | NCT-16-PMGSY/2021-22/471                                  |
+| 247748 / OR11521 |              164.701 |                           168.301 | NCT-14/2021-22 /OR-11-5211                                |
+| 247799 / OR11532 |              299.204 |                           311.216 | NCT 40/21-22 OR-11-532                                    |
+| 238765 / OR1470  |               157.19 |                           158.370 | PMGSY-III 19 P1 of 2021-22                                |
+| 247177 / OR16319 |               486.46 |                           486.460 | 21 PMGSY OF 2021-22                                       |
+| 248555 / OR18215 |               222.53 |                           229.890 | 75-PMGSY-III (B-II) OF 2021-22                            |
+| 239757 / OR30710 |               682.34 |                           684.650 | 09/30 (OR-30-710 PMGSY-III B-I) of 2020-21                |
 
 Suggested custodian: Odisha Rural Development Department, PMGSY/OSRRA section. The official Manual 6 lists PMGSY accounts and ledgers/cashbooks under that section. Address the office/role rather than treating a historic listed officer as current. Relevant units may hold agreements and vouchers; request the correct custodian where necessary. Source: https://rtiodisha.gov.in/Pages/printAllManual/office_id:194/lang . Existing public-search checks for OR05364, OR04335, OR04342 and OR11471 returned no indexed official amendment evidence; this does not prove records are unavailable.

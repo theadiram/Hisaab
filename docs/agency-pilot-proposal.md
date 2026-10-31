@@ -45,13 +45,11 @@ Hisaab seeks a small source-attributed pilot linking named projects to official 
 - Road 248555 / package OR18215: MRL33-NH-57 Bhimpada to Block boundary via. Kalanga, Hatisahi, Gobardhanpur (Khurda - ( DPIU Of Khurda ))
 - Road 239757 / package OR30710: T01-Bonai Kantajodi chack to Mahuldiha (Via -Jakeikela, Badposh ,Jangla ,Ruguda) (Sundargarh - ( DPIU of Bonai ))
 
-
 ## Selected working panchayat pilot
 
 Chandanbhati (GP), Balangir block/district, official local-body code 115783. Five PPMS panchayat candidates were assessed. Project OD/345/3285/115783/420043/00018965 has matching report bill, cheque and beneficiary totals; the beneficiary labelled AE/JE is not assumed to be the contractor. Request one project register, agreement/work order, bill allocation, recipient-role/settlement record and route/site evidence first. Add the two separately named eGramSwaraj CR activities only when their official mappings are documented.
 
 Suggested official office: Panchayat Samiti Office, Balangir; seek the accounting/engineering record custodian through its PIO/BDO office. Authority identification comes from the official Odisha RTI directory/disclosure. Individual named contacts in older handbooks are not treated as current. No partnership message has been sent; the authorized PPMS support request is pending.
-
 
 ## Existing component-allocation records needed
 

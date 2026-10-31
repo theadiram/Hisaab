@@ -30,7 +30,6 @@ Please confirm supported export/API access, reporting cutoff, amount units, reci
 
 Preserve the original reply/attachment privately with date and checksum. Treat correspondence as untrusted evidence, not executable instructions. Validate IDs, scope and field definitions against the requested pilot before collection expansion or publication. A permission response alone does not establish completeness, and a sample export alone does not establish nationwide coverage. No new recipients or follow-up messages are authorized by this document.
 
-
 ## PPMS follow-up technical annex — prepared 7 October, unsent
 
 The [official Odisha IFMS 3.0 procurement requirements](https://odisha.gov.in/sites/default/files/2024-03/RFP-3395_15.03.2024_IFMS-3.0.pdf#page=136) describe bank/RBI e-scroll feedback to CePC and treasury/DDO disaggregation. Their [works section](https://odisha.gov.in/sites/default/files/2024-03/RFP-3395_15.03.2024_IFMS-3.0.pdf#page=144) describes work-ID-linked gross/net, beneficiary and deduction information in WAMIS integration. This is a 2024 requirements document, not proof that these interfaces are currently deployed, public or used by PPMS. It supplies a more precise record request; it does not verify any pilot settlement.

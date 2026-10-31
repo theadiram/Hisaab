@@ -26,14 +26,14 @@ There is no `can_publish_work` or `validateWorkPublication` symbol in the checke
 
 ## Publish the claim that the evidence supports
 
-| Output | Evidence and wording | What must remain unknown |
-|---|---|---|
-| Historical location | “Historical source location, 2022 archive; source coordinates.” Preserve exact archive attribution and record identity. | Current existence/status, project identity, spending, completion and independently verified physical location |
-| Documented tender | “Official tender notice” only when the notice, work identity and site are evidenced. | Contract award, payment and completion |
-| Documented sanction/contract project | Exact source work identity, reviewed geography, verified approval/contract facts, original amount units and source receipts | Any payment/completion stage not documented |
-| Source-reported payment | Exact source payment identity, dated status, allocated amount, recipient role and gross/net meaning | Independent recipient credit unless separately established |
-| Reported completion | Official status/date with explicit reported basis | Certificate-backed completion and independent physical inspection |
-| Certificate-backed completion | Actual work-linked certificate, locator/date and review | Independent field verification unless separately acquired |
+| Output                               | Evidence and wording                                                                                                        | What must remain unknown                                                                                      |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Historical location                  | “Historical source location, 2022 archive; source coordinates.” Preserve exact archive attribution and record identity.     | Current existence/status, project identity, spending, completion and independently verified physical location |
+| Documented tender                    | “Official tender notice” only when the notice, work identity and site are evidenced.                                        | Contract award, payment and completion                                                                        |
+| Documented sanction/contract project | Exact source work identity, reviewed geography, verified approval/contract facts, original amount units and source receipts | Any payment/completion stage not documented                                                                   |
+| Source-reported payment              | Exact source payment identity, dated status, allocated amount, recipient role and gross/net meaning                         | Independent recipient credit unless separately established                                                    |
+| Reported completion                  | Official status/date with explicit reported basis                                                                           | Certificate-backed completion and independent physical inspection                                             |
+| Certificate-backed completion        | Actual work-linked certificate, locator/date and review                                                                     | Independent field verification unless separately acquired                                                     |
 
 A current funded or contracted work can therefore be useful without pretending it is fully paid or physically finished. Do not place a district summary at its centroid and call it a project site. Do not copy a contract value into paid money. Public money totals must continue to exclude unapproved, cumulative, conflicting and transfer records under the existing rules.
 

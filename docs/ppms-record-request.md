@@ -23,7 +23,6 @@ Please confirm whether the public before/during/after photo locations refer to t
 Source reports: https://ppms.odisha.gov.in/report/ifms-transaction?block=Balangir&district=Balangir&state=Odisha
 Contact provenance: https://ppms.odisha.gov.in/privacy-policy
 
-
 ## Subsequent source review — 7 October 2026
 
 Two additional visible Transaction Details dialogs were privately preserved with safe recipient/component/amount/status fields and checksums. Bank and IFSC columns were excluded. These are minimized visible-table snapshots, not original HTML exports.
