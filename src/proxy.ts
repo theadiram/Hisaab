@@ -2,6 +2,7 @@ import {NextResponse,type NextRequest} from 'next/server';
 import {authorizedPreview} from '@/lib/security';
 import {publicPreviewRead} from '@/lib/public-preview-access';
 export function proxy(request:NextRequest){
+ if(process.env.HISAAB_MIGRATION_READ_ONLY==='true'&&!['GET','HEAD'].includes(request.method))return NextResponse.json({error:'Changes are temporarily paused during the database move. No changes were saved.'},{status:503,headers:{'Cache-Control':'no-store'}});
  if(process.env.HISAAB_PUBLIC_RELEASE==='true'){
   // Explicitly fail closed until the signed release-gate integration is implemented.
   return new NextResponse('Public release is not yet enabled. Complete the release audit first.',{status:503});

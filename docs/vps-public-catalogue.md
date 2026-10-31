@@ -1,0 +1,13 @@
+# Public catalogue on the VPS
+
+Public catalogue reads can use a separate PostgREST API while Supabase Auth and private Storage remain configured independently. `publicDb()` selects `HISAAB_CATALOGUE_API_URL` and `HISAAB_CATALOGUE_API_KEY` together when the URL is configured; a missing dedicated key fails closed. `adminClient()` and `reportClient()` retain their original Supabase configuration.
+
+During this split, set `HISAAB_MIGRATION_READ_ONLY=true`. The application rejects every method except GET/HEAD, including owner requests, so publications and private changes cannot be saved to a different database from the one visitors read. Keep this pause until private writes, owner sign-in/MFA, files, backups and rollback have passed the remaining cutover checks. Do not publish directly through the original provider during the pause.
+
+The production public API is `hisaab-catalogue-api.service`, bound only to 127.0.0.1:3101, with a loopback Nginx prefix adapter at 127.0.0.1:3102/rest/v1/. Its dedicated PostgreSQL login is NOINHERIT, is a member of `anon` only, and defaults to read-only transactions. Only the `public` schema is exposed. PostgreSQL uses a Unix socket; there is no database TCP listener. Credentials belong in private server files and the application's mode-0600 environment file, never in this repository or browser configuration.
+
+Historical vector tiles, boundaries and overview files remain on R2. With `HISAAB_GEOGRAPHY_MANIFEST` absent, the server uses the checksummed local `data/acquisition/geography/assets.sqlite` for counts and asset-card details. When R2 is configured, preserve the matching `data/acquisition/geography/hosted/manifest.json`; its original shard names and maximum zoom are returned by `/api/v1/geography`. All historical records retain their source labels and remain separate from reviewed project/payment evidence.
+
+Place runtime geography files inside the release directory after checking hashes and record/source counts. An external-directory symlink can be rejected by Turbopack during the build. Geography originals remain excluded from Git and build tracing.
+
+Before promotion, compare current source/application table fingerprints, save a consistent private database backup, test anonymous privacy restrictions and rejected writes, run public read checks and desktop/mobile browser tests, and verify archived counts plus an asset card. Keep the previous application release and original provider intact. Ensure application startup orders after the local API and database services. A public read cutover does not mean Auth, Storage or owner publication has migrated.

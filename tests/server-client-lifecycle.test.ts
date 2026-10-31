@@ -14,3 +14,21 @@ it('does not leave background refresh timers behind for request-scoped database 
   expect(timer).not.toHaveBeenCalled();
  }finally{await Promise.all(clients.map(c=>c.auth.stopAutoRefresh()));}
 });
+it('routes public reads to a dedicated API without redirecting owner or private clients',async()=>{
+ vi.stubEnv('SUPABASE_URL','https://auth-and-storage.example.invalid');
+ vi.stubEnv('SUPABASE_PUBLISHABLE_KEY','original-public-key');vi.stubEnv('SUPABASE_SECRET_KEY','original-private-key');
+ vi.stubEnv('HISAAB_CATALOGUE_API_URL','http://127.0.0.1:3102');vi.stubEnv('HISAAB_CATALOGUE_API_KEY','catalogue-only-key');
+ const urls:string[]=[];
+ vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>{urls.push(String(input instanceof Request?input.url:input));return new Response('[]',{headers:{'Content-Type':'application/json'}});}));
+ try{
+  await publicDb().rpc('catalogue_summary');
+  await adminClient('test-token').rpc('admin_context');
+  await reportClient().rpc('read_private_case',{p_hash:'test'});
+  expect(urls).toEqual(['http://127.0.0.1:3102/rest/v1/rpc/catalogue_summary','https://auth-and-storage.example.invalid/rest/v1/rpc/admin_context','https://auth-and-storage.example.invalid/rest/v1/rpc/read_private_case']);
+ }finally{vi.unstubAllGlobals();}
+});
+it('rejects a dedicated API configured without its own key',()=>{
+ vi.stubEnv('HISAAB_CATALOGUE_API_URL','http://127.0.0.1:3102');vi.stubEnv('HISAAB_CATALOGUE_API_KEY','');
+ vi.stubEnv('SUPABASE_PUBLISHABLE_KEY','original-key-must-not-be-used');
+ expect(()=>publicDb()).toThrow('Published catalogue connection unavailable');
+});
