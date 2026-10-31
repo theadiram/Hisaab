@@ -15,6 +15,6 @@ If a credential has already appeared publicly, notify the maintainer privately. 
 - Account/billing screenshots, operational captures and personal agent/chat notes.
 - Personal identifiers that are unnecessary to establish a public spending claim.
 
-The repository includes an additional publication check, but automated scanning cannot guarantee that every sensitive item is detected. Review new files, logs, screenshots and pull-request descriptions manually.
+CI scans Git history with a pinned, checksum-verified Gitleaks release and runs an additional publication check. The narrow `.gitleaksignore` exception identifies one generated source checksum rather than excluding an entire dataset. Automated scanning cannot guarantee that every sensitive item is detected. Review new files, logs, screenshots and pull-request descriptions manually.
 
 Only `main` is maintained as the integration branch. Experimental branches and local copies are not supported production deployments. Security fixes should preserve MFA, default-deny access and source withdrawal behavior.
