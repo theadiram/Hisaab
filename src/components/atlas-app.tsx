@@ -1,17 +1,21 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useAtlasNavigation } from '@/features/atlas/use-atlas-navigation';
+import { ProjectList } from '@/features/atlas/project-list';
+import { Programme } from '@/features/atlas/programme-evidence';
+import { LocalAreas } from '@/features/atlas/local-areas';
+import { HistoricalList } from '@/features/atlas/historical-list';
+import { PartyHistory } from '@/features/atlas/party-history';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { AnimatePresence, motion, useReducedMotion, useDragControls } from 'motion/react';
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   Building2,
   Check,
   ChevronRight,
   Compass,
   ExternalLink,
-  FileText,
   Info,
   Layers3,
   MapPin,
@@ -26,17 +30,12 @@ import {
   Target,
   X,
 } from 'lucide-react';
-import type { Catalogue, Work, Stage, SourceReceipt, PartyRole } from '@/lib/model';
+import type { Catalogue, Work, SourceReceipt, PartyRole } from '@/lib/model';
 import type { AssetDetail } from '@/lib/asset-geography';
-import type { DevelopmentOverview, DevelopmentRecord } from '@/lib/development';
+import type { DevelopmentRecord } from '@/lib/development';
 import { fundingStates, fundingYears, fundingPurposes, type FundingOverview } from '@/lib/funding';
 import { aggregateMoney, formatMoney, formatExactMoney } from '@/lib/money';
-import {
-  initialExploration,
-  readExploration,
-  explorationUrl,
-  type Exploration,
-} from '@/lib/exploration';
+import { initialExploration, type Exploration } from '@/lib/exploration';
 import { CitizenForm, Tracking, useModalFocus } from './hisaab-app';
 import { SpendingExplorer } from './spending-explorer';
 import { AssetVisual, AssetEvidenceSummary, type MapPreview } from './asset-visual';
@@ -50,18 +49,14 @@ import { getShowcaseWork } from '@/lib/showcase-work';
 import { roadAssetId, roadCardDemo } from '@/lib/road-card-demo';
 import { kebaliAssetId, kebaliCardDemo } from '@/lib/kebali-card-demo';
 import { DemoPlaceContext } from './demo-place-context';
-import { JurisdictionSourceInventory } from './jurisdiction-source-inventory';
+import { StateFundingSummary } from '@/features/atlas/state-funding-summary';
+import { measures } from '@/features/atlas/labels';
+import { useDevelopmentRecords } from '@/features/atlas/use-development-records';
+
 const AtlasMap = dynamic(() => import('./atlas-map').then((m) => m.AtlasMap), {
   ssr: false,
   loading: () => <div className="atlas-map-loading">Preparing India’s landscape…</div>,
 });
-const measures = { allocated: 'Allocated', released: 'Released', reported_spent: 'Reported spent' };
-const origins = {
-  union: 'Union government',
-  state: 'State government',
-  joint: 'Joint funding',
-  local: 'Local government',
-};
 const projectPurpose = (p: string) =>
   p === 'all'
     ? 'All'
@@ -90,13 +85,9 @@ type Panel =
   | 'correction'
   | null;
 export function AtlasApp({ catalogue }: { catalogue: Catalogue }) {
-  const [view, setView] = useState<Exploration>(initialExploration),
-    [rail, setRail] = useState<'explore' | 'settings' | null>(null),
+  const [rail, setRail] = useState<'explore' | 'settings' | null>(null),
     [query, setQuery] = useState(''),
     [layers, setLayers] = useState({ funding: false, projects: true, historical: true }),
-    [data, setData] = useState<DevelopmentOverview | null>(null),
-    [error, setError] = useState(''),
-    [busy, setBusy] = useState(false),
     [refresh, setRefresh] = useState(0),
     [asset, setAsset] = useState<AssetDetail | null>(null),
     [work, setWork] = useState<Work | null>(null),
@@ -112,6 +103,8 @@ export function AtlasApp({ catalogue }: { catalogue: Catalogue }) {
     [action, setAction] = useState<MapAction | null>(null),
     [appearance, setAppearance] = useState('satellite'),
     [bounds, setBounds] = useState<number[]>([65, 5, 100, 39]);
+  const { view, go } = useAtlasNavigation({ setWork, setAsset, setPanel });
+  const { data, error, busy } = useDevelopmentRecords(view, refresh);
   const [contentPresentation, setContentPresentation] = useState<ContentPresentation | null>(null),
     [cameraPlaying, setCameraPlaying] = useState(false),
     [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
@@ -143,42 +136,6 @@ export function AtlasApp({ catalogue }: { catalogue: Catalogue }) {
     request = useRef(0),
     railTrigger = useRef<HTMLButtonElement>(null);
   useModalFocus(panel ?? (programme || party ? 'receipt' : null));
-  const go = useCallback((next: Exploration, replace = false) => {
-    setView(next);
-    const url = new URL(explorationUrl(next, new URL(location.href)), location.origin);
-    if (getShowcaseWork(next.work)) url.searchParams.set('demo', 'complete');
-    else url.searchParams.delete('demo');
-    history[replace ? 'replaceState' : 'pushState'](null, '', url.pathname + url.search + url.hash);
-  }, []);
-  useEffect(() => {
-    const restore = () => {
-      const url = new URL(location.href),
-        next = readExploration(url);
-      const fixture = getShowcaseWork(next.work);
-      if (url.searchParams.get('demo') === 'complete' && fixture) {
-        setWork(fixture);
-        setAsset(null);
-        setView({
-          ...next,
-          screen: 'asset',
-          state: fundingStates.find((s) => s.name === fixture.state)?.code ?? null,
-          asset: fixture.assetId ?? null,
-          exploring: true,
-        });
-      } else {
-        setView(next);
-        if (!fixture) setWork(null);
-      }
-      if (location.hash.startsWith('#track=')) setPanel('track');
-    };
-    restore();
-    addEventListener('popstate', restore);
-    addEventListener('hashchange', restore);
-    return () => {
-      removeEventListener('popstate', restore);
-      removeEventListener('hashchange', restore);
-    };
-  }, []);
   useEffect(() => {
     const c = new AbortController();
     if (view.screen !== 'asset') {
@@ -211,31 +168,6 @@ export function AtlasApp({ catalogue }: { catalogue: Catalogue }) {
       });
     return () => c.abort();
   }, [view.screen, view.asset, view.work]);
-  const selection = new URLSearchParams({
-    year: view.year,
-    measure: view.measure,
-    purpose: view.purpose,
-  }).toString();
-  useEffect(() => {
-    if (!view.exploring) return;
-    const c = new AbortController();
-    setBusy(true);
-    setData(null);
-    setError('');
-    void fetch('/api/v1/development?' + selection, { signal: c.signal })
-      .then(async (r) => {
-        const value = await r.json();
-        if (!r.ok) throw new Error(value.error);
-        if (!c.signal.aborted) setData(value);
-      })
-      .catch((e) => {
-        if (e.name !== 'AbortError') setError(e.message);
-      })
-      .finally(() => {
-        if (!c.signal.aborted) setBusy(false);
-      });
-    return () => c.abort();
-  }, [selection, view.exploring, refresh]);
   useEffect(() => {
     if (!view.exploring) return;
     const c = new AbortController(),
@@ -820,73 +752,15 @@ export function AtlasApp({ catalogue }: { catalogue: Catalogue }) {
                 <X size={18} />
               </button>
             </div>
-            <h1>{state.name}</h1>
-            <p className="atlas-caption">
-              FY {view.year.slice(0, 4)}–{view.year.slice(-2)} · {measures[view.measure]}
-            </p>
-            <JurisdictionSourceInventory jurisdiction={state.name} />
-            <h3>Development within this state</h3>
-            <div className="atlas-amount">
-              {busy ? 'Loading…' : formatMoney(area?.development.combinedAmountRupees ?? null)}
-            </div>
-            <p className="atlas-caption">
-              {area?.development.combinedAvailable
-                ? 'Reviewed records · partial coverage'
-                : 'A reconciled combined amount is not available.'}
-            </p>
-            <div className="atlas-origin-grid">
-              {Object.entries(origins).map(([key, label]) => (
-                <div key={key}>
-                  <small>{label}</small>
-                  <strong>
-                    {formatMoney(
-                      area?.development.origins.find((o) => o.origin === key)?.amountRupees ?? null,
-                    )}
-                  </strong>
-                </div>
-              ))}
-            </div>
-            <h3>Funding received by the state</h3>
-            <div className="atlas-transfer-amount">
-              {formatMoney(area?.received.amountRupees ?? null)}
-            </div>
-            <p className="atlas-caption">
-              Recorded transfers/programme funding. Separate from downstream spending.
-            </p>
-            <h3>By purpose</h3>
-            {area?.purposes
-              .filter((p) => p.records)
-              .map((p) => (
-                <button
-                  className="atlas-breakdown-row"
-                  key={p.id}
-                  onClick={() => go({ ...view, purpose: p.id }, true)}
-                >
-                  <span>{p.name}</span>
-                  <strong>{formatMoney(p.amountRupees)}</strong>
-                </button>
-              ))}
-            {!area?.purposes.some((p) => p.records) && (
-              <p className="atlas-caption">
-                Purpose-linked development evidence is still being acquired.
-              </p>
-            )}
-            <h3>Programmes and evidence</h3>
-            {area?.records.map((r) => (
-              <button className="atlas-programme-row" key={r.id} onClick={() => setProgramme(r)}>
-                <div>
-                  <strong>{r.programme}</strong>
-                  <small>
-                    {r.scope === 'received' ? 'Funding received' : 'Development within the state'} ·{' '}
-                    {origins[r.origin]}
-                  </small>
-                </div>
-                <span>
-                  {formatMoney(r.amountRupees)}
-                  <ChevronRight size={14} />
-                </span>
-              </button>
-            ))}
+            <StateFundingSummary
+              name={state.name}
+              area={area}
+              busy={busy}
+              year={view.year}
+              measure={view.measure}
+              onPurpose={(purpose) => go({ ...view, purpose }, true)}
+              onProgramme={setProgramme}
+            />
             <h3>Explore the local works</h3>
             <LocalAreas
               state={state.code}
@@ -1521,326 +1395,5 @@ export function AtlasApp({ catalogue }: { catalogue: Catalogue }) {
         />
       )}
     </main>
-  );
-}
-function ProjectList({
-  works,
-  error,
-  onSelect,
-}: {
-  works: Work[];
-  error: string;
-  onSelect: (w: Work) => void;
-}) {
-  return (
-    <div className="atlas-project-list">
-      {error && <p role="status">{error}</p>}
-      {works.map((w) => (
-        <button key={w.id} onClick={() => onSelect(w)}>
-          <MapPin size={16} />
-          <span>
-            <strong>{w.title}</strong>
-            <small>
-              {w.district} · {w.financialYear}
-            </small>
-          </span>
-          <ChevronRight size={14} />
-        </button>
-      ))}
-      {!works.length && !error && (
-        <div className="atlas-project-empty">
-          <BookOpen size={22} />
-          <p>
-            No reviewed projects match this selection. Historical locations remain available on the
-            map.
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-function Programme({ record: r }: { record: DevelopmentRecord }) {
-  const [history, setHistory] = useState<DevelopmentRecord[]>([]),
-    [error, setError] = useState('');
-  return (
-    <>
-      <h2>{r.programme}</h2>
-      <div className="atlas-transfer-amount">{formatMoney(r.amountRupees)}</div>
-      <p>
-        {measures[r.measure]} · FY {r.financialYear} ·{' '}
-        {r.scope === 'received' ? 'Funding received' : 'Development within the area'}
-      </p>
-      <dl>
-        <dt>Exact amount</dt>
-        <dd>{formatExactMoney(r.amountRupees)}</dd>
-        <dt>Funding origin</dt>
-        <dd>{origins[r.origin]}</dd>
-        <dt>Ministry / authority</dt>
-        <dd>{r.ministry}</dd>
-        <dt>Channel and instrument</dt>
-        <dd>
-          {r.channel.replaceAll('_', ' ')} · {r.instrument.replaceAll('_', ' ')}
-        </dd>
-        <dt>Accounting basis</dt>
-        <dd>{r.accountingBasis.replaceAll('_', ' ')}</dd>
-        <dt>Reporting period</dt>
-        <dd>
-          {r.periodStart} — {r.periodEnd}
-        </dd>
-        <dt>Source cutoff</dt>
-        <dd>{r.cutoff}</dd>
-        <dt>Publication date</dt>
-        <dd>{r.publicationDate ?? 'Unavailable'}</dd>
-        <dt>Original table</dt>
-        <dd>{r.source.locator}</dd>
-      </dl>
-      <p>{r.notes}</p>
-      <a
-        href={r.source.url + (r.source.page ? '#page=' + r.source.page : '')}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Original document <ExternalLink size={13} />
-      </a>
-      <button
-        className="atlas-text-button"
-        onClick={() => {
-          void fetch(
-            '/api/v1/development/programmes/' +
-              encodeURIComponent(r.programmeId) +
-              '?' +
-              new URLSearchParams({ scope: r.jurisdiction }),
-          )
-            .then(async (response) => {
-              const result = await response.json();
-              if (!response.ok) throw new Error(result.error);
-              setHistory(result.history.map((x: DevelopmentRecord) => x));
-            })
-            .catch((e) => setError(e.message));
-        }}
-      >
-        Open funding history <ArrowRight size={14} />
-      </button>
-      {error && <p role="status">{error}</p>}
-      {history.map((x) => (
-        <article className="atlas-history" key={x.id}>
-          <strong>
-            {x.financialYear} · {measures[x.measure]}
-          </strong>
-          <p>
-            {formatMoney(x.amountRupees)} · {x.estimate.replaceAll('_', ' ')}
-          </p>
-          <a href={x.source.url} target="_blank" rel="noopener noreferrer">
-            Original evidence
-          </a>
-        </article>
-      ))}
-    </>
-  );
-}
-
-function LocalAreas({ state, onQuery }: { state: string; onQuery: (q: string) => void }) {
-  const [areas, setAreas] = useState<{ id: string; name: string; kind: string }[]>([]),
-    [parent, setParent] = useState<string | null>(null),
-    [error, setError] = useState('');
-  useEffect(() => {
-    const c = new AbortController();
-    setError('');
-    void fetch('/api/v1/areas?' + new URLSearchParams(parent ? { parent } : { state }), {
-      signal: c.signal,
-    })
-      .then(async (r) => {
-        const data = await r.json();
-        if (!r.ok) throw new Error(data.error);
-        setAreas(data.areas);
-      })
-      .catch((e) => {
-        if (e.name !== 'AbortError') setError(e.message);
-      });
-    return () => c.abort();
-  }, [state, parent]);
-  useEffect(() => setParent(null), [state]);
-  return (
-    <details>
-      <summary>District and locality explorer</summary>
-      {parent && (
-        <button className="atlas-text-button" onClick={() => setParent(null)}>
-          Return to districts
-        </button>
-      )}
-      {error && <p role="status">{error}</p>}
-      {!areas.length && !error && (
-        <p className="atlas-caption">
-          Further reviewed area records are unavailable. Search by an official project ID or place
-          name.
-        </p>
-      )}
-      {areas.map((a) => (
-        <div className="atlas-locality-row" key={a.id}>
-          <button onClick={() => onQuery(a.name)}>
-            {a.name}
-            <small>{a.kind}</small>
-          </button>
-          <button aria-label={'Explore subdivisions of ' + a.name} onClick={() => setParent(a.id)}>
-            <ChevronRight size={15} />
-          </button>
-        </div>
-      ))}
-    </details>
-  );
-}
-
-function HistoricalList({
-  bounds,
-  query,
-  purpose,
-  onSelect,
-}: {
-  bounds: number[];
-  query: string;
-  purpose: string;
-  onSelect: (a: AssetDetail) => void;
-}) {
-  const [offset, setOffset] = useState(0),
-    [records, setRecords] = useState<{
-      total: number;
-      assets: { id: string; title: string; state: string; kind: string }[];
-    } | null>(null),
-    [error, setError] = useState(''),
-    [opened, setOpened] = useState(false);
-  const bbox = bounds.join(',');
-  useEffect(() => setOffset(0), [bbox, query, purpose]);
-  useEffect(() => {
-    if (!opened) return;
-    setRecords(null);
-    setError('');
-    if (purpose === 'No matching project category') {
-      setRecords({ total: 0, assets: [] });
-      return;
-    }
-    const c = new AbortController(),
-      p = new URLSearchParams({ bbox, q: query, mode: 'members', offset: String(offset) });
-    const kind =
-      purpose === 'Roads'
-        ? 'road'
-        : purpose === 'Schools & education'
-          ? 'education'
-          : purpose === 'Hospitals & health'
-            ? 'health'
-            : null;
-    if (kind) p.set('kind', kind);
-    void fetch('/api/v1/map/assets?' + p, { signal: c.signal })
-      .then(async (r) => {
-        if (!r.ok) throw new Error('Historical locations unavailable');
-        setRecords(await r.json());
-      })
-      .catch((e) => {
-        if (e.name !== 'AbortError') setError(e.message);
-      });
-    return () => c.abort();
-  }, [opened, bbox, query, purpose, offset]);
-  return (
-    <details className="atlas-history-list" onToggle={(e) => setOpened(e.currentTarget.open)}>
-      <summary>Browse historical locations in view</summary>
-      <p className="atlas-caption">
-        Archived facilities and road proposals, independent of the financial year. No spending link
-        is implied.
-      </p>
-      {error && <p role="status">{error}</p>}
-      {!records && !error && <p role="status">Loading locations…</p>}
-      {records?.assets.map((a) => (
-        <button
-          className="atlas-programme-row"
-          key={a.id}
-          onClick={() => {
-            void fetch('/api/v1/assets/' + encodeURIComponent(a.id))
-              .then(async (r) => {
-                if (!r.ok) throw new Error('Original location unavailable');
-                onSelect((await r.json()).asset);
-              })
-              .catch((e) => setError(e.message));
-          }}
-        >
-          <strong>{a.title}</strong>
-          <small>
-            {a.state} · {a.kind}
-          </small>
-        </button>
-      ))}
-      {records && (
-        <div className="atlas-pagination">
-          <button disabled={!offset} onClick={() => setOffset((n) => Math.max(0, n - 25))}>
-            Previous locations
-          </button>
-          <small>
-            {records.total ? offset + 1 : 0}–{Math.min(offset + 25, records.total)} of{' '}
-            {records.total.toLocaleString('en-IN')}
-          </small>
-          <button disabled={offset + 25 >= records.total} onClick={() => setOffset((n) => n + 25)}>
-            Next locations
-          </button>
-        </div>
-      )}
-    </details>
-  );
-}
-
-function PartyHistory({
-  party,
-  year,
-  onSelect,
-}: {
-  party: PartyRole;
-  year: string;
-  onSelect: (w: Work) => void;
-}) {
-  const [works, setWorks] = useState<Work[]>([]),
-    [offset, setOffset] = useState(0),
-    [total, setTotal] = useState(0),
-    [error, setError] = useState('');
-  useEffect(() => {
-    if (!party.identityBasis) return;
-    const c = new AbortController();
-    void fetch(
-      '/api/v1/parties/' +
-        encodeURIComponent(party.id) +
-        '?' +
-        new URLSearchParams({ year, offset: String(offset) }),
-      { signal: c.signal },
-    )
-      .then(async (r) => {
-        if (!r.ok) throw new Error('Documented history unavailable');
-        const data = await r.json();
-        setWorks(data.works);
-        setTotal(data.total);
-      })
-      .catch((e) => {
-        if (e.name !== 'AbortError') setError(e.message);
-      });
-    return () => c.abort();
-  }, [party.id, party.identityBasis, year, offset]);
-  return (
-    <section>
-      <h3>Previous five financial years</h3>
-      <p className="atlas-caption">
-        {party.identityBasis
-          ? 'Only reviewed projects connected by the documented official identity appear. Coverage is partial.'
-          : 'A stable cross-project identity is not established. History cannot be matched by name alone.'}
-      </p>
-      {party.identityBasis && (
-        <>
-          <ProjectList works={works} error={error} onSelect={onSelect} />
-          <div className="atlas-pagination">
-            <button disabled={!offset} onClick={() => setOffset((n) => Math.max(0, n - 25))}>
-              Previous
-            </button>
-            <small>{total.toLocaleString('en-IN')} documented projects</small>
-            <button disabled={offset + 25 >= total} onClick={() => setOffset((n) => n + 25)}>
-              Next
-            </button>
-          </div>
-        </>
-      )}
-    </section>
   );
 }
