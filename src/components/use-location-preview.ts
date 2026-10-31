@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react';
 import type mapboxgl from 'mapbox-gl';
 import type { MapPreview } from './asset-visual';
+import { mapPreviewBudget } from '@/lib/map-preview-budget';
 export function useLocationPreview(
   map: mapboxgl.Map | null,
   ready: boolean,
@@ -89,20 +90,25 @@ export function useLocationPreview(
     };
     const stop = () => {
       map.off('idle', request);
+      map.off('idle', settled);
       map.off('moveend', request);
       map.off('render', capture);
       clearTimeout(timer);
-      clearTimeout(deadline);
+      budget.cancel();
     };
-    // Allow base imagery to settle; idle wins, with a bounded render fallback.
-    const timer = setTimeout(request, 6000),
-      deadline = setTimeout(() => {
-        if (!done) {
-          done = true;
-          callback.current({ id, url: '', attribution: 'Map preview unavailable' });
-          stop();
-        }
-      }, 20000);
+    const giveUp = () => {
+      if (!done) {
+        done = true;
+        callback.current({ id, url: '', attribution: 'Map preview unavailable' });
+        stop();
+      }
+    };
+    // Allow base imagery to settle; idle wins, with a bounded render fallback. The 20s budget starts once
+    // tiles first load, so slow (e.g. software-rendered) maps are not cut off mid-load; 60s caps a map that never settles.
+    const budget = mapPreviewBudget(giveUp);
+    const settled = budget.settled;
+    const timer = setTimeout(request, 6000);
+    map.once('idle', settled);
     map.on('idle', request);
     map.on('moveend', request);
     return () => {

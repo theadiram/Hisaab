@@ -3,7 +3,9 @@ import { testDatabaseUrl } from './tests/browser/test-environment';
 const databaseUrl = testDatabaseUrl();
 export default defineConfig({
   testDir: 'tests/browser',
-  workers: 2,
+  // Software WebGL shares CPU with Next.js and the disposable database in CI.
+  workers: process.env.CI ? 1 : 2,
+  timeout: process.env.CI ? 90_000 : 30_000,
   use: {
     channel: process.env.HISAAB_BROWSER_CHANNEL,
     baseURL: 'http://127.0.0.1:3000',
