@@ -4,6 +4,7 @@ import {readFile,writeFile,mkdir,unlink} from 'node:fs/promises';
 import path from 'node:path';
 import {z} from 'zod';
 import {createClient} from '@supabase/supabase-js';
+import {privateConnection} from './server-config';
 export const reportInput=z.object({workId:z.string().max(160).nullable(),description:z.string().min(10).max(5000),observedDate:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v=>!Number.isNaN(Date.parse(v))&&new Date(v)<=new Date(),'Observation date must not be in the future'),consent:z.literal(true),demo:z.boolean().default(false)});
 export type PrivateReport=z.infer<typeof reportInput>&{reference:string;createdAt:string;state:'private_observation';tokenHash:string};
 const root=()=>path.join(process.cwd(),'.hisaab','reports');
@@ -15,7 +16,7 @@ async function key(){
  await mkdir(root(),{recursive:true,mode:0o700});const file=path.join(root(),'.key');
  try{return await readFile(file);}catch(e){if((e as NodeJS.ErrnoException).code!=='ENOENT')throw e;const value=randomBytes(32);try{await writeFile(file,value,{mode:0o600,flag:'wx'});return value;}catch(e){if((e as NodeJS.ErrnoException).code==='EEXIST')return readFile(file);throw e;}}
 }
-export function reportClient(){if(!process.env.SUPABASE_URL||!process.env.SUPABASE_SECRET_KEY)throw new Error('Private case storage is not configured. No observation was saved.');return createClient(process.env.SUPABASE_URL,process.env.SUPABASE_SECRET_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});}
+export function reportClient(){const {url,key}=privateConnection();return createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});}
 const db=reportClient;
 export async function encryptBytes(bytes:Buffer){const nonce=randomBytes(12);const cipher=createCipheriv('aes-256-gcm',await key(),nonce);const ciphertext=Buffer.concat([cipher.update(bytes),cipher.final()]);return Buffer.concat([nonce,cipher.getAuthTag(),ciphertext]);}
 export async function saveReport(input:z.infer<typeof reportInput>){

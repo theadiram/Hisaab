@@ -4,6 +4,14 @@ import {publicDb} from '../src/lib/public-db';
 import {reportClient} from '../src/lib/reports';
 import {adminClient} from '../src/lib/admin';
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllEnvs();});
+it('treats an empty optional catalogue URL as unconfigured',async()=>{
+ vi.stubEnv('HISAAB_CATALOGUE_API_URL','  ');
+ vi.stubEnv('SUPABASE_URL','http://127.0.0.1:59999');
+ vi.stubEnv('SUPABASE_PUBLISHABLE_KEY','test-public-key');
+ const client=publicDb();
+ expect(client.supabaseUrl).toBe('http://127.0.0.1:59999');
+ await client.auth.stopAutoRefresh();
+});
 it('does not leave background refresh timers behind for request-scoped database clients',async()=>{
  vi.stubEnv('SUPABASE_URL','http://127.0.0.1:59999');
  vi.stubEnv('SUPABASE_PUBLISHABLE_KEY','test-public-key');vi.stubEnv('SUPABASE_SECRET_KEY','test-private-key');
