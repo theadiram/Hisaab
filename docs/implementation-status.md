@@ -1,5 +1,7 @@
 # Implementation status — 6 October 2026
 
+> Historical record dated 6 October 2026. For current setup and hosting, use [CONTRIBUTING](../CONTRIBUTING.md) and [architecture](architecture.md). Counts and deployment statements below describe their original checkpoint.
+
 ## Delivery order
 
 Finish implementation and acceptance checks, upload the reviewed code to GitHub, then deploy Netlify from that repository. The direct-folder deployment script is disabled. The separate Netlify staging site exists, but no successful deployment is verified. DNS and public release remain unchanged.

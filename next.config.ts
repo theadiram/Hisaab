@@ -5,8 +5,8 @@ const mapToken=process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN??'';
 if(mapToken&&!mapToken.startsWith('pk.'))throw new Error('Mapbox browser configuration requires a public map token.');
 const config: NextConfig = {
   poweredByHeader: false,
-  // Private acquisition originals and the local 330 MB geography fallback never ship.
-  // Hosted geography is read from its checksummed, immutable storage manifest.
+  // Keep private acquisition files out of automatic build tracing. VPS releases
+  // install the checked SQLite geography and matching manifest separately.
   outputFileTracingExcludes: {'/*':['./data/acquisition/**/*','./data/originals/**/*','./.hisaab/**/*','./tmp/**/*','./.env*']},
   env:{NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN:mapToken},
   async rewrites(){return [{source:'/state/:code',destination:'/'},{source:'/asset/:id',destination:'/'}];},

@@ -1,0 +1,4113 @@
+{
+  "views": [
+    {
+      "name": "effective_candidates",
+      "schema": "private",
+      "options": [
+        "security_invoker=true"
+      ],
+      "definition": " SELECT c.id,\n    c.source_id,\n    c.document_id,\n    c.payload,\n    c.status,\n    c.created_at,\n    c.reviewed_by,\n    c.reason,\n    COALESCE(r.payload, c.payload) AS effective_payload\n   FROM private.ingestion_candidates c\n     LEFT JOIN LATERAL ( SELECT candidate_revisions.payload\n           FROM private.candidate_revisions\n          WHERE candidate_revisions.candidate_id = c.id\n          ORDER BY candidate_revisions.created_at DESC, candidate_revisions.id DESC\n         LIMIT 1) r ON true;"
+    },
+    {
+      "name": "published_work_receipts",
+      "schema": "public",
+      "options": [
+        "security_invoker=true"
+      ],
+      "definition": " SELECT s.work_id,\n    s.publication_version,\n    s.payload,\n    s.created_at\n   FROM publication_snapshots s\n     JOIN publication_heads h ON h.work_id = s.work_id AND h.publication_version = s.publication_version\n  WHERE s.approved AND s.withdrawn_at IS NULL;"
+    }
+  ],
+  "tables": [
+    {
+      "rls": true,
+      "name": "admin_members",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "enabled",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX admin_members_pkey ON private.admin_members USING btree (user_id)"
+      ],
+      "constraints": [
+        {
+          "name": "admin_members_pkey",
+          "definition": "PRIMARY KEY (user_id)"
+        },
+        {
+          "name": "admin_members_user_id_fkey",
+          "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "ai_runs",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "provider",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "model",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "prompt_version",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "input_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "output",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "name": "estimated_cost",
+          "type": "numeric(12,4)",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "review_decision",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX ai_runs_pkey ON private.ai_runs USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "ai_runs_document_id_fkey",
+          "definition": "FOREIGN KEY (document_id) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "ai_runs_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "area_crosswalks",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "historical_area",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "current_area",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "relation",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "evidence_document",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "reviewed",
+          "type": "boolean",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX area_crosswalks_pkey ON private.area_crosswalks USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "area_crosswalks_current_area_fkey",
+          "definition": "FOREIGN KEY (current_area) REFERENCES areas(id)"
+        },
+        {
+          "name": "area_crosswalks_historical_area_fkey",
+          "definition": "FOREIGN KEY (historical_area) REFERENCES areas(id)"
+        },
+        {
+          "name": "area_crosswalks_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "atlas_batches",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "sha256",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX atlas_batches_pkey ON private.atlas_batches USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "atlas_batches_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "atlas_batches_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        },
+        {
+          "name": "atlas_batches_sha256_check",
+          "definition": "CHECK ((sha256 ~ '^[a-f0-9]{64}$'::text))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "audit_events",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "actor",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "action",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "entity_type",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "entity_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "before_hash",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "after_hash",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX audit_events_pkey ON private.audit_events USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "audit_events_actor_fkey",
+          "definition": "FOREIGN KEY (actor) REFERENCES auth.users(id)"
+        },
+        {
+          "name": "audit_events_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "authorities",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "jurisdiction",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "evidence_document",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "locator",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "verified_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "routing_url",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "filing_method",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "filing_requirements",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "name": "published_sla",
+          "type": "jsonb",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX authorities_pkey ON private.authorities USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "authorities_evidence_document_fkey",
+          "definition": "FOREIGN KEY (evidence_document) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "authorities_jurisdiction_fkey",
+          "definition": "FOREIGN KEY (jurisdiction) REFERENCES areas(id)"
+        },
+        {
+          "name": "authorities_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "budget_context",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "workbook_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "identity",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX budget_context_demand ON private.budget_context USING btree ((((payload ->> 'demandNumber'::text))::integer), identity)",
+        "CREATE UNIQUE INDEX budget_context_pkey ON private.budget_context USING btree (document_id, identity)"
+      ],
+      "constraints": [
+        {
+          "name": "budget_context_document_id_fkey",
+          "definition": "FOREIGN KEY (document_id) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "budget_context_pkey",
+          "definition": "PRIMARY KEY (document_id, identity)"
+        },
+        {
+          "name": "budget_context_workbook_id_fkey",
+          "definition": "FOREIGN KEY (workbook_id) REFERENCES private.source_documents(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "candidate_import_editions",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "candidate_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX compacted_candidate_editions_pkey ON private.candidate_import_editions USING btree (candidate_id, document_id)"
+      ],
+      "constraints": [
+        {
+          "name": "compacted_candidate_editions_candidate_id_fkey",
+          "definition": "FOREIGN KEY (candidate_id) REFERENCES private.ingestion_candidates(id)"
+        },
+        {
+          "name": "compacted_candidate_editions_document_id_fkey",
+          "definition": "FOREIGN KEY (document_id) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "compacted_candidate_editions_payload_hash_check",
+          "definition": "CHECK ((payload_hash ~ '^[a-f0-9]{64}$'::text))"
+        },
+        {
+          "name": "compacted_candidate_editions_pkey",
+          "definition": "PRIMARY KEY (candidate_id, document_id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "candidate_revisions",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "candidate_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX candidate_revision_search ON private.candidate_revisions USING gin (private.candidate_search_text(payload) gin_trgm_ops)",
+        "CREATE INDEX candidate_revisions_latest ON private.candidate_revisions USING btree (candidate_id, created_at DESC, id DESC)",
+        "CREATE UNIQUE INDEX candidate_revisions_pkey ON private.candidate_revisions USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "candidate_revisions_candidate_id_fkey",
+          "definition": "FOREIGN KEY (candidate_id) REFERENCES private.ingestion_candidates(id)"
+        },
+        {
+          "name": "candidate_revisions_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "candidate_revisions_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "case_attachments",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "case_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "original_path",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "sha256",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "encrypted_metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX case_attachments_pkey ON private.case_attachments USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "case_attachments_case_hash_fkey",
+          "definition": "FOREIGN KEY (case_hash) REFERENCES private.private_cases(token_hash) ON DELETE CASCADE"
+        },
+        {
+          "name": "case_attachments_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "case_attachments_sha256_check",
+          "definition": "CHECK ((sha256 ~ '^[a-f0-9]{64}$'::text))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "case_events",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "case_hash",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "event_type",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "evidence_path",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "encrypted_payload",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "name": "happened_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "verified_by",
+          "type": "uuid",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX case_events_pkey ON private.case_events USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "case_events_case_hash_fkey",
+          "definition": "FOREIGN KEY (case_hash) REFERENCES private.private_cases(token_hash) ON DELETE CASCADE"
+        },
+        {
+          "name": "case_events_event_type_check",
+          "definition": "CHECK ((event_type = ANY (ARRAY['observation'::text, 'packet_ready'::text, 'citizen_reported_submission'::text, 'acknowledgement_uploaded'::text, 'acknowledged'::text, 'authority_response'::text, 'authority_closed'::text, 'citizen_accepted'::text, 'independently_verified'::text, 'reopened'::text])))"
+        },
+        {
+          "name": "case_events_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "case_events_verified_by_fkey",
+          "definition": "FOREIGN KEY (verified_by) REFERENCES auth.users(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "case_media",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "case_hash",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "original_path",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "original_sha256",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "derivative_path",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "derivative_sha256",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "consent_public",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX case_media_pkey ON private.case_media USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "case_media_case_hash_fkey",
+          "definition": "FOREIGN KEY (case_hash) REFERENCES private.private_cases(token_hash) ON DELETE CASCADE"
+        },
+        {
+          "name": "case_media_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "case_videos",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "case_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "path",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "paths",
+          "type": "text[]",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX case_videos_case ON private.case_videos USING btree (case_hash)",
+        "CREATE UNIQUE INDEX case_videos_path_key ON private.case_videos USING btree (path)",
+        "CREATE UNIQUE INDEX case_videos_pkey ON private.case_videos USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "case_videos_case_hash_fkey",
+          "definition": "FOREIGN KEY (case_hash) REFERENCES private.private_cases(token_hash) ON DELETE CASCADE"
+        },
+        {
+          "name": "case_videos_path_key",
+          "definition": "UNIQUE (path)"
+        },
+        {
+          "name": "case_videos_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "case_videos_status_check",
+          "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'complete'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "complaint_packets",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "case_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "route_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "sha256",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "provider_id",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX complaint_packets_case_hash_key ON private.complaint_packets USING btree (case_hash)",
+        "CREATE UNIQUE INDEX complaint_packets_pkey ON private.complaint_packets USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "complaint_packets_case_hash_fkey",
+          "definition": "FOREIGN KEY (case_hash) REFERENCES private.private_cases(token_hash) ON DELETE CASCADE"
+        },
+        {
+          "name": "complaint_packets_case_hash_key",
+          "definition": "UNIQUE (case_hash)"
+        },
+        {
+          "name": "complaint_packets_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "complaint_packets_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        },
+        {
+          "name": "complaint_packets_route_id_fkey",
+          "definition": "FOREIGN KEY (route_id) REFERENCES complaint_routes(id)"
+        },
+        {
+          "name": "complaint_packets_sha256_check",
+          "definition": "CHECK ((sha256 ~ '^[a-f0-9]{64}$'::text))"
+        },
+        {
+          "name": "complaint_packets_status_check",
+          "definition": "CHECK ((status = ANY (ARRAY['prepared'::text, 'ready'::text, 'dispatching'::text, 'sent'::text, 'ambiguous'::text, 'failed'::text, 'declined'::text, 'acknowledged'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "corrections",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "work_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "field",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "supporting_evidence",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reviewer",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "decision",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX corrections_pkey ON private.corrections USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "corrections_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "corrections_reviewer_fkey",
+          "definition": "FOREIGN KEY (reviewer) REFERENCES auth.users(id)"
+        },
+        {
+          "name": "corrections_work_id_fkey",
+          "definition": "FOREIGN KEY (work_id) REFERENCES private.works(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "development_decisions",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "record_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX development_decisions_pkey ON private.development_decisions USING btree (record_id)"
+      ],
+      "constraints": [
+        {
+          "name": "development_decisions_pkey",
+          "definition": "PRIMARY KEY (record_id)"
+        },
+        {
+          "name": "development_decisions_record_id_fkey",
+          "definition": "FOREIGN KEY (record_id) REFERENCES private.development_drafts(id)"
+        },
+        {
+          "name": "development_decisions_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "development_drafts",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "batch_id",
+          "type": "text",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX development_drafts_pkey ON private.development_drafts USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "development_drafts_batch_id_fkey",
+          "definition": "FOREIGN KEY (batch_id) REFERENCES private.atlas_batches(id)"
+        },
+        {
+          "name": "development_drafts_document_id_fkey",
+          "definition": "FOREIGN KEY (document_id) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "development_drafts_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "development_publications",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "record_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "decisions",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX development_publications_pkey ON private.development_publications USING btree (record_id)"
+      ],
+      "constraints": [
+        {
+          "name": "development_publications_pkey",
+          "definition": "PRIMARY KEY (record_id)"
+        },
+        {
+          "name": "development_publications_record_id_fkey",
+          "definition": "FOREIGN KEY (record_id) REFERENCES private.development_drafts(id)"
+        },
+        {
+          "name": "development_publications_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "facts",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "work_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "stage",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "field",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "original_text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "normalized_value",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "locator",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "effective_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "extraction_method",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "extraction_version",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "reviewed_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "supersedes",
+          "type": "uuid",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX facts_pkey ON private.facts USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "facts_document_id_fkey",
+          "definition": "FOREIGN KEY (document_id) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "facts_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "facts_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        },
+        {
+          "name": "facts_supersedes_fkey",
+          "definition": "FOREIGN KEY (supersedes) REFERENCES private.facts(id)"
+        },
+        {
+          "name": "facts_work_id_fkey",
+          "definition": "FOREIGN KEY (work_id) REFERENCES private.works(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "financial_events",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "work_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "canonical_event_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "measure",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type": "numeric(24,2)",
+          "nullable": false
+        },
+        {
+          "name": "original_amount",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "original_unit",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "currency",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "event_kind",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "event_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "financial_year",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "fact_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "approved",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "supersedes",
+          "type": "uuid",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX financial_events_pkey ON private.financial_events USING btree (id)",
+        "CREATE INDEX financial_events_work ON private.financial_events USING btree (work_id, measure, event_date)"
+      ],
+      "constraints": [
+        {
+          "name": "financial_events_check",
+          "definition": "CHECK (((event_kind <> 'reversal'::text) OR (amount <= (0)::numeric)))"
+        },
+        {
+          "name": "financial_events_event_kind_check",
+          "definition": "CHECK ((event_kind = ANY (ARRAY['transaction'::text, 'cumulative'::text, 'reversal'::text])))"
+        },
+        {
+          "name": "financial_events_fact_id_fkey",
+          "definition": "FOREIGN KEY (fact_id) REFERENCES private.facts(id)"
+        },
+        {
+          "name": "financial_events_measure_check",
+          "definition": "CHECK ((measure = ANY (ARRAY['allocation'::text, 'sanction'::text, 'estimate'::text, 'contract'::text, 'variation'::text, 'gross_bill'::text, 'deduction'::text, 'payment'::text, 'transfer'::text])))"
+        },
+        {
+          "name": "financial_events_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "financial_events_supersedes_fkey",
+          "definition": "FOREIGN KEY (supersedes) REFERENCES private.financial_events(id)"
+        },
+        {
+          "name": "financial_events_work_id_fkey",
+          "definition": "FOREIGN KEY (work_id) REFERENCES private.works(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "flags",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "work_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "rule_version",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "explanation",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "evidence",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "uncertainty",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "source_search_success",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "expected_record_basis",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reviewer",
+          "type": "uuid",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX flags_pkey ON private.flags USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "flags_check",
+          "definition": "CHECK (((category <> 'missing_record'::text) OR (source_search_success AND (expected_record_basis IS NOT NULL))))"
+        },
+        {
+          "name": "flags_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "flags_reviewer_fkey",
+          "definition": "FOREIGN KEY (reviewer) REFERENCES auth.users(id)"
+        },
+        {
+          "name": "flags_work_id_fkey",
+          "definition": "FOREIGN KEY (work_id) REFERENCES private.works(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "funding_budget_drafts",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "record_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "row_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "parser_version",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "column_index",
+          "type": "integer",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX funding_budget_drafts_pkey ON private.funding_budget_drafts USING btree (record_id)"
+      ],
+      "constraints": [
+        {
+          "name": "funding_budget_drafts_column_index_check",
+          "definition": "CHECK (((column_index >= 0) AND (column_index <= 3)))"
+        },
+        {
+          "name": "funding_budget_drafts_pkey",
+          "definition": "PRIMARY KEY (record_id)"
+        },
+        {
+          "name": "funding_budget_drafts_record_id_fkey",
+          "definition": "FOREIGN KEY (record_id) REFERENCES private.funding_records(id)"
+        },
+        {
+          "name": "funding_budget_drafts_row_id_fkey",
+          "definition": "FOREIGN KEY (row_id) REFERENCES private.funding_budget_lines(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "funding_budget_interpretations",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "row_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "parser_version",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX funding_budget_interpretations_pkey ON private.funding_budget_interpretations USING btree (row_id, parser_version)"
+      ],
+      "constraints": [
+        {
+          "name": "funding_budget_interpretations_pkey",
+          "definition": "PRIMARY KEY (row_id, parser_version)"
+        },
+        {
+          "name": "funding_budget_interpretations_row_id_fkey",
+          "definition": "FOREIGN KEY (row_id) REFERENCES private.funding_budget_lines(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "funding_budget_lines",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "financial_year",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "classification",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "purpose",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "review_reason",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "reviewed_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX funding_budget_lines_pkey ON private.funding_budget_lines USING btree (id)",
+        "CREATE INDEX funding_budget_lines_year ON private.funding_budget_lines USING btree (financial_year, id)"
+      ],
+      "constraints": [
+        {
+          "name": "funding_budget_lines_classification_check",
+          "definition": "CHECK ((classification = ANY (ARRAY['included'::text, 'excluded'::text, 'mixed_unresolved'::text, 'awaiting_review'::text])))"
+        },
+        {
+          "name": "funding_budget_lines_document_id_fkey",
+          "definition": "FOREIGN KEY (document_id) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "funding_budget_lines_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "funding_budget_lines_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "funding_decisions",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "record_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "decision",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX funding_decisions_pkey ON private.funding_decisions USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "funding_decisions_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "funding_decisions_record_id_fkey",
+          "definition": "FOREIGN KEY (record_id) REFERENCES private.funding_records(id)"
+        },
+        {
+          "name": "funding_decisions_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "funding_publications",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "record_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "decision_id",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX funding_publications_pkey ON private.funding_publications USING btree (record_id)"
+      ],
+      "constraints": [
+        {
+          "name": "funding_publications_decision_id_fkey",
+          "definition": "FOREIGN KEY (decision_id) REFERENCES private.funding_decisions(id)"
+        },
+        {
+          "name": "funding_publications_pkey",
+          "definition": "PRIMARY KEY (record_id)"
+        },
+        {
+          "name": "funding_publications_record_id_fkey",
+          "definition": "FOREIGN KEY (record_id) REFERENCES private.funding_records(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "funding_records",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX funding_records_pkey ON private.funding_records USING btree (id)",
+        "CREATE INDEX funding_year_measure ON private.funding_records USING btree (((payload ->> 'financialYear'::text)), ((payload ->> 'measure'::text)))"
+      ],
+      "constraints": [
+        {
+          "name": "funding_records_document_id_fkey",
+          "definition": "FOREIGN KEY (document_id) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "funding_records_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "ingestion_candidates",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "source_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX ingestion_candidate_search ON private.ingestion_candidates USING gin (private.candidate_search_text(payload) gin_trgm_ops) WHERE (status = 'pending'::text)",
+        "CREATE UNIQUE INDEX ingestion_candidates_pkey ON private.ingestion_candidates USING btree (id)",
+        "CREATE INDEX ingestion_pending_order ON private.ingestion_candidates USING btree (status, id)"
+      ],
+      "constraints": [
+        {
+          "name": "ingestion_candidates_document_id_fkey",
+          "definition": "FOREIGN KEY (document_id) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "ingestion_candidates_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "ingestion_candidates_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        },
+        {
+          "name": "ingestion_candidates_source_id_fkey",
+          "definition": "FOREIGN KEY (source_id) REFERENCES sources(id)"
+        },
+        {
+          "name": "ingestion_candidates_status_check",
+          "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'published'::text, 'rejected'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "ingestion_runs",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "source_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "partition",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "checkpoint",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "name": "attempts",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "finished_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "failure_reason",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "parser_version",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX ingestion_runs_pkey ON private.ingestion_runs USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "ingestion_runs_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "ingestion_runs_source_id_fkey",
+          "definition": "FOREIGN KEY (source_id) REFERENCES sources(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "match_decisions",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "left_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "right_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "method",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "evidence",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reviewer",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "reviewed_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX match_decisions_pkey ON private.match_decisions USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "match_decisions_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "match_decisions_reviewer_fkey",
+          "definition": "FOREIGN KEY (reviewer) REFERENCES auth.users(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "private_cases",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "token_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reference",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "encrypted_payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "revoked_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX private_cases_pkey ON private.private_cases USING btree (token_hash)",
+        "CREATE UNIQUE INDEX private_cases_reference_key ON private.private_cases USING btree (reference)"
+      ],
+      "constraints": [
+        {
+          "name": "private_cases_pkey",
+          "definition": "PRIMARY KEY (token_hash)"
+        },
+        {
+          "name": "private_cases_reference_key",
+          "definition": "UNIQUE (reference)"
+        },
+        {
+          "name": "private_cases_token_hash_check",
+          "definition": "CHECK ((token_hash ~ '^[a-f0-9]{64}$'::text))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "request_limits",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "key_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "window_start",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "hits",
+          "type": "integer",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX request_limits_pkey ON private.request_limits USING btree (key_hash, window_start)"
+      ],
+      "constraints": [
+        {
+          "name": "request_limits_pkey",
+          "definition": "PRIMARY KEY (key_hash, window_start)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "source_documents",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "source_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "original_url",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "sha256",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "storage_path",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "content_type",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "retrieved_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "original_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "query_manifest",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "license_basis",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "parser_version",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "supersedes",
+          "type": "uuid",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX source_documents_pkey ON private.source_documents USING btree (id)",
+        "CREATE UNIQUE INDEX source_documents_source_id_sha256_key ON private.source_documents USING btree (source_id, sha256)"
+      ],
+      "constraints": [
+        {
+          "name": "source_documents_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "source_documents_sha256_check",
+          "definition": "CHECK ((sha256 ~ '^[a-f0-9]{64}$'::text))"
+        },
+        {
+          "name": "source_documents_source_id_fkey",
+          "definition": "FOREIGN KEY (source_id) REFERENCES sources(id)"
+        },
+        {
+          "name": "source_documents_source_id_sha256_key",
+          "definition": "UNIQUE (source_id, sha256)"
+        },
+        {
+          "name": "source_documents_supersedes_fkey",
+          "definition": "FOREIGN KEY (supersedes) REFERENCES private.source_documents(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "source_permission_reviews",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "permission_basis",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "evidence_reference",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX source_permission_reviews_pkey ON private.source_permission_reviews USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "source_permission_reviews_document_id_fkey",
+          "definition": "FOREIGN KEY (document_id) REFERENCES private.source_documents(id)"
+        },
+        {
+          "name": "source_permission_reviews_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "source_permission_reviews_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "works",
+      "schema": "private",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "purpose",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "area_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "original_identifiers",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "financial_year",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "source_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "location",
+          "type": "geometry(Point,4326)",
+          "nullable": true
+        },
+        {
+          "name": "location_precision",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "authority_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "physical_verification",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "publication_state",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX works_area ON private.works USING btree (area_id)",
+        "CREATE UNIQUE INDEX works_hisaab_id ON private.works USING btree (((original_identifiers ->> 'hisaab_id'::text)))",
+        "CREATE INDEX works_location ON private.works USING gist (location)",
+        "CREATE UNIQUE INDEX works_pkey ON private.works USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "works_area_id_fkey",
+          "definition": "FOREIGN KEY (area_id) REFERENCES areas(id)"
+        },
+        {
+          "name": "works_authority_id_fkey",
+          "definition": "FOREIGN KEY (authority_id) REFERENCES private.authorities(id)"
+        },
+        {
+          "name": "works_location_precision_check",
+          "definition": "CHECK ((location_precision = ANY (ARRAY['source_point'::text, 'address'::text, 'district'::text, 'unknown'::text])))"
+        },
+        {
+          "name": "works_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "works_publication_state_check",
+          "definition": "CHECK ((publication_state = ANY (ARRAY['pending'::text, 'approved'::text, 'withdrawn'::text])))"
+        },
+        {
+          "name": "works_source_id_fkey",
+          "definition": "FOREIGN KEY (source_id) REFERENCES sources(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "areas",
+      "schema": "public",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "code",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "kind",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "parent_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "aliases",
+          "type": "text[]",
+          "nullable": false
+        },
+        {
+          "name": "valid_from",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "valid_to",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "boundary_source",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "boundary_edition",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "boundary_license",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "boundary",
+          "type": "geometry(MultiPolygon,4326)",
+          "nullable": true
+        },
+        {
+          "name": "approved",
+          "type": "boolean",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX areas_boundary ON public.areas USING gist (boundary)",
+        "CREATE UNIQUE INDEX areas_code_kind_valid_from_key ON public.areas USING btree (code, kind, valid_from)",
+        "CREATE INDEX areas_parent ON public.areas USING btree (parent_id)",
+        "CREATE UNIQUE INDEX areas_pkey ON public.areas USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "areas_code_kind_valid_from_key",
+          "definition": "UNIQUE (code, kind, valid_from)"
+        },
+        {
+          "name": "areas_kind_check",
+          "definition": "CHECK ((kind = ANY (ARRAY['country'::text, 'state'::text, 'district'::text, 'subdistrict'::text, 'block'::text, 'village'::text, 'gp'::text, 'ulb'::text, 'ward'::text])))"
+        },
+        {
+          "name": "areas_parent_id_fkey",
+          "definition": "FOREIGN KEY (parent_id) REFERENCES areas(id)"
+        },
+        {
+          "name": "areas_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "complaint_routes",
+      "schema": "public",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "jurisdiction",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "authority",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "channel",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "destination",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "policy_url",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "policy_note",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "checked_at",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "expires_at",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "approved",
+          "type": "boolean",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX complaint_routes_pkey ON public.complaint_routes USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "complaint_routes_channel_check",
+          "definition": "CHECK ((channel = ANY (ARRAY['portal'::text, 'email'::text, 'postal'::text])))"
+        },
+        {
+          "name": "complaint_routes_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "coverage_cells",
+      "schema": "public",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "source_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "area_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "financial_year",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "record_type",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "stage",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "record_count",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "name": "expected_count",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "name": "denominator_basis",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "last_success_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "failure_reason",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "approved",
+          "type": "boolean",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX coverage_cells_pkey ON public.coverage_cells USING btree (id)",
+        "CREATE UNIQUE INDEX coverage_cells_source_id_area_id_financial_year_record_type_key ON public.coverage_cells USING btree (source_id, area_id, financial_year, record_type, stage)"
+      ],
+      "constraints": [
+        {
+          "name": "coverage_cells_area_id_fkey",
+          "definition": "FOREIGN KEY (area_id) REFERENCES areas(id)"
+        },
+        {
+          "name": "coverage_cells_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "coverage_cells_source_id_area_id_financial_year_record_type_key",
+          "definition": "UNIQUE (source_id, area_id, financial_year, record_type, stage)"
+        },
+        {
+          "name": "coverage_cells_source_id_fkey",
+          "definition": "FOREIGN KEY (source_id) REFERENCES sources(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "lgd_registry_editions",
+      "schema": "public",
+      "columns": [
+        {
+          "name": "source_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "source_url",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "assessed_at",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "district_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "state_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX lgd_registry_editions_pkey ON public.lgd_registry_editions USING btree (source_hash)",
+        "CREATE UNIQUE INDEX one_active_lgd_registry ON public.lgd_registry_editions USING btree (active) WHERE active"
+      ],
+      "constraints": [
+        {
+          "name": "lgd_registry_editions_pkey",
+          "definition": "PRIMARY KEY (source_hash)"
+        },
+        {
+          "name": "lgd_registry_editions_source_hash_check",
+          "definition": "CHECK ((source_hash ~ '^[a-f0-9]{64}$'::text))"
+        },
+        {
+          "name": "lgd_registry_editions_source_url_check",
+          "definition": "CHECK ((source_url ~ '^https://'::text))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "lgd_registry_members",
+      "schema": "public",
+      "columns": [
+        {
+          "name": "source_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "area_id",
+          "type": "text",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX lgd_registry_members_pkey ON public.lgd_registry_members USING btree (source_hash, area_id)"
+      ],
+      "constraints": [
+        {
+          "name": "lgd_registry_members_area_id_fkey",
+          "definition": "FOREIGN KEY (area_id) REFERENCES areas(id)"
+        },
+        {
+          "name": "lgd_registry_members_pkey",
+          "definition": "PRIMARY KEY (source_hash, area_id)"
+        },
+        {
+          "name": "lgd_registry_members_source_hash_fkey",
+          "definition": "FOREIGN KEY (source_hash) REFERENCES lgd_registry_editions(source_hash)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "publication_heads",
+      "schema": "public",
+      "columns": [
+        {
+          "name": "work_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "publication_version",
+          "type": "bigint",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX publication_heads_pkey ON public.publication_heads USING btree (work_id)"
+      ],
+      "constraints": [
+        {
+          "name": "publication_heads_pkey",
+          "definition": "PRIMARY KEY (work_id)"
+        },
+        {
+          "name": "publication_heads_work_id_fkey",
+          "definition": "FOREIGN KEY (work_id) REFERENCES private.works(id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "publication_snapshots",
+      "schema": "public",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "work_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "publication_version",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "approved",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "withdrawn_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX publication_payload_purpose_year ON public.publication_snapshots USING btree (((payload ->> 'purpose'::text)), ((payload ->> 'financialYear'::text))) WHERE (approved AND (withdrawn_at IS NULL))",
+        "CREATE INDEX publication_payload_search ON public.publication_snapshots USING gin (lower(((((((COALESCE((payload ->> 'title'::text), ''::text) || ' '::text) || COALESCE((payload ->> 'district'::text), ''::text)) || ' '::text) || COALESCE((payload ->> 'state'::text), ''::text)) || ' '::text) || COALESCE((payload ->> 'officialIds'::text), ''::text))) gin_trgm_ops) WHERE (approved AND (withdrawn_at IS NULL))",
+        "CREATE UNIQUE INDEX publication_snapshots_pkey ON public.publication_snapshots USING btree (id)",
+        "CREATE UNIQUE INDEX publication_snapshots_work_id_publication_version_key ON public.publication_snapshots USING btree (work_id, publication_version)"
+      ],
+      "constraints": [
+        {
+          "name": "publication_snapshots_payload_check",
+          "definition": "CHECK ((COALESCE(((payload ->> 'demo'::text))::boolean, false) = false))"
+        },
+        {
+          "name": "publication_snapshots_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "publication_snapshots_reviewed_by_fkey",
+          "definition": "FOREIGN KEY (reviewed_by) REFERENCES auth.users(id)"
+        },
+        {
+          "name": "publication_snapshots_work_id_fkey",
+          "definition": "FOREIGN KEY (work_id) REFERENCES private.works(id)"
+        },
+        {
+          "name": "publication_snapshots_work_id_publication_version_key",
+          "definition": "UNIQUE (work_id, publication_version)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "sources",
+      "schema": "public",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "official_url",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "family",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "access_method",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "terms_url",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "reuse_permission",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "acquisition_status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "last_checked",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "approved",
+          "type": "boolean",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX sources_pkey ON public.sources USING btree (id)"
+      ],
+      "constraints": [
+        {
+          "name": "sources_official_url_check",
+          "definition": "CHECK ((official_url ~ '^https://'::text))"
+        },
+        {
+          "name": "sources_pkey",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "SELECT",
+      "qual": "approved",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "areas",
+      "permissive": "PERMISSIVE",
+      "policyname": "approved_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(approved AND (expires_at >= CURRENT_DATE))",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "complaint_routes",
+      "permissive": "PERMISSIVE",
+      "policyname": "reviewed_routes",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "approved",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "coverage_cells",
+      "permissive": "PERMISSIVE",
+      "policyname": "approved_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "true",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "lgd_registry_editions",
+      "permissive": "PERMISSIVE",
+      "policyname": "registry_metadata_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "true",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "lgd_registry_members",
+      "permissive": "PERMISSIVE",
+      "policyname": "registry_members_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "true",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "publication_heads",
+      "permissive": "PERMISSIVE",
+      "policyname": "version_pointer_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(approved AND (withdrawn_at IS NULL) AND (EXISTS ( SELECT 1\n   FROM publication_heads h\n  WHERE ((h.work_id = publication_snapshots.work_id) AND (h.publication_version = publication_snapshots.publication_version)))))",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "publication_snapshots",
+      "permissive": "PERMISSIVE",
+      "policyname": "approved_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "approved",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "sources",
+      "permissive": "PERMISSIVE",
+      "policyname": "approved_read",
+      "schemaname": "public",
+      "with_check": null
+    }
+  ],
+  "functions": [
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "advance_publication_head",
+      "result": "trigger",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "assert_publication_evidence",
+      "result": "void",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p jsonb",
+      "securityDefiner": false
+    },
+    {
+      "acl": null,
+      "name": "candidate_search_text",
+      "result": "text",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_payload jsonb",
+      "securityDefiner": false
+    },
+    {
+      "acl": null,
+      "name": "check_candidate_edition",
+      "result": "trigger",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": false
+    },
+    {
+      "acl": null,
+      "name": "check_funding_insert",
+      "result": "trigger",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "immutable_publication_identity",
+      "result": "trigger",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "invalidate_atlas_document",
+      "result": "void",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_document uuid",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "invalidate_source_rights",
+      "result": "trigger",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "name": "is_admin",
+      "result": "boolean",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": true
+    },
+    {
+      "acl": null,
+      "name": "lock_budget_context",
+      "result": "trigger",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": false
+    },
+    {
+      "acl": null,
+      "name": "lock_candidate_original",
+      "result": "trigger",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": false
+    },
+    {
+      "acl": null,
+      "name": "lock_funding_inventory_original",
+      "result": "trigger",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "validate_funding_payload",
+      "result": "boolean",
+      "schema": "private",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "r jsonb",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "acknowledge_complaint",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid, p_attachment uuid, p_payload jsonb, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_atlas_batches",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_budget_context",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_offset integer, p_query text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_candidate",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_candidates",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_candidates_page",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_offset integer, p_limit integer, p_query text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_complaint_evidence",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_complaints",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_context",
+      "result": "uuid",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_corrections",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_development_record",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_funding",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_year text, p_offset integer, p_query text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_funding_inventory",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_year text, p_offset integer, p_query text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_publications",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "admin_source_document_by_identity",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_source_id text, p_hash text, p_url text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "append_private_case_event",
+      "result": "uuid",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text, p_type text, p_payload jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "begin_case_video",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid, p_hash text, p_path text, p_payload jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "bootstrap_first_admin",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_user uuid",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "case_videos",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "catalogue_map",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_west numeric, p_south numeric, p_east numeric, p_north numeric, p_limit integer",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "catalogue_map_clusters",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_west numeric, p_south numeric, p_east numeric, p_north numeric, p_query text, p_purpose text, p_year text",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "catalogue_map_members",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_west numeric, p_south numeric, p_east numeric, p_north numeric, p_query text, p_purpose text, p_year text, p_offset integer",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "catalogue_map_points",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_west numeric, p_south numeric, p_east numeric, p_north numeric, p_query text, p_purpose text, p_year text, p_state text, p_offset integer",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "catalogue_money",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_measure text, p_district text, p_year text, p_from text, p_to text",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "catalogue_page",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_query text, p_purpose text, p_year text, p_offset integer, p_limit integer",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "catalogue_party_projects",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_party text, p_first text, p_last text, p_offset integer",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "catalogue_projects_page",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_query text, p_purpose text, p_year text, p_offset integer, p_limit integer, p_state text",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "catalogue_summary",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "classify_development",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text, p_patch jsonb, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "complete_case_video",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid, p_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "configure_case_video_paths",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid, p_hash text, p_paths text[]",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "consume_request_limit",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_key text, p_limit integer",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "delete_case_video",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text, p_id uuid",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "delete_expired_case",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "delete_private_case",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "development_history",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_scope text, p_programme text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "development_records",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_year text, p_measure text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "name": "draft_budget_funding",
+      "result": "text",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_row_id text, p_parser_version text, p_column integer, p_metadata jsonb, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "expired_case_files",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_limit integer",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "finish_complaint",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid, p_status text, p_provider text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "funding_history",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_state text, p_programme text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "funding_ingestion_capacity",
+      "result": "bigint",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "funding_records",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_year text, p_measure text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "import_lgd_registry",
+      "result": "integer",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text, p_date date, p_areas jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "list_case_attachments",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "list_case_media",
+      "result": "SETOF private.case_media",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "list_private_case_events",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "name": "prepare_atlas_project_reviews",
+      "result": "integer",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_batch text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "prepare_complaint",
+      "result": "uuid",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text, p_route text, p_payload jsonb, p_sha text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "publish_reviewed_candidate",
+      "result": "bigint",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text, p_payload jsonb, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "read_complaint",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "read_private_case",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "reconcile_candidate",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text, p_payload jsonb, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "register_atlas_original",
+      "result": "uuid",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_source jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "register_case_attachment",
+      "result": "uuid",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid, p_hash text, p_path text, p_sha text, p_metadata jsonb, p_event jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "register_case_media",
+      "result": "uuid",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid, p_hash text, p_original text, p_derivative text, p_original_hash text, p_derivative_hash text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "review_complaint",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid, p_action text, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "review_complaint_route",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_route jsonb, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "review_correction",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id uuid, p_decision text, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "review_development",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text, p_decisions jsonb, p_reason text, p_action text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "review_funding",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text, p_decision jsonb, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "review_funding_inventory",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text, p_classification text, p_purpose text, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "stage_atlas_batch",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_payload jsonb, p_sha text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "stage_budget_context",
+      "result": "integer",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_pdf_hash text, p_workbook_hash text, p_records jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "stage_funding",
+      "result": "integer",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_records jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "stage_funding_interpretations",
+      "result": "integer",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_rows jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "stage_funding_inventory",
+      "result": "integer",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text, p_year text, p_rows jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "stage_ingestion",
+      "result": "integer",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_source jsonb, p_document jsonb, p_candidates jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "store_private_case",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hash text, p_reference text, p_payload jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "submit_private_correction",
+      "result": "uuid",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_hisaab_id text, p_field text, p_payload jsonb",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "verify_source_permission",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_document uuid, p_basis text, p_evidence text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "withdraw_funding_source",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_document uuid, p_reason text",
+      "securityDefiner": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "withdraw_reviewed_work",
+      "result": "boolean",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "arguments": "p_id text, p_reason text",
+      "securityDefiner": true
+    }
+  ]
+}

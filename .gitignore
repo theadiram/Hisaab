@@ -37,3 +37,6 @@ design/supabase-hosted-security.png
 # Local review exports and video production sources are not website source.
 /output/
 /videos/
+
+# Local contributor Python environment
+.venv/

@@ -1,6 +1,6 @@
 # Hostinger deployment
 
-Hisaab runs as an unprivileged `hisaab` systemd service on Ubuntu 24.04, Node 24.14.0. Nginx terminates HTTPS and proxies only to 127.0.0.1:3000. Cloudflare remains the public proxy; map files remain on maps.adiram.me (R2). Supabase remains the application database.
+Hisaab runs as an unprivileged `hisaab` systemd service on Ubuntu 24.04, Node 24.14.0. Nginx terminates HTTPS and proxies only to 127.0.0.1:3000. Cloudflare remains the public proxy; map files remain on maps.adiram.me (R2). Public catalogue reads use PostgreSQL on the VPS through a restricted loopback API. Historical asset details/counts use the local SQLite edition; R2 delivers map files. Supabase Auth/private Storage remain retained and application writes are paused during migration. See [the current architecture](../../docs/architecture.md) and [catalogue guide](../../docs/vps-public-catalogue.md).
 
 ## Configuration
 
