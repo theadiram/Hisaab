@@ -64,13 +64,11 @@ export async function GET(request: Request) {
       .sort((a, b) => a.id.localeCompare(b.id));
     return Response.json({
       type: 'FeatureCollection',
-      features: matching
-        .slice(offset, offset + 5000)
-        .map((w) => ({
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: w.location },
-          properties: { id: w.id, title: w.title, purpose: w.purpose },
-        })),
+      features: matching.slice(offset, offset + 5000).map((w) => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: w.location },
+        properties: { id: w.id, title: w.title, purpose: w.purpose },
+      })),
       total: matching.length,
       nextOffset: matching.length > offset + 5000 ? offset + 5000 : null,
     });

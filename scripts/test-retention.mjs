@@ -1,3 +1,4 @@
+import { localTestDatabaseContainer } from './local-test-database.mjs';
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -18,7 +19,7 @@ const sql = (value) =>
     [
       'exec',
       '-i',
-      'supabase_db_Hisaab',
+      localTestDatabaseContainer(),
       'psql',
       '-U',
       'postgres',

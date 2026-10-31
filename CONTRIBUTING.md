@@ -52,6 +52,8 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
+For a differently named disposable project, set `HISAAB_TEST_DATABASE_CONTAINER=supabase_db_<project>` for Node integration scripts and `TEST_SUPABASE_URL=http://127.0.0.1:<local-api-port>` for browser tests. SQL checks must target that same explicit container.
+
 Database integration checks also live in `scripts/` and `.github/workflows/ci.yml`. They use disposable local services and include owner MFA, private-file isolation, publication and withdrawal checks. Some scripts create or delete synthetic records; do not run them against databases holding work you need to preserve. CI's required `validate` job is the complete acceptance gate.
 
 Use `npm run format` and `ruff format workers scripts` for intentional formatting changes. Check the diff before committing. Keep applied SQL migrations, source originals and generated datasets out of mechanical formatting changes.

@@ -1,5 +1,8 @@
 name: Hisaab validation
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
 permissions:
   contents: read
 jobs:
@@ -12,7 +15,9 @@ jobs:
         with:
           node-version: '24'
           cache: npm
+      - run: npm run check:publication
       - run: npm ci
+      - run: npm run format:check
       - name: Start disposable local database
         run: npx supabase start -x studio,realtime,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit > /tmp/hisaab-local-start.log 2>&1
       - run: node scripts/configure-local.mjs
@@ -29,7 +34,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python3 -m pip install -r workers/requirements.txt
+      - run: python3 -m pip install -r workers/requirements-dev.txt
+      - run: ruff format --check workers scripts
+      - run: python3 -m compileall -q workers scripts
       - run: python3 -m unittest discover -s workers -p '*test*.py'
       - run: npm run build
       - run: npx playwright install --with-deps chromium

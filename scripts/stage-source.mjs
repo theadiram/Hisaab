@@ -16,12 +16,10 @@ const client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SECRE
   auth: { persistSession: false },
 });
 const path = `${manifest.sourceId}/${hash}`;
-const uploaded = await client.storage
-  .from('source-originals')
-  .upload(path, original, {
-    contentType: manifest.contentType ?? 'application/pdf',
-    upsert: false,
-  });
+const uploaded = await client.storage.from('source-originals').upload(path, original, {
+  contentType: manifest.contentType ?? 'application/pdf',
+  upsert: false,
+});
 if (uploaded.error && uploaded.error.statusCode !== '409')
   throw new Error('Original storage rejected upload');
 const downloaded = await client.storage.from('source-originals').download(path);

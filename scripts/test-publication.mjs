@@ -1,3 +1,4 @@
+import { localTestDatabaseContainer } from './local-test-database.mjs';
 import { createClient } from '@supabase/supabase-js';
 import { execFileSync } from 'node:child_process';
 import { randomBytes, createHmac } from 'node:crypto';
@@ -25,7 +26,7 @@ function sql(value) {
     [
       'exec',
       '-i',
-      'supabase_db_Hisaab',
+      localTestDatabaseContainer(),
       'psql',
       '-U',
       'postgres',

@@ -44,12 +44,10 @@ it('retries a failed download instead of keeping a rejected promise', async () =
 it('rejects incomplete state editions and versions URLs against the original bytes', async () => {
   vi.stubGlobal(
     'fetch',
-    vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ type: 'FeatureCollection', features: [] }),
-      }),
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ type: 'FeatureCollection', features: [] }),
+    }),
   );
   const { loadMapBoundary, boundaryUrls } = await import('../src/lib/map-boundaries');
   await expect(loadMapBoundary('states')).rejects.toThrow('edition is incomplete');

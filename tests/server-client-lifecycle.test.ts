@@ -11,9 +11,16 @@ it('treats an empty optional catalogue URL as unconfigured', async () => {
   vi.stubEnv('HISAAB_CATALOGUE_API_URL', '  ');
   vi.stubEnv('SUPABASE_URL', 'http://127.0.0.1:59999');
   vi.stubEnv('SUPABASE_PUBLISHABLE_KEY', 'test-public-key');
+  const fetch = vi.fn(async (_input: RequestInfo | URL) => new Response('[]'));
+  vi.stubGlobal('fetch', fetch);
   const client = publicDb();
-  expect(client.supabaseUrl).toBe('http://127.0.0.1:59999');
-  await client.auth.stopAutoRefresh();
+  try {
+    await client.rpc('catalogue_summary');
+    expect(fetch.mock.calls[0]?.[0]).toBe('http://127.0.0.1:59999/rest/v1/rpc/catalogue_summary');
+  } finally {
+    await client.auth.stopAutoRefresh();
+    vi.unstubAllGlobals();
+  }
 });
 it('does not leave background refresh timers behind for request-scoped database clients', async () => {
   vi.stubEnv('SUPABASE_URL', 'http://127.0.0.1:59999');

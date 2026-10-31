@@ -1,39 +1,112 @@
 # Hisaab
 
-Hisaab is an evidence-led development atlas for India. Its public interface has three exploration screens: a clean satellite India opening, a state funding/development card and an asset/project receipt. Programme evidence, documented roles, sources, observations and private tracking open inside panels; the MFA owner console remains separate.
+**Hisaab is a community-built, evidence-led atlas for exploring public development and funding in India.** We connect public records to places and projects, show where the evidence comes from, and make gaps visible instead of filling them with guesses. We want people to build it together in the open.
 
-Current holdings include **812,976 preserved historical locations**, **86 reviewed PIB funding facts** and **zero published project/payment cards**. Historical locations and transfers do not establish individual project spending. Funding, reviewed projects and historical locations are independent map layers. Missing amounts remain unknown. Public release is blocked in the application.
+The project is being built in the open. Designers, developers, researchers, data contributors, writers, and testers are welcome. You do not need to be an expert to make a useful contribution.
 
-See [the implemented design and screenshots](docs/rebuild-design.md), [delivery status](docs/rebuild-status.md), [short data brief](docs/data-needed-brief.md) and [collector contract](docs/data-acquisition-contract.md).
+> **Data and map coverage are incomplete.** Hisaab includes 812,976 preserved historical location records. These are not a verified count of current assets, completed works, or project payments. A mapped location, budget allocation, tender, reported status, or contract amount does not by itself prove that a project was paid for or completed. Read the source and its limits before drawing conclusions.
 
-## Development
+## Start here
 
-Node 24; install with `npm ci`. Copy `.env.example` to `.env.local`, configure local Supabase and a persistent encryption key. Never commit populated environment files. `npm run dev` serves the private preview on localhost. For the configured hosted database, run `npm run dev:hosted`; credentials remain in ignored `.env.hosted`. Local Supabase can be started with the installed CLI; see `supabase/config.toml` and [implementation status](docs/implementation-status.md).
+- [Four contribution priorities](docs/contribution-priorities.md): legal protection, data verification, features, and mobile/accessibility/performance.
+- [Contributor setup and checks](CONTRIBUTING.md)
+- [Current architecture](docs/architecture.md) and [database guide](docs/database.md)
+- [Private security reporting](SECURITY.md)
 
-Use `npm run build:hosted` followed by `npm run start:hosted` for a production preview connected to the configured hosted database. Browser keys are embedded at build time, so a local-database build cannot be reused as a hosted release. Repository CI uses disposable local credentials; the Netlify build needs the hosted environment configured separately.
+## How to help
 
-Validation: `npm run typecheck`, `npm test`, `npm run build`, `npm run test:e2e`, `python3 -m unittest discover -s workers -p '*test*.py'`. Database access checks: `node scripts/database-security.mjs`; MFA and publication regression: `node scripts/test-admin.mjs` and `node scripts/test-publication.mjs`; catalogue/map regression: pipe `scripts/catalogue-security.sql` into local Postgres; publication policy regression: pipe `scripts/publication-security.sql` into local Postgres. The latter runs in a transaction and rolls back its disposable fixtures. Release audit: `npm run release:check` must fail until the published coverage gates are satisfied.
+Choose the kind of contribution that suits you:
 
-Source revocation regression: run `scripts/source-invalidation-security.sql` against disposable local Postgres; it rolls back all fixtures. `npm run intake:validate -- /absolute/path/batch.json` validates a collector package without staging or publishing it. The prepared 36 state/UT jobs are handoffs; no collector is dispatched by that command.
+- **Design and accessibility:** make the map and cards easier to understand, navigate, and use on different screens.
+- **Features and engineering:** pick an issue, discuss the approach, and send a pull request.
+- **Data research:** find official public records and document exactly what each source supports.
+- **Testing:** try the site on different devices and report clear steps to reproduce a problem.
+- **Writing and documentation:** improve setup instructions, explain a feature, or help new contributors get started.
 
-Hosted geography uses `HISAAB_GEOGRAPHY_MANIFEST`, immutable PMTiles archives and checksum-verified detail bundles. Build/package/upload/audit scripts are in `scripts/*geography*`. They preserve every source point at encoded zooms 0–9 and exact original receipt coordinates. Source drawing coordinates are quantized; they are not verified building footprints. The local SQLite store, private originals and credentials are excluded from production tracing. Configure the hosted manifest for deployment; do not package the 330 MB local fallback into server functions.
+### First contribution
 
-## Data and privacy
+1. Browse the repository’s open issues and discussions. If your idea is not listed, open an issue describing the problem or source you found.
+2. For a substantial change, discuss the approach with the maintainers before starting. This helps coordinate work and keeps contributions aligned with Hisaab’s evidence and privacy standards.
+3. Fork the repository or create a separate branch. Do not push directly to the default branch.
+4. Make a focused change and include relevant screenshots, source links, or notes on how you checked it.
+5. Open a pull request explaining what changed, why it helps, and anything reviewers should pay attention to. A maintainer will review it with you before it is merged or published.
 
-Amounts retain exact decimals and original units. Conflicting copies of the same financial event, uncited facts and cumulative snapshots are excluded from transaction totals. Source originals are checksummed; publication requires review. Official completion is distinct from independent physical verification.
+New to open source? Open an issue and say what you are interested in—design, code, research, data, writing, or testing. We can help find a good first task.
 
-Private reports use random capability links, hashed lookup identifiers and encrypted payloads. Tokens are exchanged for short-lived HttpOnly cookies and removed from the address bar. Photographs have encrypted originals and private metadata-stripped derivatives. PDF attachments preserve encrypted original bytes and require the owning case session. Videos use encrypted resumable chunks, checksum validation and case-only playback. Administrator review requires an active protected membership and authenticator MFA. No authority filing is implied by saving an observation or generating a draft.
+## Contributing data
 
-Collector originals and components stay private. Explicit evidence, rights and accounting decisions are required for publication. Source-rights revocation withdraws related snapshots and never silently restores them. Transfers received by a state remain separate from development physically attributed to it. Joint shares and combined headlines require documentary reconciliation.
+Data contributions should make it easier for another person to find and check the original evidence. Include:
 
-Complaint email dispatch is disabled until a dedicated verified Hisaab sender is configured. Accepted channels need current policy, exact citizen consent and owner review. CPGRAMS is a citizen portal route. An email provider receipt is not official registration; owner acknowledgement needs the original same-case document.
+- The original public source URL and the publishing authority
+- State or union territory, district, department, and financial year, when available
+- The exact page, table, row, record ID, or query used
+- The source’s publication date or reporting period
+- The amount exactly as reported, with its units and accounting meaning
+- Any relevant limitation, ambiguity, correction, or mismatch
 
-## Deployment
+Keep financial stages separate. A budget allocation is not a release; a release is not a project payment; a tender or contract amount is not proof of payment; a reported completion status is not independent confirmation of the work’s condition. Do not infer a missing amount, date, location, payment, or completion. Mark it unknown and explain what evidence would be needed to establish it.
 
-Target: Supabase in the separate Hisaab organisation and Netlify frontend; intended domain `adiram.me`. The hosted Supabase database is configured and verified. Delivery order is implementation and validation, GitHub upload and passing CI, then repository-connected Netlify staging. Direct-folder deployment is disabled. Netlify deployment and DNS cutover have not happened. Do not activate paid plans, change DNS, enable public release or populate unverified records as part of routine development.
+Contributors may identify and prepare evidence, but **adding a source or opening a pull request does not automatically approve it for publication**. Hisaab’s review process checks source identity, what the source actually says, links between records, accounting scope, location precision, reuse rights, and any conflicts before publishing a claim.
+
+See the [data acquisition contract](docs/data-acquisition-contract.md), [data coverage audit](docs/data-coverage-audit-2026-10-25.md), and [state development status](docs/state-development-current-status.md) for current scope and known gaps. Counts are dated and scoped; records from different collections may overlap and must not be added together as one total.
+
+## Privacy and safe contributions
+
+- Only contribute material that is public and permitted to share.
+- Do not commit passwords, API keys, populated environment files, private source originals, or personal information.
+- Do not publish private intake records or add unreviewed candidate data directly to the public catalogue.
+- If you find a security or privacy issue, do not post exploit details publicly. Contact the maintainers privately through the repository owner’s GitHub profile.
+
+## Run Hisaab locally
+
+### Requirements
+
+- Node.js 24
+- npm
+- A local Supabase instance for features that need the database
+
+### Setup
+
+```bash
+npm ci
+cp .env.example .env.local
+```
+
+Configure `.env.local` with local development values only. Never commit it. Follow the [contributor guide](CONTRIBUTING.md) for disposable local database setup. The dated implementation-status document is historical. Then start the development server:
+
+```bash
+npm run dev
+```
+
+The app runs at `http://localhost:3000`. Do not use hosted production credentials for local development or publish data as part of testing.
+
+### Useful project commands
+
+```bash
+npm run typecheck
+npm test
+npm run build
+npm run test:e2e
+python3 -m unittest discover -s workers -p '*test*.py'
+```
+
+Run the checks relevant to your change and note their results in your pull request. Some database checks require a running local Supabase instance; see the implementation status document for details. Do not run deployment, release, or data publication commands as part of routine contribution work.
+
+Current hosting uses a VPS application and public catalogue, SQLite historical geography and R2 map delivery. Supabase authentication/private services remain retained during migration; application writes are paused. GitHub merges do not automatically deploy production. See the [architecture guide](docs/architecture.md).
+
+## Project background
+
+- [Data needed and collection brief](docs/data-needed-brief.md)
+- [Data acquisition contract](docs/data-acquisition-contract.md)
+- [Data coverage audit](docs/data-coverage-audit-2026-10-25.md)
+- [State development collection status](docs/state-development-current-status.md)
+- [Implementation status](docs/implementation-status.md)
+- [Design and screenshots](docs/rebuild-design.md)
 
 ## Open-source license
 
 Hisaab’s original source code and project documentation are licensed under the [MIT License](LICENSE). You can use, modify, and redistribute them, including commercially, while preserving the copyright and license notice.
 
 Original code and documentation contributions are submitted under the MIT License unless explicitly agreed otherwise. Government records, datasets, maps, photographs, dependencies, and other third-party material retain their own terms and attribution requirements. See [licensing details](LICENSING.md).
+
+Thank you for helping make Hisaab more useful, understandable, and trustworthy.
