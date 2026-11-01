@@ -1241,10 +1241,12 @@
   .atlas-shell[data-screen='state'] .rail-right button[aria-label='Zoom in'],
   .atlas-shell[data-screen='state'] .rail-right button[aria-label='Zoom out'],
   .atlas-shell[data-screen='state'] .rail-right button[aria-label='Reset map north'],
+  .atlas-shell[data-screen='state'] .rail-right button[aria-label='Straighten map'],
   .atlas-shell[data-screen='state'] .rail-right button[aria-label='Toggle perspective'],
   .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Zoom in'],
   .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Zoom out'],
   .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Reset map north'],
+  .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Straighten map'],
   .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Toggle perspective'] {
     display: none;
   }
@@ -1259,6 +1261,16 @@
     background: #e9eff7;
     border-radius: 10px;
     font-size: 11px;
+  }
+}
+/* The full right rail needs about 440px of height; shorter phones use the settings map controls. */
+@media (max-width: 760px) and (max-height: 440px) {
+  .rail-right button[aria-label='Zoom in'],
+  .rail-right button[aria-label='Zoom out'],
+  .rail-right button[aria-label='Reset map north'],
+  .rail-right button[aria-label='Straighten map'],
+  .rail-right button[aria-label='Toggle perspective'] {
+    display: none;
   }
 }
 
@@ -1411,6 +1423,11 @@
   color: #c1d0cb;
 }
 .atlas-shell[data-theme='dark'] .atlas-year-toolbar select {
+  color: #f1f5f1;
+}
+/* The year select is transparent, so native option lists fall back to white behind light text. */
+.atlas-shell[data-theme='dark'] .atlas-year-toolbar option {
+  background: #10282e;
   color: #f1f5f1;
 }
 .atlas-shell[data-theme='dark'] .atlas-measures button[aria-pressed='true'] {
