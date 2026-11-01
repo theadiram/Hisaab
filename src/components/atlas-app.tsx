@@ -24,6 +24,7 @@ import {
   Moon,
   Sun,
   Plus,
+  RotateCcw,
   Search,
   Settings2,
   ShieldCheck,
@@ -433,6 +434,9 @@ export function AtlasApp({ catalogue }: { catalogue: Catalogue }) {
         <button aria-label="Reset map north" onClick={() => mapAction('north')}>
           <Compass size={21} />
         </button>
+        <button aria-label="Straighten map" onClick={() => mapAction('straighten')}>
+          <RotateCcw size={21} />
+        </button>
         <button aria-label="Toggle perspective" onClick={() => mapAction('perspective')}>
           3D
         </button>
@@ -593,6 +597,7 @@ export function AtlasApp({ catalogue }: { catalogue: Catalogue }) {
                       ['in', 'Zoom in'],
                       ['out', 'Zoom out'],
                       ['north', 'Reset north'],
+                      ['straighten', 'Straighten map'],
                       ['perspective', '3D perspective'],
                     ] as const
                   ).map(([type, label]) => (

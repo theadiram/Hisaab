@@ -1241,10 +1241,12 @@
   .atlas-shell[data-screen='state'] .rail-right button[aria-label='Zoom in'],
   .atlas-shell[data-screen='state'] .rail-right button[aria-label='Zoom out'],
   .atlas-shell[data-screen='state'] .rail-right button[aria-label='Reset map north'],
+  .atlas-shell[data-screen='state'] .rail-right button[aria-label='Straighten map'],
   .atlas-shell[data-screen='state'] .rail-right button[aria-label='Toggle perspective'],
   .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Zoom in'],
   .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Zoom out'],
   .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Reset map north'],
+  .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Straighten map'],
   .atlas-shell[data-screen='asset'] .rail-right button[aria-label='Toggle perspective'] {
     display: none;
   }

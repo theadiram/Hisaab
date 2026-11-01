@@ -20,6 +20,7 @@ export type MapAction = {
     | 'in'
     | 'out'
     | 'north'
+    | 'straighten'
     | 'india'
     | 'terrain'
     | 'satellite'
@@ -323,6 +324,9 @@ export function AtlasMap({
     if (action.type === 'in') m.zoomIn();
     else if (action.type === 'out') m.zoomOut();
     else if (action.type === 'north') m.resetNorth({ duration });
+    // Reset north only fixes rotation, so a tilted view stays tilted. Straighten
+    // levels the pitch and faces north together, returning a flat top-down map.
+    else if (action.type === 'straighten') m.resetNorthPitch({ duration });
     else if (action.type === 'india')
       m.fitBounds(
         [
