@@ -1415,6 +1415,11 @@
 .atlas-shell[data-theme='dark'] .atlas-year-toolbar select {
   color: #f1f5f1;
 }
+/* The year select is transparent, so native option lists fall back to white behind light text. */
+.atlas-shell[data-theme='dark'] .atlas-year-toolbar option {
+  background: #10282e;
+  color: #f1f5f1;
+}
 .atlas-shell[data-theme='dark'] .atlas-measures button[aria-pressed='true'] {
   background: #cafa70;
   color: #132620;
