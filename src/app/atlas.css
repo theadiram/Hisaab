@@ -1263,6 +1263,16 @@
     font-size: 11px;
   }
 }
+/* The full right rail needs about 440px of height; shorter phones use the settings map controls. */
+@media (max-width: 760px) and (max-height: 440px) {
+  .rail-right button[aria-label='Zoom in'],
+  .rail-right button[aria-label='Zoom out'],
+  .rail-right button[aria-label='Reset map north'],
+  .rail-right button[aria-label='Straighten map'],
+  .rail-right button[aria-label='Toggle perspective'] {
+    display: none;
+  }
+}
 
 /* A softly muted rural backdrop remains fixed behind the India silhouette. */
 .atlas-shell {
