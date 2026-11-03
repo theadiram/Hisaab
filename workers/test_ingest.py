@@ -117,5 +117,37 @@ class MultiRowSafetyTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(), digest)
 
 
+class RegistrationIdentityTests(unittest.TestCase):
+    def test_manifest_carries_registered_source_identity(self):
+        import json, tempfile, contextlib, io
+        from pathlib import Path
+        from unittest.mock import patch
+        import ingest
+
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            data = root / "data"
+            acquisition = data / "acquisition"
+            original = root / "export.csv"
+            original.write_text("work,amount\nW-1,100\n")
+            route = {"id": "test", "name": "Disposable test source", "family": "Test family"}
+            with (
+                patch.multiple(ingest, ROOT=root, DATA=data, ACQUISITION=acquisition),
+                patch.object(ingest, "source_record", return_value=route),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                ingest.register_document(
+                    "test", original, "https://example.gov.in/x.csv", "Fixture", "p", "text/csv"
+                )
+                with self.assertRaises(ValueError):
+                    ingest.register_document(
+                        "test", original, "https://example.gov.in/x.csv", "Fixture", "p", ""
+                    )
+            manifest = json.loads(next((acquisition / "documents").glob("*.json")).read_text())
+            self.assertEqual(manifest["sourceName"], "Disposable test source")
+            self.assertEqual(manifest["sourceFamily"], "Test family")
+            self.assertEqual(manifest["contentType"], "text/csv")
+
+
 if __name__ == "__main__":
     unittest.main()
