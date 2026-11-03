@@ -5,6 +5,7 @@ Only observed official links are followed; originals stay private.
 """
 
 import argparse
+import hashlib
 import json
 from urllib.parse import urlparse
 from ppms_project_dossiers import ROOT, source
@@ -36,6 +37,7 @@ def candidates(dossiers):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--max-projects", type=int, default=20)
+    parser.add_argument("--retry-failures", action="store_true")
     args = parser.parse_args()
     if not 1 <= args.max_projects <= 20:
         raise ValueError("Use at most twenty projects per checkpointed batch")
@@ -49,9 +51,16 @@ def main():
     )
     records, failures = previous["records"], previous["failures"]
     observed = candidates(dossiers)
-    attempted = {(r["projectCode"], r["sourceUrl"]) for r in records + failures}
+    if args.retry_failures and failures:
+        original = checkpoint.read_bytes()
+        (base / (hashlib.sha256(original).hexdigest() + ".checkpoint.json")).write_bytes(original)
+    attempted = {
+        (r["projectCode"], r["sourceUrl"])
+        for r in records + ([] if args.retry_failures else failures)
+    }
     pending = [(code, url) for code, url in observed if (code, url) not in attempted]
     for code, url in pending[: args.max_projects]:
+        failures = [f for f in failures if (f["projectCode"], f["sourceUrl"]) != (code, url)]
         try:
             html, metadata = source(url, base)
             tags = parse_geotags(html, code)
