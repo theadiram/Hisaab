@@ -79,6 +79,7 @@ def normalize(html):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--max-pages", type=int, default=5)
+    p.add_argument("--retry-failures", action="store_true")
     a = p.parse_args()
     if not 1 <= a.max_pages <= 5:
         raise ValueError("Use up to five district pages per batch")
@@ -102,7 +103,12 @@ def main():
     )
     path = base / "assessment.json"
     d = json.loads(path.read_text()) if path.exists() else dict(partitions=[], failures=[])
-    done = {x["source"]["url"] for x in d["partitions"]} | {x["url"] for x in d["failures"]}
+    done = {x["source"]["url"] for x in d["partitions"]}
+    if a.retry_failures and d["failures"]:
+        original = path.read_bytes()
+        (base / (hashlib.sha256(original).hexdigest() + ".checkpoint.json")).write_bytes(original)
+    else:
+        done |= {x["url"] for x in d["failures"]}
     n = 0
     for u in urls:
         if u in done:
@@ -110,6 +116,7 @@ def main():
         if n >= a.max_pages:
             break
         n += 1
+        d["failures"] = [x for x in d["failures"] if x["url"] != u]
         try:
             html, meta = source(u, base)
             records = normalize(html)
