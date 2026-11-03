@@ -167,6 +167,8 @@ def extract(file):
     destination.write_bytes(original)
     manifest = {
         "sourceId": "hppwd-pmgsy",
+        "sourceName": "HPPWD PMGSY-III official work report",
+        "sourceFamily": "state_publicworks",
         "sha256": digest,
         "url": URL,
         "permission": "pending",

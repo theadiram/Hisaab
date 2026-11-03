@@ -5,6 +5,9 @@ const hash = process.argv[2];
 if (!/^[a-f0-9]{64}$/.test(hash ?? '')) throw new Error('Supply a registered document SHA-256');
 process.loadEnvFile('.env.hosted');
 const manifest = JSON.parse(await readFile(`data/acquisition/documents/${hash}.json`, 'utf8'));
+for (const field of ['sourceName', 'sourceFamily', 'contentType'])
+  if (typeof manifest[field] !== 'string' || !manifest[field].trim())
+    throw new Error(`Document manifest is missing ${field}`);
 const originalOnly = process.argv.includes('--original-only');
 const extraction = originalOnly
   ? { candidates: [] }
@@ -17,7 +20,7 @@ const client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SECRE
 });
 const path = `${manifest.sourceId}/${hash}`;
 const uploaded = await client.storage.from('source-originals').upload(path, original, {
-  contentType: manifest.contentType ?? 'application/pdf',
+  contentType: manifest.contentType,
   upsert: false,
 });
 if (uploaded.error && uploaded.error.statusCode !== '409')
@@ -33,15 +36,15 @@ if (
 const result = await client.rpc('stage_ingestion', {
   p_source: {
     id: manifest.sourceId,
-    name: manifest.sourceName ?? 'HPPWD PMGSY-III official work report',
+    name: manifest.sourceName,
     official_url: manifest.contextUrl ?? manifest.url,
-    family: manifest.sourceFamily ?? 'state_publicworks',
+    family: manifest.sourceFamily,
   },
   p_document: {
     original_url: manifest.url,
     sha256: hash,
     storage_path: path,
-    content_type: manifest.contentType ?? 'application/pdf',
+    content_type: manifest.contentType,
     manifest,
     parser_version: manifest.parserVersion ?? extraction.candidates[0]?.review.mappingVersion,
   },

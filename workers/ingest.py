@@ -90,6 +90,7 @@ def fetch(args):
     with opener.open(request, timeout=30) as response:
         if response.status != 200:
             raise ValueError("Source did not return a successful document")
+        content_type = response.headers.get_content_type()
         body = response.read(100 * 1024 * 1024 + 1)
         if len(body) > 100 * 1024 * 1024:
             raise ValueError("Export exceeds 100 MB; split into permitted partitions")
@@ -98,13 +99,17 @@ def fetch(args):
     folder.mkdir(parents=True, exist_ok=True)
     destination = folder / digest
     destination.write_bytes(body)
-    register_document(args.source, destination, args.url, args.permission, args.partition)
+    register_document(
+        args.source, destination, args.url, args.permission, args.partition, content_type
+    )
 
 
-def register_document(source, file, url, permission, partition):
-    source_record(source)
+def register_document(source, file, url, permission, partition, content_type):
+    route = source_record(source)
     if not url.startswith("https://") or not permission.strip():
         raise ValueError("Official source URL and explicit permission basis required")
+    if not content_type or "/" not in content_type:
+        raise ValueError("Document content type required")
     original = Path(file)
     digest = sha(original)
     destination = DATA / "originals" / source / digest
@@ -113,6 +118,9 @@ def register_document(source, file, url, permission, partition):
         destination.write_bytes(original.read_bytes())
     manifest = {
         "sourceId": source,
+        "sourceName": route["name"],
+        "sourceFamily": route["family"],
+        "contentType": content_type,
         "sha256": digest,
         "url": url,
         "permission": permission,
@@ -375,6 +383,7 @@ def main():
     p.add_argument("--url", required=True)
     p.add_argument("--permission", required=True)
     p.add_argument("--partition", required=True)
+    p.add_argument("--content-type", required=True)
     p = commands.add_parser("fetch")
     p.add_argument("--source", required=True)
     p.add_argument("--url", required=True)
@@ -392,7 +401,9 @@ def main():
         if args.command == "release-check" and result["releaseBlockers"]:
             sys.exit(2)
     elif args.command == "register":
-        register_document(args.source, args.file, args.url, args.permission, args.partition)
+        register_document(
+            args.source, args.file, args.url, args.permission, args.partition, args.content_type
+        )
     elif args.command == "fetch":
         fetch(args)
     elif args.command == "extract-csv":
