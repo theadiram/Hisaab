@@ -1,0 +1,132 @@
+{
+  "batch_metadata": {
+    "jurisdiction": "Delhi-NCR",
+    "contributor_id": "community_contributor",
+    "submission_date": "2026-11-05"
+  },
+  "records": [
+    {
+      "project_name": "Delhi-Ghaziabad-Meerut RRTS (Namo Bharat)",
+      "issuing_authority": "NCRTC / MoHUA",
+      "admin_jurisdiction": "Delhi & UP (NCR)",
+      "stage": "Sanction",
+      "financial_year": "FY2025-26",
+      "monetary_amount": 30274,
+      "monetary_unit": "Crore",
+      "source_url": "https://www.ncrtc.in",
+      "exact_provenance": {
+        "document": "Cabinet Approval Sanction Order",
+        "debt_equity_ratio": "60:40",
+        "multilateral_funding": "ADB ($1,552M), AIIB ($500M)"
+      },
+      "discrepancy_flags": null
+    },
+    {
+      "project_name": "Delhi Metro Phase-IV (Package D2C-05 Viaduct)",
+      "issuing_authority": "DMRC",
+      "admin_jurisdiction": "Delhi UT",
+      "stage": "Award",
+      "financial_year": "FY2026-27",
+      "monetary_amount": 1373.36,
+      "monetary_unit": "Crore",
+      "source_url": "https://eprocure.gov.in/eprocure/app",
+      "exact_provenance": {
+        "tender_id": "2026_DMRC_920683_1",
+        "package_code": "D2C-05",
+        "scope": "Elevated viaduct, 10 elevated and 1 at-grade stations"
+      },
+      "discrepancy_flags": null
+    },
+    {
+      "project_name": "Delhi Metro Phase-IV (Lajpat Nagar-Saket Viaduct)",
+      "issuing_authority": "DMRC",
+      "admin_jurisdiction": "Delhi UT",
+      "stage": "Award",
+      "financial_year": "FY2025-26",
+      "monetary_amount": 447,
+      "monetary_unit": "Crore",
+      "source_url": "https://delhimetrorail.com",
+      "exact_provenance": {
+        "contractor": "Rail Vikas Nigam Ltd (RVNL)",
+        "scope": "Viaduct construction and architectural pre-engineered structures"
+      },
+      "discrepancy_flags": null
+    },
+    {
+      "project_name": "Barapullah Corridor Phase-III",
+      "issuing_authority": "Delhi PWD / GNCTD",
+      "admin_jurisdiction": "Delhi UT",
+      "stage": "Completion",
+      "financial_year": "FY2026-27",
+      "monetary_amount": 1622,
+      "monetary_unit": "Crore",
+      "source_url": "https://pwddelhi.gov.in",
+      "exact_provenance": {
+        "initial_sanction_2014": "1260.63 Crore",
+        "idle_payout_to_contractor": "255 Crore",
+        "contractor": "Larsen & Toubro (L&T)"
+      },
+      "discrepancy_flags": "7-year land acquisition delay in Nangli Razapur caused cost escalation from 1260 Cr to 1622 Cr."
+    },
+    {
+      "project_name": "Pragati Maidan Transit Tunnel",
+      "issuing_authority": "Delhi PWD / Commerce Ministry",
+      "admin_jurisdiction": "Delhi UT",
+      "stage": "Payment",
+      "financial_year": "FY2024-25",
+      "monetary_amount": 920,
+      "monetary_unit": "Crore",
+      "source_url": "https://pwddelhi.gov.in",
+      "exact_provenance": {
+        "contractor": "Larsen & Toubro (L&T)",
+        "audit_report_date": "June 2024"
+      },
+      "discrepancy_flags": "Severe structural seepage and drainage defects led to a ₹500 Cr penalty notice by PWD and a matching ₹500 Cr counter-claim by the contractor."
+    },
+    {
+      "project_name": "LNJP Hospital 22-Story New Block Expansion",
+      "issuing_authority": "Delhi PWD & Health Dept",
+      "admin_jurisdiction": "Delhi UT",
+      "stage": "Sanction",
+      "financial_year": "FY2025-26",
+      "monetary_amount": 650,
+      "monetary_unit": "Crore",
+      "source_url": "https://delhiplanning.delhi.gov.in",
+      "exact_provenance": {
+        "document": "GNCTD PWD Scope Revision Order",
+        "infrastructure_type": "Public Healthcare Facility"
+      },
+      "discrepancy_flags": "Cost escalation approved during structural scope expansion."
+    },
+    {
+      "project_name": "DURGA e-Auto Rozgar Scheme",
+      "issuing_authority": "Transport Dept / GNCTD",
+      "admin_jurisdiction": "Delhi UT",
+      "stage": "Payment",
+      "financial_year": "FY2026-27",
+      "monetary_amount": 100,
+      "monetary_unit": "Crore",
+      "source_url": "https://prsindia.org",
+      "exact_provenance": {
+        "document": "GNCTD Outcome Budget Allocations",
+        "scheme_type": "Direct Beneficiary Subsidy / EV Promotion"
+      },
+      "discrepancy_flags": null
+    },
+    {
+      "project_name": "Sanoth Depot Boundary Wall (Rithala-Kundli Corridor)",
+      "issuing_authority": "DMRC",
+      "admin_jurisdiction": "Delhi & Haryana (NCR)",
+      "stage": "Award",
+      "financial_year": "FY2026-27",
+      "monetary_amount": 44.4,
+      "monetary_unit": "Crore",
+      "source_url": "https://tenderkart.in",
+      "exact_provenance": {
+        "contractor": "M/s K.R. Anand",
+        "award_date": "October 2026"
+      },
+      "discrepancy_flags": null
+    }
+  ]
+}
