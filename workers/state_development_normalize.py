@@ -526,6 +526,92 @@ def telangana_budget(doc, extraction):
     return facts
 
 
+def telangana_maud_hyderabad_budget(doc, extraction):
+    """HYDRAA Demand XVII totals; allocations only, with no project/payment inference."""
+    if doc["sourceId"] != "telangana-maud-demand-17-2026":
+        return []
+    if (
+        doc["stateCode"] != "36"
+        or doc["sha256"] != "dccc41cfedc0f973ef4ac1b6a58694d10313ee3edcab1cb117c7f4ea0cde104b"
+    ):
+        raise ValueError("Telangana MA&UD source edition changed")
+
+    pages = {page["page"]: page["lines"] for page in extraction["pages"]}
+    result = []
+    layouts = [
+        (10, "Establishment Summary", "hyderabad_agency_establishment_total"),
+        (30, "Schemes Summary", "hyderabad_agency_scheme_total"),
+    ]
+    for page_number, heading, scope in layouts:
+        lines = pages.get(page_number)
+        if not lines:
+            raise ValueError(f"Telangana MA&UD source page {page_number} unavailable")
+        header = " ".join(row["text"] for row in lines[:10])
+        if not all(
+            token in header
+            for token in (
+                heading,
+                "Rupees in Lakhs",
+                "2024-25",
+                "2025-26",
+                "2026-27",
+                "HYDERABAD DISASTER RESPONSE",
+                "ASSET PROTECTION AGENCY",
+                "(HYDRAA)",
+            )
+        ):
+            raise ValueError(f"Telangana MA&UD {heading} header changed")
+        source_row = next(
+            (row for row in lines if re.search(r"\b2217\s+Urban Development\b", row["text"])),
+            None,
+        )
+        if source_row is None:
+            raise ValueError(f"Telangana MA&UD {heading} source row changed")
+        values = re.findall(r"\.{2,3}|-?\d[\d,]*\.\d{2}", source_row["text"])
+        if len(values) != 4:
+            raise ValueError(f"Telangana MA&UD {heading} fiscal columns changed")
+
+        for financial_year, estimate, column in [
+            ("2025-2026", "original", 1),
+            ("2025-2026", "revised", 2),
+            ("2026-2027", "original", 3),
+        ]:
+            source_amount = values[column]
+            result.append(
+                {
+                    "id": f"{doc['sha256']}:p{page_number}:head2217:{scope}:{financial_year}:{estimate}",
+                    "stateCode": "36",
+                    "financialYear": financial_year,
+                    "purposeLabel": "Hyderabad Disaster Response and Asset Protection Agency (HYDRAA)",
+                    "measure": "allocated",
+                    "estimate": estimate,
+                    "unit": "lakh",
+                    "sourceAmount": source_amount,
+                    "amountRupees": rupees(source_amount, "lakh"),
+                    "aggregation": scope,
+                    "budgetTableScope": "agency_demand_component",
+                    "origin": "state_budget_including_transfers",
+                    "sourceDemandCode": "XVII",
+                    "sourceHeadCode": "2217",
+                    "sourceGeographyLabel": "Hyderabad Disaster Response and Asset Protection Agency (HYDRAA)",
+                    "geographicPrecision": "agency_scope_not_resolved_to_project_or_locality",
+                    "classification": "administrative_context"
+                    if scope == "hyderabad_agency_establishment_total"
+                    else "mixed_or_unresolved",
+                    "reviewStatus": "awaiting_review",
+                    "publicationApproved": False,
+                    "source": reference(
+                        doc,
+                        f"Original PDF page {page_number}, {heading}, Head 2217 Urban Development row; {financial_year} {estimate} estimate column; source unit lakh",
+                    ),
+                    "notes": "Agency-level state budget estimate, not actual expenditure, a project allocation, a contract, or payment. Establishment and scheme totals are separate components and must not be added to Demand XVII totals again. The agency name establishes source attribution to HYDRAA; it does not provide a project location, ward, contractor, recipient, or completion evidence.",
+                }
+            )
+    if len(result) != 6:
+        raise ValueError("Telangana MA&UD HYDRAA fiscal row count changed")
+    return result
+
+
 def monthly_budget_context(doc, extraction):
     # Reuse only the verified overview field order, fiscal scope and crore unit.
     # The source heading says Budget Estimates; original/revised status is not
@@ -649,6 +735,7 @@ def main():
                 facts += ap_budget(doc, extraction)
             if doc["sourceId"] == "telangana-budget-2026-linked-1":
                 facts += telangana_budget(doc, extraction)
+            facts += telangana_maud_hyderabad_budget(doc, extraction)
             facts += additional_budget_records(doc, extraction)
             facts += remaining_budget_records(doc, extraction)
             facts += ap_programmes(doc, extraction)

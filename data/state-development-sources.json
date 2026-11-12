@@ -1575,6 +1575,21 @@
           "maxLinkedReports": 20
         },
         {
+          "id": "telangana-maud-demand-17-2026",
+          "kind": "budget",
+          "label": "Telangana FY2026–27 Demand XVII: Municipal Administration and Urban Development",
+          "url": "https://www.telangana.gov.in/wp-content/uploads/2026/05/Municipal_Administration__Urban_Development_Department_1773982256_.pdf",
+          "contextUrl": "https://www.telangana.gov.in/budget-2026-2027/",
+          "publishingAuthority": "Government of Telangana, Finance Department",
+          "publicationPeriod": "2026-03",
+          "maxDownloadSeconds": 180,
+          "connectTimeoutSeconds": 20,
+          "years": [
+            "2025-2026",
+            "2026-2027"
+          ]
+        },
+        {
           "id": "telangana-ifmis-context",
           "kind": "portal_access_context",
           "label": "IFMIS public landing page with official budget link; login records excluded",

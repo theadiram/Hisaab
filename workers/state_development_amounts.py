@@ -20,9 +20,13 @@ def rupees(value, unit):
 
 
 def reference(doc, locator):
-    return {
+    result = {
         "url": doc["url"],
         "sha256": doc["sha256"],
         "retrievedAt": doc["retrievedAt"],
         "locator": locator,
     }
+    for key in ("contextUrl", "publishingAuthority", "publicationDate", "publicationPeriod"):
+        if key in doc:
+            result[key] = doc[key]
+    return result
