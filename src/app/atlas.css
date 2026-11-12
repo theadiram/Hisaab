@@ -1411,6 +1411,7 @@
   color: #c1d0cb;
 }
 .atlas-shell[data-theme='dark'] .atlas-year-toolbar select {
+  background: #10282ef2;
   color: #f1f5f1;
 }
 .atlas-shell[data-theme='dark'] .atlas-measures button[aria-pressed='true'] {
