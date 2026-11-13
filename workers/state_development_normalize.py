@@ -612,6 +612,152 @@ def telangana_maud_hyderabad_budget(doc, extraction):
     return result
 
 
+def telangana_maud_hyderabad_capital_loans(doc, extraction):
+    """Explicit Hyderabad loan subheads; budget estimates, never releases or payments."""
+    if doc["sourceId"] != "telangana-maud-demand-17-2026":
+        return []
+    if (
+        doc["stateCode"] != "36"
+        or doc["sha256"] != "dccc41cfedc0f973ef4ac1b6a58694d10313ee3edcab1cb117c7f4ea0cde104b"
+    ):
+        raise ValueError("Telangana MA&UD source edition changed")
+
+    pages = {page["page"]: page["lines"] for page in extraction["pages"]}
+    for page_number in (13, 14):
+        lines = pages.get(page_number)
+        if not lines:
+            raise ValueError(f"Telangana MA&UD source page {page_number} unavailable")
+        header = " ".join(row["text"] for row in lines[:10])
+        if not all(
+            token in header
+            for token in (
+                "DEMAND",
+                "MUNICIPAL ADMINISTRATION AND URBAN DEVELOPMENT",
+                "Establishment",
+                "Rupees in Lakhs",
+                "2024-25",
+                "2025-26",
+                "2026-27",
+            )
+        ):
+            raise ValueError(f"Telangana MA&UD page {page_number} header changed")
+
+    subheads = [
+        {
+            "code": "07",
+            "labelPage": 13,
+            "totalPage": 13,
+            "labelFragments": ("Loans To Hyderabad Metro", "Water Supply & Sewerage Board"),
+            "label": "Loans to Hyderabad Metro Water Supply & Sewerage Board",
+            "sourceMajorHead": "6215",
+        },
+        {
+            "code": "08",
+            "labelPage": 13,
+            "totalPage": 13,
+            "labelFragments": (
+                "Loans To Hyderabad Metro",
+                "Water Supply & Sewerage Board for",
+                "Development Works",
+            ),
+            "label": "Loans to Hyderabad Metro Water Supply & Sewerage Board for Development Works",
+            "sourceMajorHead": "6215",
+        },
+        {
+            "code": "09",
+            "labelPage": 13,
+            "totalPage": 14,
+            "labelFragments": (
+                "Loans to Hyderabad Metro",
+                "Water Supply & Sewerage Board for",
+                "Sunkishala Intake Project KDWSP",
+            ),
+            "label": "Loans to Hyderabad Metro Water Supply & Sewerage Board for Sunkishala Intake Project KDWSP",
+            "sourceMajorHead": "6215",
+        },
+        {
+            "code": "04",
+            "labelPage": 14,
+            "totalPage": 14,
+            "labelFragments": ("Loans to HMRL for", "Hyderabad Metro Rail Project"),
+            "label": "Loans to HMRL for Hyderabad Metro Rail Project",
+            "sourceMajorHead": "6217",
+        },
+    ]
+    result = []
+    for subhead in subheads:
+        label_lines = pages[subhead["labelPage"]]
+        label_index = next(
+            (
+                index
+                for index, row in enumerate(label_lines)
+                if f"S.H.({subhead['code']})" in row["text"]
+                and subhead["labelFragments"][0] in row["text"]
+            ),
+            None,
+        )
+        if label_index is None:
+            raise ValueError(f"Telangana MA&UD Hyderabad subhead {subhead['code']} missing")
+        label_context = " ".join(row["text"] for row in label_lines[label_index : label_index + 4])
+        if not all(fragment in label_context for fragment in subhead["labelFragments"]):
+            raise ValueError(f"Telangana MA&UD Hyderabad subhead {subhead['code']} label changed")
+
+        total_lines = (
+            label_lines[label_index:]
+            if subhead["labelPage"] == subhead["totalPage"]
+            else pages[subhead["totalPage"]]
+        )
+        total_rows = [row for row in total_lines if f"Total S.H.({subhead['code']})" in row["text"]]
+        if not total_rows:
+            raise ValueError(f"Telangana MA&UD Hyderabad subhead {subhead['code']} total changed")
+        values = re.findall(r"\.{2,3}|-?\d[\d,]*\.\d{2}", total_rows[0]["text"])
+        if len(values) != 4:
+            raise ValueError(
+                f"Telangana MA&UD Hyderabad subhead {subhead['code']} fiscal columns changed"
+            )
+
+        for financial_year, estimate, column in [
+            ("2025-2026", "original", 1),
+            ("2025-2026", "revised", 2),
+            ("2026-2027", "original", 3),
+        ]:
+            source_amount = values[column]
+            result.append(
+                {
+                    "id": f"{doc['sha256']}:p{subhead['totalPage']}:sh{subhead['code']}:loan:{financial_year}:{estimate}",
+                    "stateCode": "36",
+                    "financialYear": financial_year,
+                    "purposeLabel": subhead["label"],
+                    "measure": "allocated",
+                    "estimate": estimate,
+                    "unit": "lakh",
+                    "sourceAmount": source_amount,
+                    "amountRupees": rupees(source_amount, "lakh"),
+                    "aggregation": "hyderabad_agency_budgeted_loan_subhead",
+                    "budgetTableScope": "capital_loan_subhead",
+                    "accountingInstrument": "state_budgeted_loan",
+                    "origin": "state_budget_including_transfers",
+                    "sourceDemandCode": "XVII",
+                    "sourceMajorHead": subhead["sourceMajorHead"],
+                    "sourceSubheadCode": subhead["code"],
+                    "sourceObjectLabel": "001 Other Receipts",
+                    "sourceGeographyLabel": subhead["label"],
+                    "geographicPrecision": "named_agency_or_programme_not_project_location",
+                    "classification": "mixed_or_unresolved",
+                    "reviewStatus": "awaiting_review",
+                    "publicationApproved": False,
+                    "source": reference(
+                        doc,
+                        f"Original PDF pages {subhead['labelPage']}–{subhead['totalPage']}, Demand XVII, Major Head {subhead['sourceMajorHead']}, S.H.({subhead['code']}) total; {financial_year} {estimate} estimate column; source unit lakh",
+                    ),
+                    "notes": "Budget estimate for a state loan subhead. The source object label is retained as '001 Other Receipts'; accounting direction and treatment require review. This is not evidence that a loan was sanctioned, released, received, spent, allocated to an individual work, or became a payment to a contractor. Original and revised estimates are alternatives and must not be added together. No project location, bill, recipient, transaction date, or completion evidence is supplied.",
+                }
+            )
+    if len(result) != 12:
+        raise ValueError("Telangana MA&UD Hyderabad capital-loan row count changed")
+    return result
+
+
 def monthly_budget_context(doc, extraction):
     # Reuse only the verified overview field order, fiscal scope and crore unit.
     # The source heading says Budget Estimates; original/revised status is not
@@ -736,6 +882,7 @@ def main():
             if doc["sourceId"] == "telangana-budget-2026-linked-1":
                 facts += telangana_budget(doc, extraction)
             facts += telangana_maud_hyderabad_budget(doc, extraction)
+            facts += telangana_maud_hyderabad_capital_loans(doc, extraction)
             facts += additional_budget_records(doc, extraction)
             facts += remaining_budget_records(doc, extraction)
             facts += ap_programmes(doc, extraction)
