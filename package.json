@@ -20,6 +20,7 @@
     "start:hosted": "node scripts/run-hosted.mjs start",
     "check:hosted": "node scripts/hosted-read-check.mjs",
     "intake:validate": "tsx scripts/validate-intake.ts",
+    "intake:prepare:hyderabad": "tsx scripts/prepare-hyderabad-budget-intake.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/*.{ts,mjs}\" \"*.{ts,mjs,json,md}\" \"docs/*.md\" \".github/**/*.{md,yml}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/*.{ts,mjs}\" \"*.{ts,mjs,json,md}\" \"docs/*.md\" \".github/**/*.{md,yml}\"",
     "check:publication": "node scripts/check-publication.mjs",

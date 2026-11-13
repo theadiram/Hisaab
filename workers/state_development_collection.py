@@ -173,6 +173,28 @@ def expects_pdf(url):
     return re.search(r"\.pdf(?:$|/)", urlparse(url).path, re.I) is not None
 
 
+def source_timeouts(source):
+    total = source.get("maxDownloadSeconds", 35)
+    connect = source.get("connectTimeoutSeconds", 12)
+    for label, value, maximum in [
+        ("maxDownloadSeconds", total, 300),
+        ("connectTimeoutSeconds", connect, 60),
+    ]:
+        if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= maximum:
+            raise ValueError(f"{label} must be an integer from 1 to {maximum}")
+    if connect > total:
+        raise ValueError("connectTimeoutSeconds cannot exceed maxDownloadSeconds")
+    return total, connect
+
+
+def source_metadata(source):
+    return {
+        key: source[key]
+        for key in ("publishingAuthority", "publicationDate", "publicationPeriod")
+        if key in source
+    }
+
+
 def fetch(source, state, refresh=False):
     url = source["url"]
     parsed = urlparse(url)
@@ -187,8 +209,13 @@ def fetch(source, state, refresh=False):
         if hashlib.sha256(raw).hexdigest() != receipt["sha256"]:
             raise ValueError("Original checksum changed")
         if not (expects_pdf(url) and receipt["contentType"] != "application/pdf"):
+            metadata = source_metadata(source)
+            if any(receipt.get(key) != value for key, value in metadata.items()):
+                receipt = {**receipt, **metadata}
+                write(checkpoint, receipt)
             return raw, receipt
     BASE.mkdir(parents=True, exist_ok=True)
+    max_download_seconds, connect_timeout_seconds = source_timeouts(source)
     with tempfile.TemporaryDirectory(dir=BASE) as folder:
         target = Path(folder) / "response"
         # Redirects are inspected before following so access never silently moves
@@ -205,9 +232,9 @@ def fetch(source, state, refresh=False):
                     "--proto",
                     "=https",
                     "--max-time",
-                    "35",
+                    str(max_download_seconds),
                     "--connect-timeout",
-                    "12",
+                    str(connect_timeout_seconds),
                     "--max-filesize",
                     "40000000",
                     "--dump-header",
@@ -265,6 +292,7 @@ def fetch(source, state, refresh=False):
             "publication": "private_only",
             "contentType": "application/pdf" if raw.lstrip().startswith(b"%PDF-") else "text/html",
             "intakeObjectFits": len(raw) <= 10000000,
+            **source_metadata(source),
         }
         write(checkpoint, receipt)
         return raw, receipt
@@ -340,15 +368,15 @@ def linked_report_window(links, source):
     return list(enumerate(links[offset : offset + limit], start=offset))
 
 
-def collect(state, kind=None, retry=False, refresh_indexes=False):
+def collect(state, kind=None, retry=False, refresh_indexes=False, update_public_summary=True):
     folder = BASE / state["code"]
     folder.mkdir(parents=True, exist_ok=True)
     with (folder / ".collection.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
-        return _collect(state, kind, retry, refresh_indexes)
+        return _collect(state, kind, retry, refresh_indexes, update_public_summary)
 
 
-def _collect(state, kind=None, retry=False, refresh_indexes=False):
+def _collect(state, kind=None, retry=False, refresh_indexes=False, update_public_summary=True):
     folder = BASE / state["code"]
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / "checkpoint.json"
@@ -368,6 +396,10 @@ def _collect(state, kind=None, retry=False, refresh_indexes=False):
             and expects_pdf(source["url"])
             and existing["contentType"] != "application/pdf"
         )
+        metadata = source_metadata(source)
+        metadata_changed = existing is not None and any(
+            existing.get(key) != value for key, value in metadata.items()
+        )
         if invalid_pdf:
             rejected = {
                 **existing,
@@ -383,6 +415,7 @@ def _collect(state, kind=None, retry=False, refresh_indexes=False):
         if (
             existing
             and not invalid_pdf
+            and not metadata_changed
             and source["kind"]
             not in ("budget_index", "monthly_expenditure_index", "procurement_index")
         ):
@@ -504,7 +537,8 @@ def _collect(state, kind=None, retry=False, refresh_indexes=False):
         result["updatedAt"] = now()
         result["completeCoverage"] = False
         write(path, result)
-        update_summary()
+        if update_public_summary:
+            update_summary()
     print(
         json.dumps(
             {
@@ -623,6 +657,11 @@ def main():
     parser.add_argument("--kind")
     parser.add_argument("--retry-failed", action="store_true")
     parser.add_argument("--refresh-indexes", action="store_true")
+    parser.add_argument(
+        "--no-summary",
+        action="store_true",
+        help="Preserve a scoped private acquisition without rebuilding cross-state public counts",
+    )
     args = parser.parse_args()
     if args.summary:
         update_summary()
@@ -632,7 +671,13 @@ def main():
         if args.all or args.state == code:
             s = next((s for s in plan["states"] if s["code"] == code), None)
             if s:
-                collect(s, args.kind, args.retry_failed, args.refresh_indexes)
+                collect(
+                    s,
+                    args.kind,
+                    args.retry_failed,
+                    args.refresh_indexes,
+                    update_public_summary=not args.no_summary,
+                )
 
 
 if __name__ == "__main__":

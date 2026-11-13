@@ -6,13 +6,15 @@ from unittest.mock import patch
 from types import SimpleNamespace
 from decimal import Decimal
 import state_development_collection as collection
-from state_development_collection import DocumentHTML, blocked
+from state_development_collection import DocumentHTML, blocked, source_metadata, source_timeouts
 from state_development_normalize import (
     rupees,
     source_projects,
     monthly_accounts,
     assam_sector_expenditure,
     telangana_budget,
+    telangana_maud_hyderabad_budget,
+    telangana_maud_hyderabad_capital_loans,
     monthly_budget_context,
 )
 from state_development_budget_tables import (
@@ -46,6 +48,36 @@ from state_development_remaining_tables import meghalaya_current_heads, gujarat_
 
 
 class StateEvidenceRules(unittest.TestCase):
+    def test_source_timeouts_are_bounded_and_connect_does_not_exceed_total(self):
+        self.assertEqual(source_timeouts({}), (35, 12))
+        self.assertEqual(
+            source_timeouts({"maxDownloadSeconds": 180, "connectTimeoutSeconds": 20}),
+            (180, 20),
+        )
+        for source in [
+            {"maxDownloadSeconds": True},
+            {"maxDownloadSeconds": 301},
+            {"connectTimeoutSeconds": 61},
+            {"maxDownloadSeconds": 10, "connectTimeoutSeconds": 20},
+        ]:
+            with self.assertRaises(ValueError):
+                source_timeouts(source)
+
+    def test_source_metadata_keeps_publication_period_separate_from_retrieval(self):
+        self.assertEqual(
+            source_metadata(
+                {
+                    "publishingAuthority": "Government of Telangana, Finance Department",
+                    "publicationPeriod": "2026-03",
+                    "retrievedAt": "2026-11-12",
+                }
+            ),
+            {
+                "publishingAuthority": "Government of Telangana, Finance Department",
+                "publicationPeriod": "2026-03",
+            },
+        )
+
     def test_goa_demand_details_reconcile_all_97_codes_to_independent_control(self):
         import sys, tempfile
         from pathlib import Path
@@ -857,6 +889,9 @@ class StateEvidenceRules(unittest.TestCase):
                 self.assertEqual(
                     (root / current["original"]).read_bytes(), b"<p>Revised official edition</p>"
                 )
+                with patch.object(collection, "update_summary") as update_summary:
+                    collection.collect(state, update_public_summary=False)
+                update_summary.assert_not_called()
                 self.assertFalse(cp["completeCoverage"])
 
     def test_html_soft_error_at_pdf_url_is_not_accepted_as_financial_evidence(self):
@@ -1180,6 +1215,133 @@ class StateEvidenceRules(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             telangana_budget(doc, {"pages": pages})
+
+    def test_telangana_maud_hydraa_rows_keep_establishment_and_schemes_separate(self):
+        def page(number, heading, amounts):
+            return {
+                "page": number,
+                "lines": [
+                    {
+                        "line": 1,
+                        "text": f"{heading} Rupees in Lakhs Accounts 2024-25 Budget Estimate 2025-26 Revised Estimate 2025-26 Budget Estimate 2026-27",
+                    },
+                    {
+                        "line": 2,
+                        "text": "HYDERABAD DISASTER RESPONSE AND ASSET PROTECTION AGENCY (HYDRAA)",
+                    },
+                    {"line": 3, "text": f"2217 Urban Development {amounts}"},
+                ],
+            }
+
+        doc = {
+            "sourceId": "telangana-maud-demand-17-2026",
+            "stateCode": "36",
+            "sha256": "dccc41cfedc0f973ef4ac1b6a58694d10313ee3edcab1cb117c7f4ea0cde104b",
+            "url": "https://www.telangana.gov.in/example.pdf",
+            "retrievedAt": "2026-11-12T00:00:00Z",
+            "publishingAuthority": "Government of Telangana, Finance Department",
+            "publicationPeriod": "2026-03",
+        }
+        records = telangana_maud_hyderabad_budget(
+            doc,
+            {
+                "pages": [
+                    page(10, "Establishment Summary", ".. 21,86.16 21,86.16 61,48.90"),
+                    page(30, "Schemes Summary", "25,40.40 100,00.00 60,00.00 50,00.00"),
+                ]
+            },
+        )
+        self.assertEqual(len(records), 6)
+        self.assertEqual(records[2]["amountRupees"], "614890000.00")
+        self.assertEqual(records[5]["amountRupees"], "500000000.00")
+        self.assertEqual(
+            {record["aggregation"] for record in records},
+            {"hyderabad_agency_establishment_total", "hyderabad_agency_scheme_total"},
+        )
+        self.assertTrue(all(record["measure"] == "allocated" for record in records))
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertEqual(records[0]["source"]["publicationPeriod"], "2026-03")
+        self.assertEqual(
+            records[0]["source"]["publishingAuthority"],
+            "Government of Telangana, Finance Department",
+        )
+        with self.assertRaisesRegex(ValueError, "source edition changed"):
+            telangana_maud_hyderabad_budget({**doc, "sha256": "0" * 64}, {"pages": []})
+
+        changed = page(10, "Establishment Summary", ".. 21,86.16 21,86.16")
+        with self.assertRaisesRegex(ValueError, "fiscal columns changed"):
+            telangana_maud_hyderabad_budget(
+                doc,
+                {
+                    "pages": [
+                        changed,
+                        page(30, "Schemes Summary", "25,40.40 100,00.00 60,00.00 50,00.00"),
+                    ]
+                },
+            )
+
+    def test_telangana_maud_hyderabad_capital_loans_remain_budget_estimates(self):
+        def row(line, text):
+            return {"line": line, "text": text}
+
+        header = (
+            "DEMAND MUNICIPAL ADMINISTRATION AND URBAN DEVELOPMENT Establishment "
+            "Rupees in Lakhs Accounts 2024-25 Budget Estimate 2025-26 Revised Estimate "
+            "2025-26 Budget Estimate 2026-27"
+        )
+        pages = [
+            {
+                "page": 13,
+                "lines": [
+                    row(1, header),
+                    row(2, "Total S.H.(07) 1.00 2.00 3.00 4.00"),
+                    row(3, "S.H.(07) Loans To Hyderabad Metro"),
+                    row(4, "Water Supply & Sewerage Board"),
+                    row(5, "Total S.H.(07) 454,95.50 635,00.00 635,00.00 555,12.00"),
+                    row(6, "S.H.(08) Loans To Hyderabad Metro"),
+                    row(7, "Water Supply & Sewerage Board for Development Works"),
+                    row(8, "Total S.H.(08) 725,00.00 1450,00.00 1450,00.00 1450,00.00"),
+                    row(9, "S.H.(09) Loans to Hyderabad Metro"),
+                    row(10, "Water Supply & Sewerage Board for Sunkishala Intake Project KDWSP"),
+                ],
+            },
+            {
+                "page": 14,
+                "lines": [
+                    row(1, header),
+                    row(2, "Total S.H.(09) 749,99.84 1000,00.00 1000,00.00 1000,00.00"),
+                    row(3, "S.H.(04) Loans to HMRL for"),
+                    row(4, "Hyderabad Metro Rail Project"),
+                    row(5, "Total S.H.(04) 249,99.00 500,00.00 500,00.00 500,00.00"),
+                ],
+            },
+        ]
+        doc = {
+            "sourceId": "telangana-maud-demand-17-2026",
+            "stateCode": "36",
+            "sha256": "dccc41cfedc0f973ef4ac1b6a58694d10313ee3edcab1cb117c7f4ea0cde104b",
+            "url": "https://www.telangana.gov.in/example.pdf",
+            "retrievedAt": "2026-11-12T00:00:00Z",
+        }
+        records = telangana_maud_hyderabad_capital_loans(doc, {"pages": pages})
+        self.assertEqual(len(records), 12)
+        self.assertEqual(records[2]["amountRupees"], "5551200000.00")
+        self.assertEqual(records[5]["amountRupees"], "14500000000.00")
+        self.assertEqual(records[-1]["amountRupees"], "5000000000.00")
+        self.assertEqual({record["measure"] for record in records}, {"allocated"})
+        self.assertEqual(
+            {record["accountingInstrument"] for record in records},
+            {"state_budgeted_loan"},
+        )
+        self.assertTrue(
+            all(record["sourceObjectLabel"] == "001 Other Receipts" for record in records)
+        )
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertTrue(all("payment" in record["notes"] for record in records))
+
+        pages[1]["lines"][4]["text"] = "Total S.H.(04) 500,00.00 500,00.00"
+        with self.assertRaisesRegex(ValueError, "fiscal columns changed"):
+            telangana_maud_hyderabad_capital_loans(doc, {"pages": pages})
 
 
 if __name__ == "__main__":
