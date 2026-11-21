@@ -1590,6 +1590,34 @@
           ]
         },
         {
+          "id": "hmda-audited-financials-2025-26",
+          "kind": "audited_financial_statements",
+          "label": "HMDA audited financial statements for FY2025–26",
+          "url": "https://www.hmda.gov.in/wp-content/uploads/2020/07/3.1_HMDA_Financials_2025-26.pdf",
+          "contextUrl": "https://www.hmda.gov.in/financial-information/",
+          "publishingAuthority": "Hyderabad Metropolitan Development Authority",
+          "publicationDate": "2026-07-01",
+          "maxDownloadSeconds": 180,
+          "connectTimeoutSeconds": 20,
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
+          "id": "hmda-q1-financials-2026-27",
+          "kind": "interim_financial_statements",
+          "label": "HMDA Q1 unaudited financial statements through June 2026",
+          "url": "https://www.hmda.gov.in/wp-content/uploads/2020/07/1_HMDA_Q1_Unaudited-Financials_June-2026.pdf",
+          "contextUrl": "https://www.hmda.gov.in/financial-information/",
+          "publishingAuthority": "Hyderabad Metropolitan Development Authority",
+          "publicationDate": "2026-08-13",
+          "maxDownloadSeconds": 180,
+          "connectTimeoutSeconds": 20,
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
           "id": "telangana-ifmis-context",
           "kind": "portal_access_context",
           "label": "IFMIS public landing page with official budget link; login records excluded",

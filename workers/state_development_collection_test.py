@@ -15,6 +15,7 @@ from state_development_normalize import (
     telangana_budget,
     telangana_maud_hyderabad_budget,
     telangana_maud_hyderabad_capital_loans,
+    hmda_financial_expenditure,
     monthly_budget_context,
 )
 from state_development_budget_tables import (
@@ -1342,6 +1343,107 @@ class StateEvidenceRules(unittest.TestCase):
         pages[1]["lines"][4]["text"] = "Total S.H.(04) 500,00.00 500,00.00"
         with self.assertRaisesRegex(ValueError, "fiscal columns changed"):
             telangana_maud_hyderabad_capital_loans(doc, {"pages": pages})
+
+    def test_hmda_financial_lines_remain_booked_expenditure_not_payments(self):
+        def row(line, text):
+            return {"line": line, "text": text}
+
+        doc = {
+            "sourceId": "hmda-audited-financials-2025-26",
+            "sourceKind": "audited_financial_statements",
+            "stateCode": "36",
+            "sha256": "bcded48b1acb30d2e22e61d4c5e68df9630ec430c594e653890e443795633545",
+            "url": "https://www.hmda.gov.in/example.pdf",
+            "retrievedAt": "2026-11-12T00:00:00Z",
+            "publishingAuthority": "Hyderabad Metropolitan Development Authority",
+            "publicationPeriod": "2026-07-01",
+        }
+        pages = [
+            {
+                "page": 11,
+                "lines": [
+                    row(1, "Capital Work in Progress"),
+                    row(2, "All amounts in lakhs in Indian Rupees"),
+                    row(3, "Particulars 2026 (Audited) 2025 (Audited)"),
+                    row(4, "Add: Additions during the year 1,50,708.39 36,190.00"),
+                ],
+            },
+            {
+                "page": 12,
+                "lines": [
+                    row(1, "Other Expenses"),
+                    row(2, "All amounts in lakhs in Indian Rupees"),
+                    row(3, "Particulars FY 2025-26 FY 2024-25"),
+                    row(4, "(i) Buildings 1,351.13 900.00"),
+                    row(5, "(iii) Parks,Flyovers and Lakes 36,751.94 20,000.00"),
+                    row(6, "(v) Urban Blocks 28,409.92 10,000.00"),
+                ],
+            },
+        ]
+        records = hmda_financial_expenditure(doc, {"pages": pages})
+        self.assertEqual(len(records), 4)
+        self.assertEqual(
+            [record["amountRupees"] for record in records],
+            ["15070839000.00", "135113000.00", "3675194000.00", "2840992000.00"],
+        )
+        self.assertEqual({record["measure"] for record in records}, {"reported_spent"})
+        self.assertEqual({record["accountingBasis"] for record in records}, {"booked_expenditure"})
+        self.assertEqual({record["reportStatus"] for record in records}, {"audited"})
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertTrue(all("payment" in record["notes"] for record in records))
+        self.assertEqual(records[0]["classification"], "capital_work_in_progress_additions")
+        self.assertEqual(records[1]["classification"], "maintenance_expense")
+
+        with self.assertRaisesRegex(ValueError, "source edition changed"):
+            hmda_financial_expenditure({**doc, "sha256": "0" * 64}, {"pages": pages})
+        pages[1]["lines"][5]["text"] = "(v) Urban Blocks 28,409.92"
+        with self.assertRaisesRegex(ValueError, "comparative columns changed"):
+            hmda_financial_expenditure(doc, {"pages": pages})
+
+    def test_hmda_q1_uses_current_quarter_column_and_interim_status(self):
+        def row(line, text):
+            return {"line": line, "text": text}
+
+        doc = {
+            "sourceId": "hmda-q1-financials-2026-27",
+            "sourceKind": "interim_financial_statements",
+            "stateCode": "36",
+            "sha256": "24e672cb064a862032d5b6a5003af6abb1560ff38559863399f7e1226300915f",
+            "url": "https://www.hmda.gov.in/example-q1.pdf",
+            "retrievedAt": "2026-11-12T00:00:00Z",
+        }
+        pages = [
+            {
+                "page": 10,
+                "lines": [
+                    row(1, "Capital Work in Progress"),
+                    row(2, "All amounts in lakhs in Indian Rupees"),
+                    row(3, "Particulars FY 2026-27 As at 31st March, 2026"),
+                    row(4, "Add: Additions during the year 97,670.07 1,50,708.39"),
+                ],
+            },
+            {
+                "page": 11,
+                "lines": [
+                    row(1, "Other Expenses"),
+                    row(2, "All amounts in lakhs in Indian Rupees"),
+                    row(3, "Particulars FY 2026-27 FY 2025-26"),
+                    row(4, "(i) Buildings 307.37 1,351.13"),
+                    row(5, "(iii) Parks,Flyovers and Lakes 11,927.56 36,751.94"),
+                    row(6, "(v) Urban Blocks 8,984.20 28,409.92"),
+                ],
+            },
+        ]
+        records = hmda_financial_expenditure(doc, {"pages": pages})
+        self.assertEqual(
+            [record["amountRupees"] for record in records],
+            ["9767007000.00", "30737000.00", "1192756000.00", "898420000.00"],
+        )
+        self.assertEqual(
+            {record["reportStatus"] for record in records},
+            {"unaudited_limited_review"},
+        )
+        self.assertEqual({record["periodEnd"] for record in records}, {"2026-06-30"})
 
 
 if __name__ == "__main__":

@@ -317,6 +317,144 @@ def monthly_accounts(doc, extraction):
     return facts
 
 
+def hmda_financial_expenditure(doc, extraction):
+    """Selected HMDA booked-accounting lines; never infer cash payment or project allocation."""
+    editions = {
+        "hmda-audited-financials-2025-26": {
+            "sha256": "bcded48b1acb30d2e22e61d4c5e68df9630ec430c594e653890e443795633545",
+            "financialYear": "2025-2026",
+            "periodStart": "2025-04-01",
+            "periodEnd": "2026-03-31",
+            "capitalPage": 11,
+            "expensePage": 12,
+            "capitalPeriodLabel": "2026 (Audited)",
+            "expensePeriodLabel": "FY 2025-26",
+            "reportStatus": "audited",
+            "periodBasis": "audited_financial_year",
+        },
+        "hmda-q1-financials-2026-27": {
+            "sha256": "24e672cb064a862032d5b6a5003af6abb1560ff38559863399f7e1226300915f",
+            "financialYear": "2026-2027",
+            "periodStart": "2026-04-01",
+            "periodEnd": "2026-06-30",
+            "capitalPage": 10,
+            "expensePage": 11,
+            "capitalPeriodLabel": "FY 2026-27",
+            "expensePeriodLabel": "FY 2026-27",
+            "reportStatus": "unaudited_limited_review",
+            "periodBasis": "quarter_to_date_interim_accounts",
+        },
+    }
+    edition = editions.get(doc["sourceId"])
+    if not edition:
+        return []
+    if doc["stateCode"] != "36" or doc["sha256"] != edition["sha256"]:
+        raise ValueError("HMDA financial source edition changed")
+
+    pages = {page["page"]: page["lines"] for page in extraction["pages"]}
+    capital_lines = pages.get(edition["capitalPage"])
+    expense_lines = pages.get(edition["expensePage"])
+    if not capital_lines or not expense_lines:
+        raise ValueError("HMDA financial statement pages unavailable")
+    capital_header = " ".join(row["text"] for row in capital_lines[:12])
+    expense_header = " ".join(row["text"] for row in expense_lines[:60])
+    if not all(
+        token in capital_header
+        for token in ("Capital Work in Progress", "All amounts in lakhs in Indian Rupees")
+    ):
+        raise ValueError("HMDA capital-work schedule header changed")
+    if not all(
+        token in expense_header
+        for token in ("Other Expenses", "All amounts in lakhs in Indian Rupees")
+    ):
+        raise ValueError("HMDA expense schedule header changed")
+    if edition["capitalPeriodLabel"] not in capital_header:
+        raise ValueError("HMDA capital-period column changed")
+    if edition["expensePeriodLabel"] not in expense_header:
+        raise ValueError("HMDA expense-period column changed")
+
+    selected = [
+        (
+            capital_lines,
+            "Add: Additions during the year",
+            "Capital Work in Progress additions",
+            "capital_work_in_progress_additions",
+            "infrastructure",
+        ),
+        (
+            expense_lines,
+            "(i) Buildings",
+            "Maintenance — Buildings",
+            "maintenance_expense",
+            "infrastructure",
+        ),
+        (
+            expense_lines,
+            "(iii) Parks,Flyovers and Lakes",
+            "Maintenance — Parks, Flyovers and Lakes",
+            "maintenance_expense",
+            "infrastructure",
+        ),
+        (
+            expense_lines,
+            "(v) Urban Blocks",
+            "Maintenance — Urban Blocks",
+            "maintenance_expense",
+            "other",
+        ),
+    ]
+    result = []
+    for lines, source_label, purpose, classification, purpose_code in selected:
+        matches = [row for row in lines if source_label in " ".join(row["text"].split())]
+        if len(matches) != 1:
+            raise ValueError(f"HMDA financial row changed: {source_label}")
+        values = re.findall(r"-?\d[\d,]*\.\d{2}", matches[0]["text"])
+        if len(values) != 2:
+            raise ValueError(f"HMDA comparative columns changed: {source_label}")
+        source_actual = values[0]
+        page_number = edition["capitalPage"] if lines is capital_lines else edition["expensePage"]
+        record_key = re.sub(r"[^a-z0-9]+", "_", purpose.lower()).strip("_")
+        result.append(
+            {
+                "id": f"{doc['sha256']}:p{page_number}:l{matches[0]['line']}:{record_key}",
+                "stateCode": "36",
+                "financialYear": edition["financialYear"],
+                "purposeLabel": purpose,
+                "purposeCode": purpose_code,
+                "measure": "reported_spent",
+                "estimate": "not_applicable",
+                "accountingBasis": "booked_expenditure",
+                "unit": "lakh",
+                "sourceActual": source_actual,
+                "amountRupees": rupees(source_actual, "lakh"),
+                "periodStart": edition["periodStart"],
+                "periodEnd": edition["periodEnd"],
+                "periodBasis": edition["periodBasis"],
+                "reportStatus": edition["reportStatus"],
+                "aggregation": "hmda_financial_statement_line",
+                "classification": classification,
+                "origin": "local_metropolitan_authority_accounts",
+                "sourceAgency": "Hyderabad Metropolitan Development Authority",
+                "sourceGeographyLabel": "Hyderabad Metropolitan Region",
+                "geographicPrecision": "agency_jurisdiction_not_project_location",
+                "reviewStatus": "awaiting_review",
+                "publicationApproved": False,
+                "source": reference(
+                    doc,
+                    f"Original PDF page {page_number}, line {matches[0]['line']}, {source_label}; {edition['financialYear']} current-period column; source unit lakh",
+                ),
+                "notes": (
+                    "Balance-sheet schedule addition to capital work in progress: a booked capital cost movement, not the closing balance, a cash payment, or an amount allocated to an identified project. It must not be assumed disjoint from income-statement expenses without review."
+                    if classification == "capital_work_in_progress_additions"
+                    else "Income-statement maintenance expense recorded by HMDA. Maintenance is retained separately from capital development, and this agency-level line is not an individual work, contract, bill, cash payment, or proof of completion."
+                ),
+            }
+        )
+    if len(result) != 4:
+        raise ValueError("HMDA selected financial row count changed")
+    return result
+
+
 def assam_sector_expenditure(doc, extraction):
     facts = []
     account = None
@@ -905,6 +1043,7 @@ def main():
             if doc["sourceKind"] == "reported_expenditure":
                 expenditure += monthly_accounts(doc, extraction)
                 facts += monthly_budget_context(doc, extraction)
+            expenditure += hmda_financial_expenditure(doc, extraction)
             if doc["sourceId"] == "assam-expenditure-2025":
                 expenditure += assam_sector_expenditure(doc, extraction)
             if doc["sourceKind"] in (
