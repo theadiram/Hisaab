@@ -20,6 +20,24 @@ const editions = {
     name: 'Rangareddy Gazette No.30: Mamidipally external road to the airport boundary',
     projectId: 'Mamidipally external road to airport boundary',
   },
+  'rangareddy-thimmaipally-industrial-park-form-c-2026': {
+    hash: '2bce7c4396492dea41de6fbae44dd6754d59f773467741c2bc273be68f7571e7',
+    url: 'https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17766777166951.pdf',
+    name: 'Rangareddy Gazette No.56: Thimmaipally Industrial Park',
+    projectId: 'Thimmaipally Industrial Park',
+  },
+  'rangareddy-chandanvelly-industrial-park-form-vii-2026': {
+    hash: '24b666c3593c91bbe9ab672b4fe91b469bebd0f9fab943b0aa4ca495a90c3a74',
+    url: 'https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17770225239079.pdf',
+    name: 'Rangareddy Gazette No.64: Chandanvelly Industrial Park',
+    projectId: 'Chandanvelly Industrial Park',
+  },
+  'rangareddy-radial-road-2-form-c-2026': {
+    hash: 'dc9e53530ee0c3c116ce2dcd0b7bf0ad33d36a747237012acf9891bb7b1245df',
+    url: 'https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17775411999453.pdf',
+    name: 'Rangareddy Gazette No.11: Radial Road-2 Budvel-Nacharam, Phase I',
+    projectId: 'Radial Road-2 Budvel-Nacharam NH-167N',
+  },
 } as const;
 
 type SourceId = keyof typeof editions;
@@ -36,10 +54,13 @@ const candidateSchema = z
       'Himayathsagar Bund Improvement & Eco Project',
       'Greenfield Radial Road Phase I: Raviryal-Meerkhanpet',
       'Mamidipally external road to airport boundary',
+      'Thimmaipally Industrial Park',
+      'Chandanvelly Industrial Park',
+      'Radial Road-2 Budvel-Nacharam NH-167N',
     ]),
     officialIds: z.array(z.string().min(1)).min(2).max(3),
     projectIdBasis: z.literal('official_gazette_or_notice_identifiers'),
-    purpose: z.enum(['environment', 'transport']),
+    purpose: z.enum(['environment', 'transport', 'industry']),
     stage: z.enum([
       'land_acquisition_public_declaration',
       'land_acquisition_form_vii_publication_request',
@@ -115,8 +136,8 @@ export function prepareRangareddyDistrictProjectIntake(
   const documents = checkpoint.documents
     .filter((document) => typeof document.sourceId === 'string' && document.sourceId in editions)
     .map((document) => documentSchema.parse(document));
-  if (documents.length !== 3 || new Set(documents.map((document) => document.sourceId)).size !== 3)
-    throw new Error('Expected three distinct Rangareddy project-notice documents');
+  if (documents.length !== 6 || new Set(documents.map((document) => document.sourceId)).size !== 6)
+    throw new Error('Expected six distinct Rangareddy project-notice documents');
 
   const documentByHash = new Map(documents.map((document) => [document.sha256, document]));
   for (const document of documents) {
@@ -145,7 +166,7 @@ export function prepareRangareddyDistrictProjectIntake(
   );
   const actualProjects = new Set(rows.map((row) => `${row.source.sha256}:${row.sourceProjectId}`));
   if (
-    rows.length !== 3 ||
+    rows.length !== 6 ||
     actualProjects.size !== expectedProjects.size ||
     [...actualProjects].some((identity) => !expectedProjects.has(identity))
   )
@@ -269,7 +290,7 @@ export function prepareRangareddyDistrictProjectIntake(
       denominatorSource: null,
       years: ['2025-2026', '2026-2027'],
       missing: [
-        'These three project headers are not a denominator for Rangareddy District projects.',
+        'These six project headers are not a denominator for Rangareddy District projects.',
         'Administrative and financial sanction, cost, contract, payment, progress and completion remain missing.',
         'Village and mandal names do not establish a precise project geometry or map point.',
         'Affected-party names and parcel-level schedules are deliberately excluded and remain private.',
@@ -277,7 +298,7 @@ export function prepareRangareddyDistrictProjectIntake(
       nextAction:
         'Obtain non-personal sanction orders, implementing-agency records, project geometry, contracts, bills, payments and completion evidence.',
       checkpoint:
-        'Three official source hashes and project headers were validated locally; originals, affected-party schedules and generated candidates remain private and unapproved.',
+        'Six official source hashes and project headers were validated locally; originals, affected-party schedules and generated candidates remain private and unapproved.',
     },
   }).package;
 }

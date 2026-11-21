@@ -38,6 +38,42 @@ const sources = [
     year: '2025-2026',
     ids: ['Gazette RR No.30', 'C/33/2023'],
   },
+  {
+    sourceId: 'rangareddy-thimmaipally-industrial-park-form-c-2026',
+    url: 'https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17766777166951.pdf',
+    sha256: '2bce7c4396492dea41de6fbae44dd6754d59f773467741c2bc273be68f7571e7',
+    projectId: 'Thimmaipally Industrial Park',
+    title: 'Thimmaipally Industrial Park',
+    purpose: 'industry',
+    stage: 'preliminary_land_acquisition_notification',
+    date: '2026-02-25',
+    year: '2025-2026',
+    ids: ['Gazette No.56', 'G1/141/2026'],
+  },
+  {
+    sourceId: 'rangareddy-chandanvelly-industrial-park-form-vii-2026',
+    url: 'https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17770225239079.pdf',
+    sha256: '24b666c3593c91bbe9ab672b4fe91b469bebd0f9fab943b0aa4ca495a90c3a74',
+    projectId: 'Chandanvelly Industrial Park',
+    title: 'Chandanvelly Industrial Park',
+    purpose: 'industry',
+    stage: 'land_acquisition_public_declaration',
+    date: '2026-03-24',
+    year: '2025-2026',
+    ids: ['Gazette No.64', 'G1/92/2018'],
+  },
+  {
+    sourceId: 'rangareddy-radial-road-2-form-c-2026',
+    url: 'https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17775411999453.pdf',
+    sha256: 'dc9e53530ee0c3c116ce2dcd0b7bf0ad33d36a747237012acf9891bb7b1245df',
+    projectId: 'Radial Road-2 Budvel-Nacharam NH-167N',
+    title: 'Radial Road-2 Budvel-Nacharam, Phase I',
+    purpose: 'transport',
+    stage: 'preliminary_land_acquisition_notification',
+    date: '2026-01-07',
+    year: '2025-2026',
+    ids: ['Gazette No.11', 'I/5528/2025'],
+  },
 ];
 
 function fixture() {
@@ -101,12 +137,12 @@ function fixture() {
 }
 
 describe('Rangareddy District project intake preparation', () => {
-  it('produces three project-header records without personal or financial data', () => {
+  it('produces six project-header records without personal or financial data', () => {
     const input = fixture();
     const batch = prepareRangareddyDistrictProjectIntake(input.candidates, input.checkpoint);
     expect(batch.version).toBe('hisaab-intake/1');
-    expect(batch.sources).toHaveLength(3);
-    expect(batch.projects).toHaveLength(3);
+    expect(batch.sources).toHaveLength(6);
+    expect(batch.projects).toHaveLength(6);
     expect(batch.projects.every((project) => project.district === 'Rangareddy')).toBe(true);
     expect(batch.projects.every((project) => project.location === null)).toBe(true);
     expect(batch.projects.every((project) => project.money.length === 0)).toBe(true);
