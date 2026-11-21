@@ -455,6 +455,128 @@ def hmda_financial_expenditure(doc, extraction):
     return result
 
 
+def hyderabad_district_land_acquisition_projects(doc, extraction):
+    """Project identity from District Collector notices; no financial stage is inferred."""
+    editions = {
+        "hyderabad-district-gandhi-sarovar-land-acquisition-2026": {
+            "sha256": "cb9e669c3ee6eecfe24e0e6e00f0d2282c0a5eb78baa403c8696f9e1236bfe2b",
+            "titleToken": "Gandhi Sarovar Project as a Part of Musi Riverfront Development Project",
+            "descriptionTokens": [
+                "Musi Riverfront Development Corporation Limited (MRDCL)",
+                "Ac 0.30 Gts.",
+                "Langer House and Quila Mohd Nagar Villages",
+                "Golconda Mandal",
+            ],
+            "noticeDate": "13/08/2026",
+            "stage": "preliminary_land_acquisition_notification",
+            "officialIds": ["MRDCL Gandhi Sarovar Project", "Form VI 13-08-2026"],
+            "projectTitle": "Gandhi Sarovar Project as part of the Musi Riverfront Development Project",
+            "implementingAgency": "Musi Riverfront Development Corporation Limited",
+            "mandals": ["Golconda"],
+            "villages": ["Langer House", "Quila Mohd Nagar"],
+            "sourceDocumentCount": 1,
+        },
+        "hyderabad-district-sh01-land-acquisition-2026": {
+            "sha256": "eb91dfc7f76d08c37c7d204fe2246a9221bd3c63127dfbf131557fc936cf4bac",
+            "titleToken": "Elevated Corridor from Paradise Junction to Shamirpet at ORR Junction",
+            "descriptionTokens": [
+                "SH-01",
+                "Thokatta",
+                "Kakaguda",
+                "Tirumalgherry",
+                "Machabollaram",
+            ],
+            "noticeDate": "04/08/2026",
+            "stage": "land_acquisition_public_declaration",
+            "officialIds": ["SH-01", "Public Declarations 30-37"],
+            "projectTitle": "Elevated Corridor from Paradise Junction to Shameerpet at ORR Junction on SH-01",
+            "implementingAgency": None,
+            "mandals": ["Tirumalgherry"],
+            "villages": ["Thokatta", "Kakaguda", "Tirumalgherry", "Machabollaram"],
+            "sourceDocumentCount": 8,
+        },
+        "hyderabad-district-nh44-land-acquisition-2026": {
+            "sha256": "c6849788f9870a3fe5b26f0192c57b4231fc7a0d6eca11225498867c85411551",
+            "titleToken": "Elevated Corridor from Paradise Junction to Bowenpally Dairy Farm Road",
+            "descriptionTokens": ["NH-44", "Gazette No.2,3,4,5,6,7"],
+            "noticeDate": "20/05/2026",
+            "stage": "land_acquisition_public_declaration",
+            "officialIds": ["NH-44", "Gazette Nos. 2-7"],
+            "projectTitle": "Elevated Corridor from Paradise Junction to Bowenpally Dairy Farm Road on NH-44",
+            "implementingAgency": None,
+            "mandals": ["Tirumalgherry", "Secunderabad"],
+            "villages": ["Thokatta", "Bowenpally", "Seetharampur", "Bholakpur"],
+            "sourceDocumentCount": 6,
+        },
+    }
+    edition = editions.get(doc["sourceId"])
+    if not edition:
+        return []
+    if doc["stateCode"] != "36" or doc["sha256"] != edition["sha256"]:
+        raise ValueError("Hyderabad District project-notice source edition changed")
+    tables = extraction.get("tables", [])
+    notice_tables = [
+        table
+        for table in tables
+        if table.get("rows")
+        and table["rows"][0] == ["Title", "Description", "Start Date", "End Date", "File"]
+    ]
+    if len(notice_tables) != 1 or len(notice_tables[0]["rows"]) != 2:
+        raise ValueError("Hyderabad District project-notice table changed")
+    title, description, start_date, _end_date, files = notice_tables[0]["rows"][1]
+    combined = f"{title} {description}"
+    if edition["titleToken"] not in combined or any(
+        token not in combined for token in edition["descriptionTokens"]
+    ):
+        raise ValueError("Hyderabad District project identity or geography changed")
+    if start_date != edition["noticeDate"]:
+        raise ValueError("Hyderabad District project notice date changed")
+    linked_documents = [
+        link
+        for link in extraction.get("links", [])
+        if link.get("url", "").lower().endswith(".pdf") and link.get("label") in files
+    ]
+    distinct_documents = {link["url"] for link in linked_documents}
+    if len(distinct_documents) != edition["sourceDocumentCount"]:
+        raise ValueError("Hyderabad District linked notice-document count changed")
+    notice_date = datetime.strptime(start_date, "%d/%m/%Y").date().isoformat()
+    return [
+        {
+            "id": f"{doc['sha256']}:table{notice_tables[0]['table']}:project",
+            "stateCode": "36",
+            "financialYear": "2026-2027",
+            "district": "Hyderabad",
+            "districtAreaId": "hyderabad-district",
+            "title": edition["projectTitle"],
+            "sourceProjectId": edition["officialIds"][0],
+            "officialIds": edition["officialIds"],
+            "projectIdBasis": "official_project_route_and_notice_labels",
+            "purpose": "transport" if "Corridor" in edition["projectTitle"] else "infrastructure",
+            "stage": edition["stage"],
+            "stageDate": notice_date,
+            "stageDateBasis": "district_notice_start_date",
+            "publishingAuthority": "District Collector, Hyderabad",
+            "implementingAgency": edition["implementingAgency"],
+            "mandals": edition["mandals"],
+            "villages": edition["villages"],
+            "location": None,
+            "locationPrecision": "district",
+            "projectCostRupees": None,
+            "contractAmountRupees": None,
+            "paymentAmountRupees": None,
+            "completionDate": None,
+            "linkedNoticeDocumentCount": len(distinct_documents),
+            "reviewStatus": "awaiting_review",
+            "publicationApproved": False,
+            "source": reference(
+                doc,
+                f"Official Hyderabad District notice table {notice_tables[0]['table']}, row 1; notice date {notice_date}; {len(distinct_documents)} linked notice PDF(s) observed but not normalized",
+            ),
+            "notes": "The District Collector page establishes a named project, district geography and a land-acquisition notice stage only. It does not establish administrative or financial sanction, project cost, contract award, expenditure, payment, physical progress, completion, a precise map point or the identity of affected people. Linked gazettes remain private source material and are not published by this candidate.",
+        }
+    ]
+
+
 def assam_sector_expenditure(doc, extraction):
     facts = []
     account = None
@@ -1021,6 +1143,7 @@ def main():
                 facts += telangana_budget(doc, extraction)
             facts += telangana_maud_hyderabad_budget(doc, extraction)
             facts += telangana_maud_hyderabad_capital_loans(doc, extraction)
+            projects += hyderabad_district_land_acquisition_projects(doc, extraction)
             facts += additional_budget_records(doc, extraction)
             facts += remaining_budget_records(doc, extraction)
             facts += ap_programmes(doc, extraction)

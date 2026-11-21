@@ -16,6 +16,7 @@ from state_development_normalize import (
     telangana_maud_hyderabad_budget,
     telangana_maud_hyderabad_capital_loans,
     hmda_financial_expenditure,
+    hyderabad_district_land_acquisition_projects,
     monthly_budget_context,
 )
 from state_development_budget_tables import (
@@ -1444,6 +1445,81 @@ class StateEvidenceRules(unittest.TestCase):
             {"unaudited_limited_review"},
         )
         self.assertEqual({record["periodEnd"] for record in records}, {"2026-06-30"})
+
+    def test_hyderabad_district_notices_create_projects_without_financial_claims(self):
+        editions = [
+            (
+                "hyderabad-district-gandhi-sarovar-land-acquisition-2026",
+                "cb9e669c3ee6eecfe24e0e6e00f0d2282c0a5eb78baa403c8696f9e1236bfe2b",
+                "Land Acquisition for MRDCL Gandhi Sarovar Project as a Part of Musi Riverfront Development Project",
+                "Musi Riverfront Development Corporation Limited (MRDCL) land acquisition Ac 0.30 Gts. at Langer House and Quila Mohd Nagar Villages, Golconda Mandal",
+                "13/08/2026",
+                ["View (2 MB)"],
+            ),
+            (
+                "hyderabad-district-sh01-land-acquisition-2026",
+                "eb91dfc7f76d08c37c7d204fe2246a9221bd3c63127dfbf131557fc936cf4bac",
+                "Elevated Corridor from Paradise Junction to Shamirpet at ORR Junction",
+                "SH-01 at Thokatta, Kakaguda, Tirumalgherry and Machabollaram",
+                "04/08/2026",
+                ["View (3 MB)"]
+                + [f"{n} ({'951 KB' if n == 33 else '3 MB'})" for n in range(31, 38)],
+            ),
+            (
+                "hyderabad-district-nh44-land-acquisition-2026",
+                "c6849788f9870a3fe5b26f0192c57b4231fc7a0d6eca11225498867c85411551",
+                "Elevated Corridor from Paradise Junction to Bowenpally Dairy Farm Road",
+                "NH-44 publication of Declaration Gazette No.2,3,4,5,6,7",
+                "20/05/2026",
+                ["View (807 KB)"] + [f"Gazette {n}" for n in range(3, 8)],
+            ),
+        ]
+        records = []
+        for source_id, source_hash, title, description, notice_date, labels in editions:
+            files = " ".join(labels)
+            extraction = {
+                "tables": [
+                    {
+                        "table": 1,
+                        "rows": [
+                            ["Title", "Description", "Start Date", "End Date", "File"],
+                            [title, description, notice_date, "31/12/2027", files],
+                        ],
+                    }
+                ],
+                "links": [
+                    {"label": label, "url": f"https://example.invalid/{index}.pdf"}
+                    for index, label in enumerate(labels)
+                ],
+            }
+            doc = {
+                "sourceId": source_id,
+                "sourceKind": "district_project_land_acquisition_notice",
+                "stateCode": "36",
+                "sha256": source_hash,
+                "url": "https://hyderabad.telangana.gov.in/notice/example/",
+                "retrievedAt": "2026-11-21T00:00:00Z",
+            }
+            records += hyderabad_district_land_acquisition_projects(doc, extraction)
+        self.assertEqual(len(records), 3)
+        self.assertEqual({record["district"] for record in records}, {"Hyderabad"})
+        self.assertEqual({record["financialYear"] for record in records}, {"2026-2027"})
+        self.assertTrue(all(record["projectCostRupees"] is None for record in records))
+        self.assertTrue(all(record["contractAmountRupees"] is None for record in records))
+        self.assertTrue(all(record["paymentAmountRupees"] is None for record in records))
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertEqual(records[0]["villages"], ["Langer House", "Quila Mohd Nagar"])
+
+        changed = editions[0]
+        with self.assertRaisesRegex(ValueError, "source edition changed"):
+            hyderabad_district_land_acquisition_projects(
+                {
+                    "sourceId": changed[0],
+                    "stateCode": "36",
+                    "sha256": "0" * 64,
+                },
+                {"tables": []},
+            )
 
 
 if __name__ == "__main__":
