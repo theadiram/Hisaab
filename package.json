@@ -24,6 +24,7 @@
     "intake:prepare:hmda": "tsx scripts/prepare-hmda-financial-intake.ts",
     "intake:prepare:hyderabad-district": "tsx scripts/prepare-hyderabad-district-project-intake.ts",
     "intake:prepare:rangareddy-district": "tsx scripts/prepare-rangareddy-district-project-intake.ts",
+    "intake:prepare:medchal-malkajgiri-district": "tsx scripts/prepare-medchal-malkajgiri-district-project-intake.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/*.{ts,mjs}\" \"*.{ts,mjs,json,md}\" \"docs/*.md\" \".github/**/*.{md,yml}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/*.{ts,mjs}\" \"*.{ts,mjs,json,md}\" \"docs/*.md\" \".github/**/*.{md,yml}\"",
     "check:publication": "node scripts/check-publication.mjs",
