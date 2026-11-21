@@ -6,13 +6,18 @@ from unittest.mock import patch
 from types import SimpleNamespace
 from decimal import Decimal
 import state_development_collection as collection
-from state_development_collection import DocumentHTML, blocked
+from state_development_collection import DocumentHTML, blocked, source_metadata, source_timeouts
 from state_development_normalize import (
     rupees,
     source_projects,
     monthly_accounts,
     assam_sector_expenditure,
     telangana_budget,
+    telangana_maud_hyderabad_budget,
+    telangana_maud_hyderabad_capital_loans,
+    hmda_financial_expenditure,
+    hyderabad_district_land_acquisition_projects,
+    rangareddy_district_land_acquisition_projects,
     monthly_budget_context,
 )
 from state_development_budget_tables import (
@@ -46,6 +51,36 @@ from state_development_remaining_tables import meghalaya_current_heads, gujarat_
 
 
 class StateEvidenceRules(unittest.TestCase):
+    def test_source_timeouts_are_bounded_and_connect_does_not_exceed_total(self):
+        self.assertEqual(source_timeouts({}), (35, 12))
+        self.assertEqual(
+            source_timeouts({"maxDownloadSeconds": 180, "connectTimeoutSeconds": 20}),
+            (180, 20),
+        )
+        for source in [
+            {"maxDownloadSeconds": True},
+            {"maxDownloadSeconds": 301},
+            {"connectTimeoutSeconds": 61},
+            {"maxDownloadSeconds": 10, "connectTimeoutSeconds": 20},
+        ]:
+            with self.assertRaises(ValueError):
+                source_timeouts(source)
+
+    def test_source_metadata_keeps_publication_period_separate_from_retrieval(self):
+        self.assertEqual(
+            source_metadata(
+                {
+                    "publishingAuthority": "Government of Telangana, Finance Department",
+                    "publicationPeriod": "2026-03",
+                    "retrievedAt": "2026-11-12",
+                }
+            ),
+            {
+                "publishingAuthority": "Government of Telangana, Finance Department",
+                "publicationPeriod": "2026-03",
+            },
+        )
+
     def test_goa_demand_details_reconcile_all_97_codes_to_independent_control(self):
         import sys, tempfile
         from pathlib import Path
@@ -857,6 +892,9 @@ class StateEvidenceRules(unittest.TestCase):
                 self.assertEqual(
                     (root / current["original"]).read_bytes(), b"<p>Revised official edition</p>"
                 )
+                with patch.object(collection, "update_summary") as update_summary:
+                    collection.collect(state, update_public_summary=False)
+                update_summary.assert_not_called()
                 self.assertFalse(cp["completeCoverage"])
 
     def test_html_soft_error_at_pdf_url_is_not_accepted_as_financial_evidence(self):
@@ -1180,6 +1218,388 @@ class StateEvidenceRules(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             telangana_budget(doc, {"pages": pages})
+
+    def test_telangana_maud_hydraa_rows_keep_establishment_and_schemes_separate(self):
+        def page(number, heading, amounts):
+            return {
+                "page": number,
+                "lines": [
+                    {
+                        "line": 1,
+                        "text": f"{heading} Rupees in Lakhs Accounts 2024-25 Budget Estimate 2025-26 Revised Estimate 2025-26 Budget Estimate 2026-27",
+                    },
+                    {
+                        "line": 2,
+                        "text": "HYDERABAD DISASTER RESPONSE AND ASSET PROTECTION AGENCY (HYDRAA)",
+                    },
+                    {"line": 3, "text": f"2217 Urban Development {amounts}"},
+                ],
+            }
+
+        doc = {
+            "sourceId": "telangana-maud-demand-17-2026",
+            "stateCode": "36",
+            "sha256": "dccc41cfedc0f973ef4ac1b6a58694d10313ee3edcab1cb117c7f4ea0cde104b",
+            "url": "https://www.telangana.gov.in/example.pdf",
+            "retrievedAt": "2026-11-12T00:00:00Z",
+            "publishingAuthority": "Government of Telangana, Finance Department",
+            "publicationPeriod": "2026-03",
+        }
+        records = telangana_maud_hyderabad_budget(
+            doc,
+            {
+                "pages": [
+                    page(10, "Establishment Summary", ".. 21,86.16 21,86.16 61,48.90"),
+                    page(30, "Schemes Summary", "25,40.40 100,00.00 60,00.00 50,00.00"),
+                ]
+            },
+        )
+        self.assertEqual(len(records), 6)
+        self.assertEqual(records[2]["amountRupees"], "614890000.00")
+        self.assertEqual(records[5]["amountRupees"], "500000000.00")
+        self.assertEqual(
+            {record["aggregation"] for record in records},
+            {"hyderabad_agency_establishment_total", "hyderabad_agency_scheme_total"},
+        )
+        self.assertTrue(all(record["measure"] == "allocated" for record in records))
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertEqual(records[0]["source"]["publicationPeriod"], "2026-03")
+        self.assertEqual(
+            records[0]["source"]["publishingAuthority"],
+            "Government of Telangana, Finance Department",
+        )
+        with self.assertRaisesRegex(ValueError, "source edition changed"):
+            telangana_maud_hyderabad_budget({**doc, "sha256": "0" * 64}, {"pages": []})
+
+        changed = page(10, "Establishment Summary", ".. 21,86.16 21,86.16")
+        with self.assertRaisesRegex(ValueError, "fiscal columns changed"):
+            telangana_maud_hyderabad_budget(
+                doc,
+                {
+                    "pages": [
+                        changed,
+                        page(30, "Schemes Summary", "25,40.40 100,00.00 60,00.00 50,00.00"),
+                    ]
+                },
+            )
+
+    def test_telangana_maud_hyderabad_capital_loans_remain_budget_estimates(self):
+        def row(line, text):
+            return {"line": line, "text": text}
+
+        header = (
+            "DEMAND MUNICIPAL ADMINISTRATION AND URBAN DEVELOPMENT Establishment "
+            "Rupees in Lakhs Accounts 2024-25 Budget Estimate 2025-26 Revised Estimate "
+            "2025-26 Budget Estimate 2026-27"
+        )
+        pages = [
+            {
+                "page": 13,
+                "lines": [
+                    row(1, header),
+                    row(2, "Total S.H.(07) 1.00 2.00 3.00 4.00"),
+                    row(3, "S.H.(07) Loans To Hyderabad Metro"),
+                    row(4, "Water Supply & Sewerage Board"),
+                    row(5, "Total S.H.(07) 454,95.50 635,00.00 635,00.00 555,12.00"),
+                    row(6, "S.H.(08) Loans To Hyderabad Metro"),
+                    row(7, "Water Supply & Sewerage Board for Development Works"),
+                    row(8, "Total S.H.(08) 725,00.00 1450,00.00 1450,00.00 1450,00.00"),
+                    row(9, "S.H.(09) Loans to Hyderabad Metro"),
+                    row(10, "Water Supply & Sewerage Board for Sunkishala Intake Project KDWSP"),
+                ],
+            },
+            {
+                "page": 14,
+                "lines": [
+                    row(1, header),
+                    row(2, "Total S.H.(09) 749,99.84 1000,00.00 1000,00.00 1000,00.00"),
+                    row(3, "S.H.(04) Loans to HMRL for"),
+                    row(4, "Hyderabad Metro Rail Project"),
+                    row(5, "Total S.H.(04) 249,99.00 500,00.00 500,00.00 500,00.00"),
+                ],
+            },
+        ]
+        doc = {
+            "sourceId": "telangana-maud-demand-17-2026",
+            "stateCode": "36",
+            "sha256": "dccc41cfedc0f973ef4ac1b6a58694d10313ee3edcab1cb117c7f4ea0cde104b",
+            "url": "https://www.telangana.gov.in/example.pdf",
+            "retrievedAt": "2026-11-12T00:00:00Z",
+        }
+        records = telangana_maud_hyderabad_capital_loans(doc, {"pages": pages})
+        self.assertEqual(len(records), 12)
+        self.assertEqual(records[2]["amountRupees"], "5551200000.00")
+        self.assertEqual(records[5]["amountRupees"], "14500000000.00")
+        self.assertEqual(records[-1]["amountRupees"], "5000000000.00")
+        self.assertEqual({record["measure"] for record in records}, {"allocated"})
+        self.assertEqual(
+            {record["accountingInstrument"] for record in records},
+            {"state_budgeted_loan"},
+        )
+        self.assertTrue(
+            all(record["sourceObjectLabel"] == "001 Other Receipts" for record in records)
+        )
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertTrue(all("payment" in record["notes"] for record in records))
+
+        pages[1]["lines"][4]["text"] = "Total S.H.(04) 500,00.00 500,00.00"
+        with self.assertRaisesRegex(ValueError, "fiscal columns changed"):
+            telangana_maud_hyderabad_capital_loans(doc, {"pages": pages})
+
+    def test_hmda_financial_lines_remain_booked_expenditure_not_payments(self):
+        def row(line, text):
+            return {"line": line, "text": text}
+
+        doc = {
+            "sourceId": "hmda-audited-financials-2025-26",
+            "sourceKind": "audited_financial_statements",
+            "stateCode": "36",
+            "sha256": "bcded48b1acb30d2e22e61d4c5e68df9630ec430c594e653890e443795633545",
+            "url": "https://www.hmda.gov.in/example.pdf",
+            "retrievedAt": "2026-11-12T00:00:00Z",
+            "publishingAuthority": "Hyderabad Metropolitan Development Authority",
+            "publicationPeriod": "2026-07-01",
+        }
+        pages = [
+            {
+                "page": 11,
+                "lines": [
+                    row(1, "Capital Work in Progress"),
+                    row(2, "All amounts in lakhs in Indian Rupees"),
+                    row(3, "Particulars 2026 (Audited) 2025 (Audited)"),
+                    row(4, "Add: Additions during the year 1,50,708.39 36,190.00"),
+                ],
+            },
+            {
+                "page": 12,
+                "lines": [
+                    row(1, "Other Expenses"),
+                    row(2, "All amounts in lakhs in Indian Rupees"),
+                    row(3, "Particulars FY 2025-26 FY 2024-25"),
+                    row(4, "(i) Buildings 1,351.13 900.00"),
+                    row(5, "(iii) Parks,Flyovers and Lakes 36,751.94 20,000.00"),
+                    row(6, "(v) Urban Blocks 28,409.92 10,000.00"),
+                ],
+            },
+        ]
+        records = hmda_financial_expenditure(doc, {"pages": pages})
+        self.assertEqual(len(records), 4)
+        self.assertEqual(
+            [record["amountRupees"] for record in records],
+            ["15070839000.00", "135113000.00", "3675194000.00", "2840992000.00"],
+        )
+        self.assertEqual({record["measure"] for record in records}, {"reported_spent"})
+        self.assertEqual({record["accountingBasis"] for record in records}, {"booked_expenditure"})
+        self.assertEqual({record["reportStatus"] for record in records}, {"audited"})
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertTrue(all("payment" in record["notes"] for record in records))
+        self.assertEqual(records[0]["classification"], "capital_work_in_progress_additions")
+        self.assertEqual(records[1]["classification"], "maintenance_expense")
+
+        with self.assertRaisesRegex(ValueError, "source edition changed"):
+            hmda_financial_expenditure({**doc, "sha256": "0" * 64}, {"pages": pages})
+        pages[1]["lines"][5]["text"] = "(v) Urban Blocks 28,409.92"
+        with self.assertRaisesRegex(ValueError, "comparative columns changed"):
+            hmda_financial_expenditure(doc, {"pages": pages})
+
+    def test_hmda_q1_uses_current_quarter_column_and_interim_status(self):
+        def row(line, text):
+            return {"line": line, "text": text}
+
+        doc = {
+            "sourceId": "hmda-q1-financials-2026-27",
+            "sourceKind": "interim_financial_statements",
+            "stateCode": "36",
+            "sha256": "24e672cb064a862032d5b6a5003af6abb1560ff38559863399f7e1226300915f",
+            "url": "https://www.hmda.gov.in/example-q1.pdf",
+            "retrievedAt": "2026-11-12T00:00:00Z",
+        }
+        pages = [
+            {
+                "page": 10,
+                "lines": [
+                    row(1, "Capital Work in Progress"),
+                    row(2, "All amounts in lakhs in Indian Rupees"),
+                    row(3, "Particulars FY 2026-27 As at 31st March, 2026"),
+                    row(4, "Add: Additions during the year 97,670.07 1,50,708.39"),
+                ],
+            },
+            {
+                "page": 11,
+                "lines": [
+                    row(1, "Other Expenses"),
+                    row(2, "All amounts in lakhs in Indian Rupees"),
+                    row(3, "Particulars FY 2026-27 FY 2025-26"),
+                    row(4, "(i) Buildings 307.37 1,351.13"),
+                    row(5, "(iii) Parks,Flyovers and Lakes 11,927.56 36,751.94"),
+                    row(6, "(v) Urban Blocks 8,984.20 28,409.92"),
+                ],
+            },
+        ]
+        records = hmda_financial_expenditure(doc, {"pages": pages})
+        self.assertEqual(
+            [record["amountRupees"] for record in records],
+            ["9767007000.00", "30737000.00", "1192756000.00", "898420000.00"],
+        )
+        self.assertEqual(
+            {record["reportStatus"] for record in records},
+            {"unaudited_limited_review"},
+        )
+        self.assertEqual({record["periodEnd"] for record in records}, {"2026-06-30"})
+
+    def test_hyderabad_district_notices_create_projects_without_financial_claims(self):
+        editions = [
+            (
+                "hyderabad-district-gandhi-sarovar-land-acquisition-2026",
+                "cb9e669c3ee6eecfe24e0e6e00f0d2282c0a5eb78baa403c8696f9e1236bfe2b",
+                "Land Acquisition for MRDCL Gandhi Sarovar Project as a Part of Musi Riverfront Development Project",
+                "Musi Riverfront Development Corporation Limited (MRDCL) land acquisition Ac 0.30 Gts. at Langer House and Quila Mohd Nagar Villages, Golconda Mandal",
+                "13/08/2026",
+                ["View (2 MB)"],
+            ),
+            (
+                "hyderabad-district-sh01-land-acquisition-2026",
+                "eb91dfc7f76d08c37c7d204fe2246a9221bd3c63127dfbf131557fc936cf4bac",
+                "Elevated Corridor from Paradise Junction to Shamirpet at ORR Junction",
+                "SH-01 at Thokatta, Kakaguda, Tirumalgherry and Machabollaram",
+                "04/08/2026",
+                ["View (3 MB)"]
+                + [f"{n} ({'951 KB' if n == 33 else '3 MB'})" for n in range(31, 38)],
+            ),
+            (
+                "hyderabad-district-nh44-land-acquisition-2026",
+                "c6849788f9870a3fe5b26f0192c57b4231fc7a0d6eca11225498867c85411551",
+                "Elevated Corridor from Paradise Junction to Bowenpally Dairy Farm Road",
+                "NH-44 publication of Declaration Gazette No.2,3,4,5,6,7",
+                "20/05/2026",
+                ["View (807 KB)"] + [f"Gazette {n}" for n in range(3, 8)],
+            ),
+        ]
+        records = []
+        for source_id, source_hash, title, description, notice_date, labels in editions:
+            files = " ".join(labels)
+            extraction = {
+                "tables": [
+                    {
+                        "table": 1,
+                        "rows": [
+                            ["Title", "Description", "Start Date", "End Date", "File"],
+                            [title, description, notice_date, "31/12/2027", files],
+                        ],
+                    }
+                ],
+                "links": [
+                    {"label": label, "url": f"https://example.invalid/{index}.pdf"}
+                    for index, label in enumerate(labels)
+                ],
+            }
+            doc = {
+                "sourceId": source_id,
+                "sourceKind": "district_project_land_acquisition_notice",
+                "stateCode": "36",
+                "sha256": source_hash,
+                "url": "https://hyderabad.telangana.gov.in/notice/example/",
+                "retrievedAt": "2026-11-21T00:00:00Z",
+            }
+            records += hyderabad_district_land_acquisition_projects(doc, extraction)
+        self.assertEqual(len(records), 3)
+        self.assertEqual({record["district"] for record in records}, {"Hyderabad"})
+        self.assertEqual({record["financialYear"] for record in records}, {"2026-2027"})
+        self.assertTrue(all(record["projectCostRupees"] is None for record in records))
+        self.assertTrue(all(record["contractAmountRupees"] is None for record in records))
+        self.assertTrue(all(record["paymentAmountRupees"] is None for record in records))
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertEqual(records[0]["villages"], ["Langer House", "Quila Mohd Nagar"])
+
+        changed = editions[0]
+        with self.assertRaisesRegex(ValueError, "source edition changed"):
+            hyderabad_district_land_acquisition_projects(
+                {
+                    "sourceId": changed[0],
+                    "stateCode": "36",
+                    "sha256": "0" * 64,
+                },
+                {"tables": []},
+            )
+
+    def test_rangareddy_notices_extract_only_project_headers(self):
+        editions = [
+            (
+                "rangareddy-himayathsagar-dargah-khaliz-khan-form-vii-2026",
+                "12f51f19751c7cc6afcff08c52fd2416147611e6e05b9f190bb262924b651dd5",
+                "2026-07-13",
+                6,
+                "GAZETTE NO.110 DATED: 13.07.2026 FORM VII Himayathsagar Bund Improvement & Eco Dargah Khaliz Khan",
+            ),
+            (
+                "rangareddy-greenfield-radial-road-form-vii-2026",
+                "5ebbda57de7c60ef4e94b70b25bab46dd50e3e45de0b1871460c2baee3764560",
+                "2026-09-17",
+                3,
+                "",
+            ),
+            (
+                "rangareddy-mamidipally-airport-road-form-c-2025",
+                "ce9b2711a577ecfed9f3d5787ed3cab9c7b4d20d3456149cc7fdac89fa8d946e",
+                "2025-10-11",
+                4,
+                "Gazette RR No. 30 11th, October, 2025 FORM-C New External Road from Sy.No.99/1 to Airport Mamidipally",
+            ),
+            (
+                "rangareddy-thimmaipally-industrial-park-form-c-2026",
+                "2bce7c4396492dea41de6fbae44dd6754d59f773467741c2bc273be68f7571e7",
+                "2026-02-25",
+                9,
+                "GAZETTE NO.56 Collector File No.G1/141/2026 Thimmaipally Establishment of Industrial Park",
+            ),
+            (
+                "rangareddy-chandanvelly-industrial-park-form-vii-2026",
+                "24b666c3593c91bbe9ab672b4fe91b469bebd0f9fab943b0aa4ca495a90c3a74",
+                "2026-03-24",
+                2,
+                "GAZETTE No.64 FORM VII Collector File:G1/92/2018 Chandanvelly Industrial Park by TSIIC",
+            ),
+            (
+                "rangareddy-radial-road-2-form-c-2026",
+                "dc9e53530ee0c3c116ce2dcd0b7bf0ad33d36a747237012acf9891bb7b1245df",
+                "2026-01-07",
+                5,
+                "GAZETTE NO.11 No. I/5528/2025 Radial Road -2 NH-167N Machanpally",
+            ),
+        ]
+        records = []
+        for source_id, source_hash, publication_date, page_count, header in editions:
+            doc = {
+                "sourceId": source_id,
+                "stateCode": "36",
+                "sha256": source_hash,
+                "url": "https://cdn.s3waas.gov.in/example.pdf",
+                "retrievedAt": "2026-11-21T00:00:00Z",
+                "publicationDate": publication_date,
+            }
+            extraction = {
+                "pages": [
+                    {"page": page, "lines": [{"line": 1, "text": header}] if page == 1 else []}
+                    for page in range(1, page_count + 1)
+                ]
+            }
+            records += rangareddy_district_land_acquisition_projects(doc, extraction)
+        self.assertEqual(len(records), 6)
+        self.assertEqual({record["district"] for record in records}, {"Rangareddy"})
+        self.assertEqual(
+            {record["financialYear"] for record in records}, {"2025-2026", "2026-2027"}
+        )
+        self.assertTrue(
+            all(record["sourceDocumentContainsAffectedPartyRecords"] for record in records)
+        )
+        self.assertTrue(all(record["projectCostRupees"] is None for record in records))
+        self.assertTrue(all(record["paymentAmountRupees"] is None for record in records))
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertEqual(
+            records[1]["sourceExtent"],
+            "18.5 km project length; Ac.5.29 Gts and Ac.0.17 Gts acquisition extents",
+        )
+        self.assertIn("source conflict retained", records[3]["sourceExtent"])
 
 
 if __name__ == "__main__":
