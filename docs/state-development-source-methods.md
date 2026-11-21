@@ -289,6 +289,7 @@ Preserve current department demands and budget figures; obtain CAG actuals and i
 
 - **monthly expenditure index** — [CAG Telangana monthly expenditure and annual account availability](https://cag.gov.in/en/state-accounts-report?defuat_state_id=93).
 - **budget index** — [Official Telangana Budget 2026–27 departmental volumes](https://www.telangana.gov.in/budget-2026-2027/).
+- **Hyderabad-focused budget source** — the official index links the FY2026–27 [Municipal Administration & Urban Development Demand XVII volume](https://www.telangana.gov.in/wp-content/uploads/2026/05/Municipal_Administration__Urban_Development_Department_1773982256_.pdf). The March 2026 volume reports separate HYDRAA establishment and scheme estimates in lakh for FY2025–26 and FY2026–27. Preserve those components separately; they are agency-level allocations, not GHMC expenditure, project locations, contracts, payments, or completion evidence. The preserved source edition has SHA-256 `dccc41cfedc0f973ef4ac1b6a58694d10313ee3edcab1cb117c7f4ea0cde104b`.
 - **portal access context** — [IFMIS public landing page with official budget link; login records excluded](https://ifmis.telangana.gov.in/login?module_type=budget-cadre).
 - **procurement index** — [CPPP-listed procurement source; verify current coverage and portal restrictions](https://eprocurement.telangana.gov.in/).
 

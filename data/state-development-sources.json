@@ -1575,6 +1575,82 @@
           "maxLinkedReports": 20
         },
         {
+          "id": "telangana-maud-demand-17-2026",
+          "kind": "budget",
+          "label": "Telangana FY2026–27 Demand XVII: Municipal Administration and Urban Development",
+          "url": "https://www.telangana.gov.in/wp-content/uploads/2026/05/Municipal_Administration__Urban_Development_Department_1773982256_.pdf",
+          "contextUrl": "https://www.telangana.gov.in/budget-2026-2027/",
+          "publishingAuthority": "Government of Telangana, Finance Department",
+          "publicationPeriod": "2026-03",
+          "maxDownloadSeconds": 180,
+          "connectTimeoutSeconds": 20,
+          "years": [
+            "2025-2026",
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "hmda-audited-financials-2025-26",
+          "kind": "audited_financial_statements",
+          "label": "HMDA audited financial statements for FY2025–26",
+          "url": "https://www.hmda.gov.in/wp-content/uploads/2020/07/3.1_HMDA_Financials_2025-26.pdf",
+          "contextUrl": "https://www.hmda.gov.in/financial-information/",
+          "publishingAuthority": "Hyderabad Metropolitan Development Authority",
+          "publicationDate": "2026-07-01",
+          "maxDownloadSeconds": 180,
+          "connectTimeoutSeconds": 20,
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
+          "id": "hmda-q1-financials-2026-27",
+          "kind": "interim_financial_statements",
+          "label": "HMDA Q1 unaudited financial statements through June 2026",
+          "url": "https://www.hmda.gov.in/wp-content/uploads/2020/07/1_HMDA_Q1_Unaudited-Financials_June-2026.pdf",
+          "contextUrl": "https://www.hmda.gov.in/financial-information/",
+          "publishingAuthority": "Hyderabad Metropolitan Development Authority",
+          "publicationDate": "2026-08-13",
+          "maxDownloadSeconds": 180,
+          "connectTimeoutSeconds": 20,
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "hyderabad-district-gandhi-sarovar-land-acquisition-2026",
+          "kind": "district_project_land_acquisition_notice",
+          "label": "Hyderabad District preliminary land-acquisition notice for the MRDCL Gandhi Sarovar project",
+          "url": "https://hyderabad.telangana.gov.in/notice/land-acquisition-hyderabad-district-langer-house-and-quila-mohd-nagar-villages-of-golconda-mandal-musi-riverfront-development-corporation-limited-mrdcl-gandhi-sarovar-project-as/",
+          "publishingAuthority": "District Collector, Hyderabad",
+          "publicationDate": "2026-08-13",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "hyderabad-district-sh01-land-acquisition-2026",
+          "kind": "district_project_land_acquisition_notice",
+          "label": "Hyderabad District public declarations for the Paradise–Shameerpet SH-01 elevated corridor",
+          "url": "https://hyderabad.telangana.gov.in/notice/land-acquisition-hyderabad-district-tirumalagiri-mandal-thokatta-kakagudatirumalagirimachabollaram-villages-elevated-corridor-from-paradise-junction-to-shamirpet-at-orr-junction-on-rajiv-ra-3/",
+          "publishingAuthority": "District Collector, Hyderabad",
+          "publicationDate": "2026-08-04",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "hyderabad-district-nh44-land-acquisition-2026",
+          "kind": "district_project_land_acquisition_notice",
+          "label": "Hyderabad District public declarations for the Paradise–Bowenpally Dairy Farm Road NH-44 elevated corridor",
+          "url": "https://hyderabad.telangana.gov.in/notice/land-acquisition-publication-of-declaration-gazette-no-234567-has-been-approved-by-the-district-collector-hyderabad-for-construction-of-elevated-corridor-from-paradise-junction-to-bowenpally-d/",
+          "publishingAuthority": "District Collector, Hyderabad",
+          "publicationDate": "2026-05-20",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
           "id": "telangana-ifmis-context",
           "kind": "portal_access_context",
           "label": "IFMIS public landing page with official budget link; login records excluded",
