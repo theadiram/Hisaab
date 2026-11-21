@@ -18,6 +18,7 @@ from state_development_normalize import (
     hmda_financial_expenditure,
     hyderabad_district_land_acquisition_projects,
     rangareddy_district_land_acquisition_projects,
+    medchal_malkajgiri_district_land_acquisition_projects,
     monthly_budget_context,
 )
 from state_development_budget_tables import (
@@ -1600,6 +1601,59 @@ class StateEvidenceRules(unittest.TestCase):
             "18.5 km project length; Ac.5.29 Gts and Ac.0.17 Gts acquisition extents",
         )
         self.assertIn("source conflict retained", records[3]["sourceExtent"])
+
+    def test_medchal_notices_extract_only_project_headers(self):
+        editions = [
+            (
+                "medchal-madharam-industrial-park-form-c-2024",
+                "3ef1e15be573f1fd7f040c0741178191f19f1cd40262c5579638a8599de7c171",
+                "2024-12-06",
+                4,
+                "Gazette No.MMD - 11 FILE NO. G2/1992/2024 Madharam Village, Ghatkesar Mandal Establishment of Industrial Park",
+            ),
+            (
+                "medchal-kaleshwaram-ravalkola-link-form-c-2021",
+                "7baefba9d73f9f6e3840f69385de8a2ab5e75ccf71b5784b85c8acb48334eeed",
+                "2021-10-07",
+                3,
+                "",
+            ),
+            (
+                "medchal-lothukunta-sh01-corridor-award-2026",
+                "7bf3670fda0db5e4d967f7f608f9ce5b7b4878450f85bfd7e1883113e60aca8e",
+                "2026-03-28",
+                13,
+                "C/97l2024llothukunta Dated:28.03.2026 Lothukunta Elevated Corridor from Paradise Rajiv Rahadari (SH-01)-Award",
+            ),
+        ]
+        records = []
+        for source_id, source_hash, publication_date, page_count, header in editions:
+            doc = {
+                "sourceId": source_id,
+                "stateCode": "36",
+                "sha256": source_hash,
+                "url": "https://cdn.s3waas.gov.in/example.pdf",
+                "retrievedAt": "2026-11-21T00:00:00Z",
+                "publicationDate": publication_date,
+            }
+            extraction = {
+                "pages": [
+                    {"page": page, "lines": [{"line": 1, "text": header}] if page == 1 else []}
+                    for page in range(1, page_count + 1)
+                ]
+            }
+            records += medchal_malkajgiri_district_land_acquisition_projects(doc, extraction)
+        self.assertEqual(len(records), 3)
+        self.assertEqual({record["district"] for record in records}, {"Medchal-Malkajgiri"})
+        self.assertEqual(
+            {record["financialYear"] for record in records},
+            {"2021-2022", "2024-2025", "2025-2026"},
+        )
+        self.assertTrue(all(record["projectCostRupees"] is None for record in records))
+        self.assertTrue(all(record["paymentAmountRupees"] is None for record in records))
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertIn("source-format conflict retained", records[2]["sourceExtent"])
+        self.assertIn("conflict is retained for review", records[2]["notes"])
 
 
 if __name__ == "__main__":

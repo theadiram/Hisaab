@@ -1753,6 +1753,45 @@
           ]
         },
         {
+          "id": "medchal-madharam-industrial-park-form-c-2024",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Medchal-Malkajgiri Form C notice for the Madharam Industrial Park",
+          "url": "https://cdn.s3waas.gov.in/s3da4fb5c6e93e74d3df8527599fa62642/uploads/2024/12/2024122148.pdf",
+          "contextUrl": "https://medchal-malkajgiri.telangana.gov.in/past-notices/announcements/page/2/",
+          "publishingAuthority": "District Collector, Medchal-Malkajgiri",
+          "publicationDate": "2024-12-06",
+          "handlingNote": "Contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2024-2025"
+          ]
+        },
+        {
+          "id": "medchal-kaleshwaram-ravalkola-link-form-c-2021",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Medchal-Malkajgiri Form C notice for the Kaleshwaram Ravalkola Link Canal System",
+          "url": "https://cdn.s3waas.gov.in/s3da4fb5c6e93e74d3df8527599fa62642/uploads/2022/06/2022062539.pdf",
+          "contextUrl": "https://medchal-malkajgiri.telangana.gov.in/award/land-acquisition-award-land-acquisition-award-for-kalashwaram-project-at-ravalkola-village-medchal-mandal/",
+          "publishingAuthority": "District Collector, Medchal-Malkajgiri",
+          "publicationDate": "2021-10-07",
+          "handlingNote": "Image-only source contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2021-2022"
+          ]
+        },
+        {
+          "id": "medchal-lothukunta-sh01-corridor-award-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Medchal-Malkajgiri land-acquisition award for the Paradise-Shamirpet SH-01 elevated corridor at Lothukunta",
+          "url": "https://cdn.s3waas.gov.in/s3da4fb5c6e93e74d3df8527599fa62642/uploads/2026/04/17751199075970.pdf",
+          "contextUrl": "https://medchal-malkajgiri.telangana.gov.in/notice/land-acquisition-medchal-malkajgiri-district-alwal-mandal-lothukunta-h-o-alwal-village-gramakantam-extent-2020-56-sq-yds-lands-proposed-for-construction-of-elevated-corridor-from-paradise/",
+          "publishingAuthority": "District Collector, Medchal-Malkajgiri",
+          "publicationDate": "2026-03-28",
+          "handlingNote": "Contains affected-party records and compensation details; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
           "id": "telangana-ifmis-context",
           "kind": "portal_access_context",
           "label": "IFMIS public landing page with official budget link; login records excluded",

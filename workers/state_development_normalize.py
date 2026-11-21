@@ -753,6 +753,123 @@ def rangareddy_district_land_acquisition_projects(doc, extraction):
     ]
 
 
+def medchal_malkajgiri_district_land_acquisition_projects(doc, extraction):
+    """Project headers only; affected-party and compensation schedules stay private."""
+    editions = {
+        "medchal-madharam-industrial-park-form-c-2024": {
+            "sha256": "3ef1e15be573f1fd7f040c0741178191f19f1cd40262c5579638a8599de7c171",
+            "financialYear": "2024-2025",
+            "title": "Madharam Industrial Park",
+            "sourceProjectId": "Madharam Industrial Park",
+            "officialIds": ["Gazette MMD-11", "B/107/2024", "G2/1992/2024"],
+            "purpose": "industry",
+            "stage": "preliminary_land_acquisition_notification",
+            "stageDate": "2024-12-06",
+            "mandals": ["Ghatkesar"],
+            "villages": ["Madharam"],
+            "sourceExtent": "Ac.33-19 Gts",
+            "pageCount": 4,
+            "requiredTokens": [
+                "Gazette No.MMD - 11",
+                "FILE NO. G2/1992/2024",
+                "Madharam Village, Ghatkesar Mandal",
+                "Establishment of Industrial Park",
+            ],
+            "sourceCaveat": None,
+        },
+        "medchal-kaleshwaram-ravalkola-link-form-c-2021": {
+            "sha256": "7baefba9d73f9f6e3840f69385de8a2ab5e75ccf71b5784b85c8acb48334eeed",
+            "financialYear": "2021-2022",
+            "title": "Kaleshwaram Project Ravalkola Link Canal System, pump house and substation",
+            "sourceProjectId": "Kaleshwaram Ravalkola Link Canal System",
+            "officialIds": ["Gazette MMD-6", "D/614/2021"],
+            "purpose": "irrigation",
+            "stage": "preliminary_land_acquisition_notification",
+            "stageDate": "2021-10-07",
+            "mandals": ["Shamirpet"],
+            "villages": ["Shamirpet"],
+            "sourceExtent": "Ac.1-20 Gts",
+            "pageCount": 3,
+            "requiredTokens": [],
+            "sourceCaveat": "The source is image-only in the repository extractor; its project identity is bounded by the official context page and pinned PDF hash.",
+        },
+        "medchal-lothukunta-sh01-corridor-award-2026": {
+            "sha256": "7bf3670fda0db5e4d967f7f608f9ce5b7b4878450f85bfd7e1883113e60aca8e",
+            "financialYear": "2025-2026",
+            "title": "Paradise Junction to Shamirpet ORR Junction elevated corridor on SH-01 at Lothukunta",
+            "sourceProjectId": "Paradise-Shamirpet SH-01 corridor: Lothukunta award",
+            "officialIds": ["C/97/2024/lothukunta", "G2/781/2024", "Gazette MMD-08"],
+            "purpose": "transport",
+            "stage": "land_acquisition_award",
+            "stageDate": "2026-03-28",
+            "mandals": ["Alwal"],
+            "villages": ["Lothukunta"],
+            "sourceExtent": "202056 Sq.Yds in the extracted award heading; district notice page displays 2020.56 Sq.Yds (source-format conflict retained)",
+            "pageCount": 13,
+            "requiredTokens": [
+                "C/97l2024llothukunta",
+                "Dated:28.03.2026",
+                "Lothukunta",
+                "Elevated Corridor from Paradise",
+                "Rajiv Rahadari (SH-01)-Award",
+            ],
+            "sourceCaveat": "The proceedings line is dated 28 March 2026 while the extracted Gazette MMD-08 line prints 28 March 2025; the conflict is retained for review.",
+        },
+    }
+    edition = editions.get(doc["sourceId"])
+    if not edition:
+        return []
+    if doc["stateCode"] != "36" or doc["sha256"] != edition["sha256"]:
+        raise ValueError("Medchal-Malkajgiri District project-notice source edition changed")
+    pages = extraction.get("pages", [])
+    if len(pages) != edition["pageCount"]:
+        raise ValueError("Medchal-Malkajgiri District project-notice page count changed")
+    first_page = " ".join(row["text"] for row in pages[0].get("lines", []))
+    if any(token not in first_page for token in edition["requiredTokens"]):
+        raise ValueError("Medchal-Malkajgiri District project header changed")
+    if not edition["requiredTokens"] and first_page:
+        raise ValueError("Medchal-Malkajgiri scanned project notice extraction basis changed")
+    if doc.get("publicationDate") != edition["stageDate"]:
+        raise ValueError("Medchal-Malkajgiri District project notice date changed")
+    caveat = f" {edition['sourceCaveat']}" if edition["sourceCaveat"] else ""
+    return [
+        {
+            "id": f"{doc['sha256']}:p1:project-header",
+            "stateCode": "36",
+            "financialYear": edition["financialYear"],
+            "district": "Medchal-Malkajgiri",
+            "districtAreaId": "medchal-malkajgiri-district",
+            "title": edition["title"],
+            "sourceProjectId": edition["sourceProjectId"],
+            "officialIds": edition["officialIds"],
+            "projectIdBasis": "official_gazette_or_notice_identifiers",
+            "purpose": edition["purpose"],
+            "stage": edition["stage"],
+            "stageDate": edition["stageDate"],
+            "stageDateBasis": "printed_notice_gazette_or_proceedings_date",
+            "publishingAuthority": "District Collector, Medchal-Malkajgiri",
+            "mandals": edition["mandals"],
+            "villages": edition["villages"],
+            "sourceExtent": edition["sourceExtent"],
+            "location": None,
+            "locationPrecision": "district",
+            "projectCostRupees": None,
+            "contractAmountRupees": None,
+            "paymentAmountRupees": None,
+            "completionDate": None,
+            "sourceDocumentContainsAffectedPartyRecords": True,
+            "reviewStatus": "awaiting_review",
+            "publicationApproved": False,
+            "source": reference(
+                doc,
+                "Original PDF page 1 project header and notice identifiers only; affected-party and compensation schedules deliberately excluded",
+            ),
+            "notes": "The official land-acquisition document establishes project identity, named district geography and an acquisition-stage record only. It does not establish financial sanction, total project cost, contract award, expenditure, payment, progress, completion or a precise map point. The original may contain affected-party records and compensation details and must remain private; no names, parcel schedules or award amounts are normalized."
+            + caveat,
+        }
+    ]
+
+
 def assam_sector_expenditure(doc, extraction):
     facts = []
     account = None
@@ -1321,6 +1438,7 @@ def main():
             facts += telangana_maud_hyderabad_capital_loans(doc, extraction)
             projects += hyderabad_district_land_acquisition_projects(doc, extraction)
             projects += rangareddy_district_land_acquisition_projects(doc, extraction)
+            projects += medchal_malkajgiri_district_land_acquisition_projects(doc, extraction)
             facts += additional_budget_records(doc, extraction)
             facts += remaining_budget_records(doc, extraction)
             facts += ap_programmes(doc, extraction)
