@@ -317,6 +317,144 @@ def monthly_accounts(doc, extraction):
     return facts
 
 
+def hmda_financial_expenditure(doc, extraction):
+    """Selected HMDA booked-accounting lines; never infer cash payment or project allocation."""
+    editions = {
+        "hmda-audited-financials-2025-26": {
+            "sha256": "bcded48b1acb30d2e22e61d4c5e68df9630ec430c594e653890e443795633545",
+            "financialYear": "2025-2026",
+            "periodStart": "2025-04-01",
+            "periodEnd": "2026-03-31",
+            "capitalPage": 11,
+            "expensePage": 12,
+            "capitalPeriodLabel": "2026 (Audited)",
+            "expensePeriodLabel": "FY 2025-26",
+            "reportStatus": "audited",
+            "periodBasis": "audited_financial_year",
+        },
+        "hmda-q1-financials-2026-27": {
+            "sha256": "24e672cb064a862032d5b6a5003af6abb1560ff38559863399f7e1226300915f",
+            "financialYear": "2026-2027",
+            "periodStart": "2026-04-01",
+            "periodEnd": "2026-06-30",
+            "capitalPage": 10,
+            "expensePage": 11,
+            "capitalPeriodLabel": "FY 2026-27",
+            "expensePeriodLabel": "FY 2026-27",
+            "reportStatus": "unaudited_limited_review",
+            "periodBasis": "quarter_to_date_interim_accounts",
+        },
+    }
+    edition = editions.get(doc["sourceId"])
+    if not edition:
+        return []
+    if doc["stateCode"] != "36" or doc["sha256"] != edition["sha256"]:
+        raise ValueError("HMDA financial source edition changed")
+
+    pages = {page["page"]: page["lines"] for page in extraction["pages"]}
+    capital_lines = pages.get(edition["capitalPage"])
+    expense_lines = pages.get(edition["expensePage"])
+    if not capital_lines or not expense_lines:
+        raise ValueError("HMDA financial statement pages unavailable")
+    capital_header = " ".join(row["text"] for row in capital_lines[:12])
+    expense_header = " ".join(row["text"] for row in expense_lines[:60])
+    if not all(
+        token in capital_header
+        for token in ("Capital Work in Progress", "All amounts in lakhs in Indian Rupees")
+    ):
+        raise ValueError("HMDA capital-work schedule header changed")
+    if not all(
+        token in expense_header
+        for token in ("Other Expenses", "All amounts in lakhs in Indian Rupees")
+    ):
+        raise ValueError("HMDA expense schedule header changed")
+    if edition["capitalPeriodLabel"] not in capital_header:
+        raise ValueError("HMDA capital-period column changed")
+    if edition["expensePeriodLabel"] not in expense_header:
+        raise ValueError("HMDA expense-period column changed")
+
+    selected = [
+        (
+            capital_lines,
+            "Add: Additions during the year",
+            "Capital Work in Progress additions",
+            "capital_work_in_progress_additions",
+            "infrastructure",
+        ),
+        (
+            expense_lines,
+            "(i) Buildings",
+            "Maintenance — Buildings",
+            "maintenance_expense",
+            "infrastructure",
+        ),
+        (
+            expense_lines,
+            "(iii) Parks,Flyovers and Lakes",
+            "Maintenance — Parks, Flyovers and Lakes",
+            "maintenance_expense",
+            "infrastructure",
+        ),
+        (
+            expense_lines,
+            "(v) Urban Blocks",
+            "Maintenance — Urban Blocks",
+            "maintenance_expense",
+            "other",
+        ),
+    ]
+    result = []
+    for lines, source_label, purpose, classification, purpose_code in selected:
+        matches = [row for row in lines if source_label in " ".join(row["text"].split())]
+        if len(matches) != 1:
+            raise ValueError(f"HMDA financial row changed: {source_label}")
+        values = re.findall(r"-?\d[\d,]*\.\d{2}", matches[0]["text"])
+        if len(values) != 2:
+            raise ValueError(f"HMDA comparative columns changed: {source_label}")
+        source_actual = values[0]
+        page_number = edition["capitalPage"] if lines is capital_lines else edition["expensePage"]
+        record_key = re.sub(r"[^a-z0-9]+", "_", purpose.lower()).strip("_")
+        result.append(
+            {
+                "id": f"{doc['sha256']}:p{page_number}:l{matches[0]['line']}:{record_key}",
+                "stateCode": "36",
+                "financialYear": edition["financialYear"],
+                "purposeLabel": purpose,
+                "purposeCode": purpose_code,
+                "measure": "reported_spent",
+                "estimate": "not_applicable",
+                "accountingBasis": "booked_expenditure",
+                "unit": "lakh",
+                "sourceActual": source_actual,
+                "amountRupees": rupees(source_actual, "lakh"),
+                "periodStart": edition["periodStart"],
+                "periodEnd": edition["periodEnd"],
+                "periodBasis": edition["periodBasis"],
+                "reportStatus": edition["reportStatus"],
+                "aggregation": "hmda_financial_statement_line",
+                "classification": classification,
+                "origin": "local_metropolitan_authority_accounts",
+                "sourceAgency": "Hyderabad Metropolitan Development Authority",
+                "sourceGeographyLabel": "Hyderabad Metropolitan Region",
+                "geographicPrecision": "agency_jurisdiction_not_project_location",
+                "reviewStatus": "awaiting_review",
+                "publicationApproved": False,
+                "source": reference(
+                    doc,
+                    f"Original PDF page {page_number}, line {matches[0]['line']}, {source_label}; {edition['financialYear']} current-period column; source unit lakh",
+                ),
+                "notes": (
+                    "Balance-sheet schedule addition to capital work in progress: a booked capital cost movement, not the closing balance, a cash payment, or an amount allocated to an identified project. It must not be assumed disjoint from income-statement expenses without review."
+                    if classification == "capital_work_in_progress_additions"
+                    else "Income-statement maintenance expense recorded by HMDA. Maintenance is retained separately from capital development, and this agency-level line is not an individual work, contract, bill, cash payment, or proof of completion."
+                ),
+            }
+        )
+    if len(result) != 4:
+        raise ValueError("HMDA selected financial row count changed")
+    return result
+
+
 def assam_sector_expenditure(doc, extraction):
     facts = []
     account = None
@@ -526,6 +664,238 @@ def telangana_budget(doc, extraction):
     return facts
 
 
+def telangana_maud_hyderabad_budget(doc, extraction):
+    """HYDRAA Demand XVII totals; allocations only, with no project/payment inference."""
+    if doc["sourceId"] != "telangana-maud-demand-17-2026":
+        return []
+    if (
+        doc["stateCode"] != "36"
+        or doc["sha256"] != "dccc41cfedc0f973ef4ac1b6a58694d10313ee3edcab1cb117c7f4ea0cde104b"
+    ):
+        raise ValueError("Telangana MA&UD source edition changed")
+
+    pages = {page["page"]: page["lines"] for page in extraction["pages"]}
+    result = []
+    layouts = [
+        (10, "Establishment Summary", "hyderabad_agency_establishment_total"),
+        (30, "Schemes Summary", "hyderabad_agency_scheme_total"),
+    ]
+    for page_number, heading, scope in layouts:
+        lines = pages.get(page_number)
+        if not lines:
+            raise ValueError(f"Telangana MA&UD source page {page_number} unavailable")
+        header = " ".join(row["text"] for row in lines[:10])
+        if not all(
+            token in header
+            for token in (
+                heading,
+                "Rupees in Lakhs",
+                "2024-25",
+                "2025-26",
+                "2026-27",
+                "HYDERABAD DISASTER RESPONSE",
+                "ASSET PROTECTION AGENCY",
+                "(HYDRAA)",
+            )
+        ):
+            raise ValueError(f"Telangana MA&UD {heading} header changed")
+        source_row = next(
+            (row for row in lines if re.search(r"\b2217\s+Urban Development\b", row["text"])),
+            None,
+        )
+        if source_row is None:
+            raise ValueError(f"Telangana MA&UD {heading} source row changed")
+        values = re.findall(r"\.{2,3}|-?\d[\d,]*\.\d{2}", source_row["text"])
+        if len(values) != 4:
+            raise ValueError(f"Telangana MA&UD {heading} fiscal columns changed")
+
+        for financial_year, estimate, column in [
+            ("2025-2026", "original", 1),
+            ("2025-2026", "revised", 2),
+            ("2026-2027", "original", 3),
+        ]:
+            source_amount = values[column]
+            result.append(
+                {
+                    "id": f"{doc['sha256']}:p{page_number}:head2217:{scope}:{financial_year}:{estimate}",
+                    "stateCode": "36",
+                    "financialYear": financial_year,
+                    "purposeLabel": "Hyderabad Disaster Response and Asset Protection Agency (HYDRAA)",
+                    "measure": "allocated",
+                    "estimate": estimate,
+                    "unit": "lakh",
+                    "sourceAmount": source_amount,
+                    "amountRupees": rupees(source_amount, "lakh"),
+                    "aggregation": scope,
+                    "budgetTableScope": "agency_demand_component",
+                    "origin": "state_budget_including_transfers",
+                    "sourceDemandCode": "XVII",
+                    "sourceHeadCode": "2217",
+                    "sourceGeographyLabel": "Hyderabad Disaster Response and Asset Protection Agency (HYDRAA)",
+                    "geographicPrecision": "agency_scope_not_resolved_to_project_or_locality",
+                    "classification": "administrative_context"
+                    if scope == "hyderabad_agency_establishment_total"
+                    else "mixed_or_unresolved",
+                    "reviewStatus": "awaiting_review",
+                    "publicationApproved": False,
+                    "source": reference(
+                        doc,
+                        f"Original PDF page {page_number}, {heading}, Head 2217 Urban Development row; {financial_year} {estimate} estimate column; source unit lakh",
+                    ),
+                    "notes": "Agency-level state budget estimate, not actual expenditure, a project allocation, a contract, or payment. Establishment and scheme totals are separate components and must not be added to Demand XVII totals again. The agency name establishes source attribution to HYDRAA; it does not provide a project location, ward, contractor, recipient, or completion evidence.",
+                }
+            )
+    if len(result) != 6:
+        raise ValueError("Telangana MA&UD HYDRAA fiscal row count changed")
+    return result
+
+
+def telangana_maud_hyderabad_capital_loans(doc, extraction):
+    """Explicit Hyderabad loan subheads; budget estimates, never releases or payments."""
+    if doc["sourceId"] != "telangana-maud-demand-17-2026":
+        return []
+    if (
+        doc["stateCode"] != "36"
+        or doc["sha256"] != "dccc41cfedc0f973ef4ac1b6a58694d10313ee3edcab1cb117c7f4ea0cde104b"
+    ):
+        raise ValueError("Telangana MA&UD source edition changed")
+
+    pages = {page["page"]: page["lines"] for page in extraction["pages"]}
+    for page_number in (13, 14):
+        lines = pages.get(page_number)
+        if not lines:
+            raise ValueError(f"Telangana MA&UD source page {page_number} unavailable")
+        header = " ".join(row["text"] for row in lines[:10])
+        if not all(
+            token in header
+            for token in (
+                "DEMAND",
+                "MUNICIPAL ADMINISTRATION AND URBAN DEVELOPMENT",
+                "Establishment",
+                "Rupees in Lakhs",
+                "2024-25",
+                "2025-26",
+                "2026-27",
+            )
+        ):
+            raise ValueError(f"Telangana MA&UD page {page_number} header changed")
+
+    subheads = [
+        {
+            "code": "07",
+            "labelPage": 13,
+            "totalPage": 13,
+            "labelFragments": ("Loans To Hyderabad Metro", "Water Supply & Sewerage Board"),
+            "label": "Loans to Hyderabad Metro Water Supply & Sewerage Board",
+            "sourceMajorHead": "6215",
+        },
+        {
+            "code": "08",
+            "labelPage": 13,
+            "totalPage": 13,
+            "labelFragments": (
+                "Loans To Hyderabad Metro",
+                "Water Supply & Sewerage Board for",
+                "Development Works",
+            ),
+            "label": "Loans to Hyderabad Metro Water Supply & Sewerage Board for Development Works",
+            "sourceMajorHead": "6215",
+        },
+        {
+            "code": "09",
+            "labelPage": 13,
+            "totalPage": 14,
+            "labelFragments": (
+                "Loans to Hyderabad Metro",
+                "Water Supply & Sewerage Board for",
+                "Sunkishala Intake Project KDWSP",
+            ),
+            "label": "Loans to Hyderabad Metro Water Supply & Sewerage Board for Sunkishala Intake Project KDWSP",
+            "sourceMajorHead": "6215",
+        },
+        {
+            "code": "04",
+            "labelPage": 14,
+            "totalPage": 14,
+            "labelFragments": ("Loans to HMRL for", "Hyderabad Metro Rail Project"),
+            "label": "Loans to HMRL for Hyderabad Metro Rail Project",
+            "sourceMajorHead": "6217",
+        },
+    ]
+    result = []
+    for subhead in subheads:
+        label_lines = pages[subhead["labelPage"]]
+        label_index = next(
+            (
+                index
+                for index, row in enumerate(label_lines)
+                if f"S.H.({subhead['code']})" in row["text"]
+                and subhead["labelFragments"][0] in row["text"]
+            ),
+            None,
+        )
+        if label_index is None:
+            raise ValueError(f"Telangana MA&UD Hyderabad subhead {subhead['code']} missing")
+        label_context = " ".join(row["text"] for row in label_lines[label_index : label_index + 4])
+        if not all(fragment in label_context for fragment in subhead["labelFragments"]):
+            raise ValueError(f"Telangana MA&UD Hyderabad subhead {subhead['code']} label changed")
+
+        total_lines = (
+            label_lines[label_index:]
+            if subhead["labelPage"] == subhead["totalPage"]
+            else pages[subhead["totalPage"]]
+        )
+        total_rows = [row for row in total_lines if f"Total S.H.({subhead['code']})" in row["text"]]
+        if not total_rows:
+            raise ValueError(f"Telangana MA&UD Hyderabad subhead {subhead['code']} total changed")
+        values = re.findall(r"\.{2,3}|-?\d[\d,]*\.\d{2}", total_rows[0]["text"])
+        if len(values) != 4:
+            raise ValueError(
+                f"Telangana MA&UD Hyderabad subhead {subhead['code']} fiscal columns changed"
+            )
+
+        for financial_year, estimate, column in [
+            ("2025-2026", "original", 1),
+            ("2025-2026", "revised", 2),
+            ("2026-2027", "original", 3),
+        ]:
+            source_amount = values[column]
+            result.append(
+                {
+                    "id": f"{doc['sha256']}:p{subhead['totalPage']}:sh{subhead['code']}:loan:{financial_year}:{estimate}",
+                    "stateCode": "36",
+                    "financialYear": financial_year,
+                    "purposeLabel": subhead["label"],
+                    "measure": "allocated",
+                    "estimate": estimate,
+                    "unit": "lakh",
+                    "sourceAmount": source_amount,
+                    "amountRupees": rupees(source_amount, "lakh"),
+                    "aggregation": "hyderabad_agency_budgeted_loan_subhead",
+                    "budgetTableScope": "capital_loan_subhead",
+                    "accountingInstrument": "state_budgeted_loan",
+                    "origin": "state_budget_including_transfers",
+                    "sourceDemandCode": "XVII",
+                    "sourceMajorHead": subhead["sourceMajorHead"],
+                    "sourceSubheadCode": subhead["code"],
+                    "sourceObjectLabel": "001 Other Receipts",
+                    "sourceGeographyLabel": subhead["label"],
+                    "geographicPrecision": "named_agency_or_programme_not_project_location",
+                    "classification": "mixed_or_unresolved",
+                    "reviewStatus": "awaiting_review",
+                    "publicationApproved": False,
+                    "source": reference(
+                        doc,
+                        f"Original PDF pages {subhead['labelPage']}–{subhead['totalPage']}, Demand XVII, Major Head {subhead['sourceMajorHead']}, S.H.({subhead['code']}) total; {financial_year} {estimate} estimate column; source unit lakh",
+                    ),
+                    "notes": "Budget estimate for a state loan subhead. The source object label is retained as '001 Other Receipts'; accounting direction and treatment require review. This is not evidence that a loan was sanctioned, released, received, spent, allocated to an individual work, or became a payment to a contractor. Original and revised estimates are alternatives and must not be added together. No project location, bill, recipient, transaction date, or completion evidence is supplied.",
+                }
+            )
+    if len(result) != 12:
+        raise ValueError("Telangana MA&UD Hyderabad capital-loan row count changed")
+    return result
+
+
 def monthly_budget_context(doc, extraction):
     # Reuse only the verified overview field order, fiscal scope and crore unit.
     # The source heading says Budget Estimates; original/revised status is not
@@ -649,6 +1019,8 @@ def main():
                 facts += ap_budget(doc, extraction)
             if doc["sourceId"] == "telangana-budget-2026-linked-1":
                 facts += telangana_budget(doc, extraction)
+            facts += telangana_maud_hyderabad_budget(doc, extraction)
+            facts += telangana_maud_hyderabad_capital_loans(doc, extraction)
             facts += additional_budget_records(doc, extraction)
             facts += remaining_budget_records(doc, extraction)
             facts += ap_programmes(doc, extraction)
@@ -671,6 +1043,7 @@ def main():
             if doc["sourceKind"] == "reported_expenditure":
                 expenditure += monthly_accounts(doc, extraction)
                 facts += monthly_budget_context(doc, extraction)
+            expenditure += hmda_financial_expenditure(doc, extraction)
             if doc["sourceId"] == "assam-expenditure-2025":
                 expenditure += assam_sector_expenditure(doc, extraction)
             if doc["sourceKind"] in (
