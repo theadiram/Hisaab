@@ -1714,6 +1714,45 @@
           ]
         },
         {
+          "id": "rangareddy-thimmaipally-industrial-park-form-c-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form C notice for the Thimmaipally Industrial Park",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17766777166951.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-02-25",
+          "handlingNote": "Contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
+          "id": "rangareddy-chandanvelly-industrial-park-form-vii-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form VII notice for the Chandanvelly Industrial Park",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17770225239079.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-03-24",
+          "handlingNote": "Contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
+          "id": "rangareddy-radial-road-2-form-c-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form C notice for Radial Road-2 from Budvel toward Nacharam on NH-167N",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17775411999453.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-01-07",
+          "handlingNote": "Contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
           "id": "telangana-ifmis-context",
           "kind": "portal_access_context",
           "label": "IFMIS public landing page with official budget link; login records excluded",

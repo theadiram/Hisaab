@@ -1545,6 +1545,27 @@ class StateEvidenceRules(unittest.TestCase):
                 4,
                 "Gazette RR No. 30 11th, October, 2025 FORM-C New External Road from Sy.No.99/1 to Airport Mamidipally",
             ),
+            (
+                "rangareddy-thimmaipally-industrial-park-form-c-2026",
+                "2bce7c4396492dea41de6fbae44dd6754d59f773467741c2bc273be68f7571e7",
+                "2026-02-25",
+                9,
+                "GAZETTE NO.56 Collector File No.G1/141/2026 Thimmaipally Establishment of Industrial Park",
+            ),
+            (
+                "rangareddy-chandanvelly-industrial-park-form-vii-2026",
+                "24b666c3593c91bbe9ab672b4fe91b469bebd0f9fab943b0aa4ca495a90c3a74",
+                "2026-03-24",
+                2,
+                "GAZETTE No.64 FORM VII Collector File:G1/92/2018 Chandanvelly Industrial Park by TSIIC",
+            ),
+            (
+                "rangareddy-radial-road-2-form-c-2026",
+                "dc9e53530ee0c3c116ce2dcd0b7bf0ad33d36a747237012acf9891bb7b1245df",
+                "2026-01-07",
+                5,
+                "GAZETTE NO.11 No. I/5528/2025 Radial Road -2 NH-167N Machanpally",
+            ),
         ]
         records = []
         for source_id, source_hash, publication_date, page_count, header in editions:
@@ -1563,7 +1584,7 @@ class StateEvidenceRules(unittest.TestCase):
                 ]
             }
             records += rangareddy_district_land_acquisition_projects(doc, extraction)
-        self.assertEqual(len(records), 3)
+        self.assertEqual(len(records), 6)
         self.assertEqual({record["district"] for record in records}, {"Rangareddy"})
         self.assertEqual(
             {record["financialYear"] for record in records}, {"2025-2026", "2026-2027"}
@@ -1578,6 +1599,7 @@ class StateEvidenceRules(unittest.TestCase):
             records[1]["sourceExtent"],
             "18.5 km project length; Ac.5.29 Gts and Ac.0.17 Gts acquisition extents",
         )
+        self.assertIn("source conflict retained", records[3]["sourceExtent"])
 
 
 if __name__ == "__main__":
