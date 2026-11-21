@@ -75,7 +75,7 @@ const candidatesSchema = z
   .object({
     version: z.literal('state-development-candidates/1'),
     stateCode: z.literal('36'),
-    projectCandidates: z.array(candidateSchema),
+    projectCandidates: z.array(z.unknown()),
   })
   .passthrough();
 
@@ -122,7 +122,21 @@ export function prepareHyderabadDistrictProjectIntake(
       throw new Error('Hyderabad District project-notice source identity changed');
   }
 
-  const rows = candidates.projectCandidates.filter((row) => documentByHash.has(row.source.sha256));
+  const rows = z
+    .array(candidateSchema)
+    .parse(
+      candidates.projectCandidates.filter(
+        (row) =>
+          typeof row === 'object' &&
+          row !== null &&
+          'source' in row &&
+          typeof row.source === 'object' &&
+          row.source !== null &&
+          'sha256' in row.source &&
+          typeof row.source.sha256 === 'string' &&
+          documentByHash.has(row.source.sha256),
+      ),
+    );
   const expectedProjects = new Set(
     Object.values(editions).map((edition) => `${edition.hash}:${edition.projectId}`),
   );
