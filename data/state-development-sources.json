@@ -1575,6 +1575,223 @@
           "maxLinkedReports": 20
         },
         {
+          "id": "telangana-maud-demand-17-2026",
+          "kind": "budget",
+          "label": "Telangana FY2026–27 Demand XVII: Municipal Administration and Urban Development",
+          "url": "https://www.telangana.gov.in/wp-content/uploads/2026/05/Municipal_Administration__Urban_Development_Department_1773982256_.pdf",
+          "contextUrl": "https://www.telangana.gov.in/budget-2026-2027/",
+          "publishingAuthority": "Government of Telangana, Finance Department",
+          "publicationPeriod": "2026-03",
+          "maxDownloadSeconds": 180,
+          "connectTimeoutSeconds": 20,
+          "years": [
+            "2025-2026",
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "hmda-audited-financials-2025-26",
+          "kind": "audited_financial_statements",
+          "label": "HMDA audited financial statements for FY2025–26",
+          "url": "https://www.hmda.gov.in/wp-content/uploads/2020/07/3.1_HMDA_Financials_2025-26.pdf",
+          "contextUrl": "https://www.hmda.gov.in/financial-information/",
+          "publishingAuthority": "Hyderabad Metropolitan Development Authority",
+          "publicationDate": "2026-07-01",
+          "maxDownloadSeconds": 180,
+          "connectTimeoutSeconds": 20,
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
+          "id": "hmda-q1-financials-2026-27",
+          "kind": "interim_financial_statements",
+          "label": "HMDA Q1 unaudited financial statements through June 2026",
+          "url": "https://www.hmda.gov.in/wp-content/uploads/2020/07/1_HMDA_Q1_Unaudited-Financials_June-2026.pdf",
+          "contextUrl": "https://www.hmda.gov.in/financial-information/",
+          "publishingAuthority": "Hyderabad Metropolitan Development Authority",
+          "publicationDate": "2026-08-13",
+          "maxDownloadSeconds": 180,
+          "connectTimeoutSeconds": 20,
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "hyderabad-district-gandhi-sarovar-land-acquisition-2026",
+          "kind": "district_project_land_acquisition_notice",
+          "label": "Hyderabad District preliminary land-acquisition notice for the MRDCL Gandhi Sarovar project",
+          "url": "https://hyderabad.telangana.gov.in/notice/land-acquisition-hyderabad-district-langer-house-and-quila-mohd-nagar-villages-of-golconda-mandal-musi-riverfront-development-corporation-limited-mrdcl-gandhi-sarovar-project-as/",
+          "publishingAuthority": "District Collector, Hyderabad",
+          "publicationDate": "2026-08-13",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "hyderabad-district-sh01-land-acquisition-2026",
+          "kind": "district_project_land_acquisition_notice",
+          "label": "Hyderabad District public declarations for the Paradise–Shameerpet SH-01 elevated corridor",
+          "url": "https://hyderabad.telangana.gov.in/notice/land-acquisition-hyderabad-district-tirumalagiri-mandal-thokatta-kakagudatirumalagirimachabollaram-villages-elevated-corridor-from-paradise-junction-to-shamirpet-at-orr-junction-on-rajiv-ra-3/",
+          "publishingAuthority": "District Collector, Hyderabad",
+          "publicationDate": "2026-08-04",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "hyderabad-district-nh44-land-acquisition-2026",
+          "kind": "district_project_land_acquisition_notice",
+          "label": "Hyderabad District public declarations for the Paradise–Bowenpally Dairy Farm Road NH-44 elevated corridor",
+          "url": "https://hyderabad.telangana.gov.in/notice/land-acquisition-publication-of-declaration-gazette-no-234567-has-been-approved-by-the-district-collector-hyderabad-for-construction-of-elevated-corridor-from-paradise-junction-to-bowenpally-d/",
+          "publishingAuthority": "District Collector, Hyderabad",
+          "publicationDate": "2026-05-20",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "rangareddy-district-land-acquisition-index-2026",
+          "kind": "district_project_land_acquisition_index",
+          "label": "Rangareddy District official land-acquisition register",
+          "url": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "years": [
+            "2025-2026",
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "rangareddy-himayathsagar-dargah-khaliz-khan-form-vii-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form VII notice for Himayathsagar Bund Improvement and Eco Project at Dargah Khaliz Khan",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/09/17907615122374.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-07-13",
+          "handlingNote": "May contain affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "rangareddy-himayathsagar-kismathpur-form-vii-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form VII notice for Himayathsagar Bund Improvement and Eco Project at Kismathpur",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/09/17907615754391.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-07-13",
+          "handlingNote": "May contain affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "rangareddy-greenfield-radial-road-form-vii-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form VII publication request for the Raviryal–Meerkhanpet Greenfield Radial Road",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/09/17904122296078.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-09-17",
+          "handlingNote": "May contain affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "rangareddy-mamidipally-airport-road-form-c-2025",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form C notice for the Mamidipally external road to the airport boundary",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2025/12/17654502528703.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2025-10-11",
+          "handlingNote": "May contain affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
+          "id": "rangareddy-thimmaipally-industrial-park-form-c-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form C notice for the Thimmaipally Industrial Park",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17766777166951.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-02-25",
+          "handlingNote": "Contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
+          "id": "rangareddy-chandanvelly-industrial-park-form-vii-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form VII notice for the Chandanvelly Industrial Park",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17770225239079.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-03-24",
+          "handlingNote": "Contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
+          "id": "rangareddy-radial-road-2-form-c-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form C notice for Radial Road-2 from Budvel toward Nacharam on NH-167N",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/04/17775411999453.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-01-07",
+          "handlingNote": "Contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
+          "id": "medchal-madharam-industrial-park-form-c-2024",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Medchal-Malkajgiri Form C notice for the Madharam Industrial Park",
+          "url": "https://cdn.s3waas.gov.in/s3da4fb5c6e93e74d3df8527599fa62642/uploads/2024/12/2024122148.pdf",
+          "contextUrl": "https://medchal-malkajgiri.telangana.gov.in/past-notices/announcements/page/2/",
+          "publishingAuthority": "District Collector, Medchal-Malkajgiri",
+          "publicationDate": "2024-12-06",
+          "handlingNote": "Contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2024-2025"
+          ]
+        },
+        {
+          "id": "medchal-kaleshwaram-ravalkola-link-form-c-2021",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Medchal-Malkajgiri Form C notice for the Kaleshwaram Ravalkola Link Canal System",
+          "url": "https://cdn.s3waas.gov.in/s3da4fb5c6e93e74d3df8527599fa62642/uploads/2022/06/2022062539.pdf",
+          "contextUrl": "https://medchal-malkajgiri.telangana.gov.in/award/land-acquisition-award-land-acquisition-award-for-kalashwaram-project-at-ravalkola-village-medchal-mandal/",
+          "publishingAuthority": "District Collector, Medchal-Malkajgiri",
+          "publicationDate": "2021-10-07",
+          "handlingNote": "Image-only source contains affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2021-2022"
+          ]
+        },
+        {
+          "id": "medchal-lothukunta-sh01-corridor-award-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Medchal-Malkajgiri land-acquisition award for the Paradise-Shamirpet SH-01 elevated corridor at Lothukunta",
+          "url": "https://cdn.s3waas.gov.in/s3da4fb5c6e93e74d3df8527599fa62642/uploads/2026/04/17751199075970.pdf",
+          "contextUrl": "https://medchal-malkajgiri.telangana.gov.in/notice/land-acquisition-medchal-malkajgiri-district-alwal-mandal-lothukunta-h-o-alwal-village-gramakantam-extent-2020-56-sq-yds-lands-proposed-for-construction-of-elevated-corridor-from-paradise/",
+          "publishingAuthority": "District Collector, Medchal-Malkajgiri",
+          "publicationDate": "2026-03-28",
+          "handlingNote": "Contains affected-party records and compensation details; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
           "id": "telangana-ifmis-context",
           "kind": "portal_access_context",
           "label": "IFMIS public landing page with official budget link; login records excluded",
