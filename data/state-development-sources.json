@@ -1651,6 +1651,69 @@
           ]
         },
         {
+          "id": "rangareddy-district-land-acquisition-index-2026",
+          "kind": "district_project_land_acquisition_index",
+          "label": "Rangareddy District official land-acquisition register",
+          "url": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "years": [
+            "2025-2026",
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "rangareddy-himayathsagar-dargah-khaliz-khan-form-vii-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form VII notice for Himayathsagar Bund Improvement and Eco Project at Dargah Khaliz Khan",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/09/17907615122374.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-07-13",
+          "handlingNote": "May contain affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "rangareddy-himayathsagar-kismathpur-form-vii-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form VII notice for Himayathsagar Bund Improvement and Eco Project at Kismathpur",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/09/17907615754391.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-07-13",
+          "handlingNote": "May contain affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "rangareddy-greenfield-radial-road-form-vii-2026",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form VII publication request for the Raviryal–Meerkhanpet Greenfield Radial Road",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2026/09/17904122296078.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2026-09-17",
+          "handlingNote": "May contain affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2026-2027"
+          ]
+        },
+        {
+          "id": "rangareddy-mamidipally-airport-road-form-c-2025",
+          "kind": "district_project_land_acquisition_notice_sensitive",
+          "label": "Rangareddy Form C notice for the Mamidipally external road to the airport boundary",
+          "url": "https://cdn.s3waas.gov.in/s3addfa9b7e234254d26e9c7f2af1005cb/uploads/2025/12/17654502528703.pdf",
+          "contextUrl": "https://rangareddy.telangana.gov.in/land-acquisition/",
+          "publishingAuthority": "District Collector, Rangareddy",
+          "publicationDate": "2025-10-11",
+          "handlingNote": "May contain affected-party records; preserve privately and normalize project header evidence only.",
+          "years": [
+            "2025-2026"
+          ]
+        },
+        {
           "id": "telangana-ifmis-context",
           "kind": "portal_access_context",
           "label": "IFMIS public landing page with official budget link; login records excluded",

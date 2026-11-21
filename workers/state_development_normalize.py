@@ -577,6 +577,119 @@ def hyderabad_district_land_acquisition_projects(doc, extraction):
     ]
 
 
+def rangareddy_district_land_acquisition_projects(doc, extraction):
+    """Project headers only; affected-party schedules remain private and unnormalized."""
+    editions = {
+        "rangareddy-himayathsagar-dargah-khaliz-khan-form-vii-2026": {
+            "sha256": "12f51f19751c7cc6afcff08c52fd2416147611e6e05b9f190bb262924b651dd5",
+            "financialYear": "2026-2027",
+            "title": "Himayathsagar Bund Improvement and Eco Project under the Musi Riverfront Development Project",
+            "sourceProjectId": "Himayathsagar Bund Improvement & Eco Project",
+            "officialIds": ["Gazette No.110", "I/LA/2395/2025-2"],
+            "purpose": "environment",
+            "stage": "land_acquisition_public_declaration",
+            "stageDate": "2026-07-13",
+            "mandals": ["Gandipet"],
+            "villages": ["Dargah Khaliz Khan"],
+            "sourceExtent": "Ac.24.22 Gts",
+            "pageCount": 6,
+            "requiredTokens": [
+                "GAZETTE NO.110",
+                "DATED: 13.07.2026",
+                "FORM VII",
+                "Himayathsagar Bund Improvement & Eco",
+                "Dargah Khaliz Khan",
+            ],
+        },
+        "rangareddy-greenfield-radial-road-form-vii-2026": {
+            "sha256": "5ebbda57de7c60ef4e94b70b25bab46dd50e3e45de0b1871460c2baee3764560",
+            "financialYear": "2026-2027",
+            "title": "Greenfield Radial Road from the Raviryal ORR interchange to Meerkhanpet, Phase I",
+            "sourceProjectId": "Greenfield Radial Road Phase I: Raviryal-Meerkhanpet",
+            "officialIds": ["Lr.No.G2/145/2026", "Form VII 17-09-2026"],
+            "purpose": "transport",
+            "stage": "land_acquisition_form_vii_publication_request",
+            "stageDate": "2026-09-17",
+            "mandals": ["Maheshwaram", "Kandukur"],
+            "villages": ["Kongara Khurd", "Rachaloor"],
+            "sourceExtent": "18.5 km project length; Ac.5.29 Gts and Ac.0.17 Gts acquisition extents",
+            "pageCount": 3,
+            "requiredTokens": [],
+        },
+        "rangareddy-mamidipally-airport-road-form-c-2025": {
+            "sha256": "ce9b2711a577ecfed9f3d5787ed3cab9c7b4d20d3456149cc7fdac89fa8d946e",
+            "financialYear": "2025-2026",
+            "title": "New external road from Survey No. 99/1 to the airport boundary at Mamidipally",
+            "sourceProjectId": "Mamidipally external road to airport boundary",
+            "officialIds": ["Gazette RR No.30", "C/33/2023"],
+            "purpose": "transport",
+            "stage": "preliminary_land_acquisition_notification",
+            "stageDate": "2025-10-11",
+            "mandals": ["Balapur"],
+            "villages": ["Mamidipally"],
+            "sourceExtent": "Ac.3-23 Gts",
+            "pageCount": 4,
+            "requiredTokens": [
+                "Gazette RR No. 30",
+                "11th, October, 2025",
+                "FORM-C",
+                "New External Road from Sy.No.99/1 to Airport",
+                "Mamidipally",
+            ],
+        },
+    }
+    edition = editions.get(doc["sourceId"])
+    if not edition:
+        return []
+    if doc["stateCode"] != "36" or doc["sha256"] != edition["sha256"]:
+        raise ValueError("Rangareddy District project-notice source edition changed")
+    pages = extraction.get("pages", [])
+    if len(pages) != edition["pageCount"]:
+        raise ValueError("Rangareddy District project-notice page count changed")
+    first_page = " ".join(row["text"] for row in pages[0].get("lines", []))
+    if any(token not in first_page for token in edition["requiredTokens"]):
+        raise ValueError("Rangareddy District project header changed")
+    if not edition["requiredTokens"] and first_page:
+        raise ValueError("Rangareddy scanned project notice extraction basis changed")
+    if doc.get("publicationDate") != edition["stageDate"]:
+        raise ValueError("Rangareddy District project notice date changed")
+    return [
+        {
+            "id": f"{doc['sha256']}:p1:project-header",
+            "stateCode": "36",
+            "financialYear": edition["financialYear"],
+            "district": "Rangareddy",
+            "districtAreaId": "rangareddy-district",
+            "title": edition["title"],
+            "sourceProjectId": edition["sourceProjectId"],
+            "officialIds": edition["officialIds"],
+            "projectIdBasis": "official_gazette_or_notice_identifiers",
+            "purpose": edition["purpose"],
+            "stage": edition["stage"],
+            "stageDate": edition["stageDate"],
+            "stageDateBasis": "printed_notice_or_gazette_date",
+            "publishingAuthority": "District Collector, Rangareddy",
+            "mandals": edition["mandals"],
+            "villages": edition["villages"],
+            "sourceExtent": edition["sourceExtent"],
+            "location": None,
+            "locationPrecision": "district",
+            "projectCostRupees": None,
+            "contractAmountRupees": None,
+            "paymentAmountRupees": None,
+            "completionDate": None,
+            "sourceDocumentContainsAffectedPartyRecords": True,
+            "reviewStatus": "awaiting_review",
+            "publicationApproved": False,
+            "source": reference(
+                doc,
+                "Original PDF page 1 project header and notice identifiers only; affected-party schedule deliberately excluded",
+            ),
+            "notes": "The official land-acquisition document establishes project identity, named district geography and an acquisition-stage notice only. It does not establish financial sanction, total project cost, contract award, expenditure, payment, progress, completion or a precise map point. The original may contain affected-party records and must remain private; no names or parcel-level schedule data are normalized.",
+        }
+    ]
+
+
 def assam_sector_expenditure(doc, extraction):
     facts = []
     account = None
@@ -1144,6 +1257,7 @@ def main():
             facts += telangana_maud_hyderabad_budget(doc, extraction)
             facts += telangana_maud_hyderabad_capital_loans(doc, extraction)
             projects += hyderabad_district_land_acquisition_projects(doc, extraction)
+            projects += rangareddy_district_land_acquisition_projects(doc, extraction)
             facts += additional_budget_records(doc, extraction)
             facts += remaining_budget_records(doc, extraction)
             facts += ap_programmes(doc, extraction)

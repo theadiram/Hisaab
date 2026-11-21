@@ -17,6 +17,7 @@ from state_development_normalize import (
     telangana_maud_hyderabad_capital_loans,
     hmda_financial_expenditure,
     hyderabad_district_land_acquisition_projects,
+    rangareddy_district_land_acquisition_projects,
     monthly_budget_context,
 )
 from state_development_budget_tables import (
@@ -1520,6 +1521,63 @@ class StateEvidenceRules(unittest.TestCase):
                 },
                 {"tables": []},
             )
+
+    def test_rangareddy_notices_extract_only_project_headers(self):
+        editions = [
+            (
+                "rangareddy-himayathsagar-dargah-khaliz-khan-form-vii-2026",
+                "12f51f19751c7cc6afcff08c52fd2416147611e6e05b9f190bb262924b651dd5",
+                "2026-07-13",
+                6,
+                "GAZETTE NO.110 DATED: 13.07.2026 FORM VII Himayathsagar Bund Improvement & Eco Dargah Khaliz Khan",
+            ),
+            (
+                "rangareddy-greenfield-radial-road-form-vii-2026",
+                "5ebbda57de7c60ef4e94b70b25bab46dd50e3e45de0b1871460c2baee3764560",
+                "2026-09-17",
+                3,
+                "",
+            ),
+            (
+                "rangareddy-mamidipally-airport-road-form-c-2025",
+                "ce9b2711a577ecfed9f3d5787ed3cab9c7b4d20d3456149cc7fdac89fa8d946e",
+                "2025-10-11",
+                4,
+                "Gazette RR No. 30 11th, October, 2025 FORM-C New External Road from Sy.No.99/1 to Airport Mamidipally",
+            ),
+        ]
+        records = []
+        for source_id, source_hash, publication_date, page_count, header in editions:
+            doc = {
+                "sourceId": source_id,
+                "stateCode": "36",
+                "sha256": source_hash,
+                "url": "https://cdn.s3waas.gov.in/example.pdf",
+                "retrievedAt": "2026-11-21T00:00:00Z",
+                "publicationDate": publication_date,
+            }
+            extraction = {
+                "pages": [
+                    {"page": page, "lines": [{"line": 1, "text": header}] if page == 1 else []}
+                    for page in range(1, page_count + 1)
+                ]
+            }
+            records += rangareddy_district_land_acquisition_projects(doc, extraction)
+        self.assertEqual(len(records), 3)
+        self.assertEqual({record["district"] for record in records}, {"Rangareddy"})
+        self.assertEqual(
+            {record["financialYear"] for record in records}, {"2025-2026", "2026-2027"}
+        )
+        self.assertTrue(
+            all(record["sourceDocumentContainsAffectedPartyRecords"] for record in records)
+        )
+        self.assertTrue(all(record["projectCostRupees"] is None for record in records))
+        self.assertTrue(all(record["paymentAmountRupees"] is None for record in records))
+        self.assertTrue(all(not record["publicationApproved"] for record in records))
+        self.assertEqual(
+            records[1]["sourceExtent"],
+            "18.5 km project length; Ac.5.29 Gts and Ac.0.17 Gts acquisition extents",
+        )
 
 
 if __name__ == "__main__":
